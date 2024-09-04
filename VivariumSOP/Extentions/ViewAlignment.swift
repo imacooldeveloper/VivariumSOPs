@@ -52,3 +52,15 @@ extension View{
             }
     }
 }
+struct FullScreenModalStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
+                .edgesIgnoringSafeArea(.all)
+        } else {
+            content
+        }
+    }
+}

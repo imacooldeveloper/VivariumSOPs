@@ -72,7 +72,7 @@ struct VivariumSOPApp: App {
       @AppStorage("account_Type") var userAccountType: String = ""
       @StateObject var service = SOPService()
       @StateObject var navigationHandler = NavigationHandler()
-
+    @StateObject var sharedViewModel = PDFCategoryViewModel()
       init() {
           FirebaseApp.configure()
       }
@@ -83,6 +83,7 @@ struct VivariumSOPApp: App {
                   MainTabBarView()
                       .environmentObject(navigationHandler)
                       .environmentObject(service)
+                      .environmentObject(sharedViewModel)
                       .onAppear {
                           Task {
                              // await NotificationsManager.shared.requestPermission()

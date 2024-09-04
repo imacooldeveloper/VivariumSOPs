@@ -8,11 +8,68 @@
 import SwiftUI
 
 struct QuizListView: View {
+    @ObservedObject var viewModel: QuizListViewModel
+    @State private var showingEditQuizView = false
+    @State private var selectedQuiz: Quiz?
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        List {
+            ForEach(viewModel.quizzes) { quiz in
+                QuizRowView(quiz: quiz)
+                    .onTapGesture {
+                        selectedQuiz = quiz
+                        showingEditQuizView = true
+                    }
+            }
+        }
+        .navigationTitle("Quizzes")
+        .sheet(isPresented: $showingEditQuizView) {
+            if let quizToEdit = selectedQuiz {
+                EditQuizView(viewModel: EditQuizViewModel(quiz: quizToEdit))
+            }
+        }
+        .onChange(of: showingEditQuizView) { newValue in
+            if newValue == false {
+                viewModel.fetchQuizzes()
+            }
+        }
     }
 }
 
-#Preview {
-    QuizListView()
+struct QuizRowView: View {
+    let quiz: Quiz
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(quiz.info.title)
+                .font(.headline)
+            Text(quiz.quizCategory)
+                .font(.subheadline)
+            Text("Due: \(quiz.dueDate?.formatted() ?? "No due date")")
+                .font(.caption)
+        }
+    }
+}
+
+class QuizListViewModel: ObservableObject {
+    @Published var quizzes: [Quiz] = []
+    
+    private let quizManager = QuizManager.shared
+    
+    init() {
+        fetchQuizzes()
+    }
+    
+    func fetchQuizzes() {
+        Task {
+            do {
+                let fetchedQuizzes = try await quizManager.getAllQuizzes()
+                await MainActor.run {
+                    self.quizzes = fetchedQuizzes
+                }
+            } catch {
+                print("Error fetching quizzes: \(error)")
+            }
+        }
+    }
 }

@@ -146,191 +146,119 @@ import UniformTypeIdentifiers
 import PDFKit
 
 struct PDFUploadView: View {
-    @StateObject private var storageManager = PDFStorageManager.shared
-    @StateObject private var viewModel = PDFCategoryViewModel()
+    @ObservedObject var viewModel: PDFCategoryViewModel
+    @Environment(\.presentationMode) var presentationMode
     @State private var selectedPDFs: [URL] = []
     @State private var showFileImporter = false
     @State private var selectedFolder = "Husbandry"
     @State private var sopForStaffTitle = "Standard Husbandry"
-    @State private var showingEditView = false
-    @State private var selectedCategory: PDFCategory?
     @State private var isUploading = false
-    @State private var uploadError: String?
     @State private var showAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var isSuccess = false
-    @State private var isAddingNew = false
-
-    let folders = ["Husbandry", "Vet Services", "Testing"]
-    let columns = [GridItem(.adaptive(minimum: 150))]
+    
+    let folders = ["Husbandry", "Vet Services"]
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack {
-                    Picker("Select Folder", selection: $selectedFolder) {
-                        ForEach(folders, id: \.self) { folder in
-                            Text(folder).tag(folder)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding()
-                    
-                    if isAddingNew {
-                        TextField("SOP For Staff Title", text: $sopForStaffTitle)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
-                        
-                        List {
-                            ForEach(selectedPDFs, id: \.self) { url in
-                                Text(url.lastPathComponent)
-                            }
-                            .onDelete(perform: deletePDFs)
-                        }
-                        .frame(height: 200)
-                        
-                        Button("Select PDFs") {
-                            showFileImporter = true
-                        }
-                        .padding()
-                        
-                        Button("Upload PDFs") {
-                            uploadPDFs()
-                        }
-                        .padding()
-                        .disabled(selectedPDFs.isEmpty)
-                    }
-                    
-                    if storageManager.isUploading {
-                        ProgressView("Uploading...", value: storageManager.uploadProgress, total: 1.0)
-                            .padding()
-                    }
-                    
-                    Text("PDF Categories")
-                        .font(.headline)
-                        .padding()
-                    
-                    LazyVGrid(columns: columns, spacing: 20) {
-                        ForEach(viewModel.pdfCategories) { category in
-                            CategoryItemView(category: category)
-                                .onTapGesture {
-                                    selectedCategory = category
-                                    showingEditView = true
-                                }
-                        }
-                    }
-                    .padding()
-                }
-
-                if let error = uploadError {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .padding()
-                }
-            }
-            .navigationTitle("PDF Upload and Management")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(isAddingNew ? "Cancel" : "Add New") {
-                        isAddingNew.toggle()
-                        if !isAddingNew {
-                            selectedPDFs = []
-                            sopForStaffTitle = "Standard Husbandry"
-                        }
+            Form {
+                Picker("Select Folder", selection: $selectedFolder) {
+                    ForEach(folders, id: \.self) { folder in
+                        Text(folder).tag(folder)
                     }
                 }
+                
+                TextField("SOP For Staff Title", text: $sopForStaffTitle)
+                
+                Section(header: Text("Selected PDFs")) {
+                    ForEach(selectedPDFs, id: \.self) { url in
+                        Text(url.lastPathComponent)
+                    }
+                    .onDelete(perform: deletePDFs)
+                }
+                
+                Button("Select PDFs") {
+                    showFileImporter = true
+                }
+                
+                Button("Upload PDFs") {
+                    uploadPDFs()
+                }
+                .disabled(selectedPDFs.isEmpty)
             }
-            .onAppear {
-                viewModel.fetchPDFCategories()
-            }
+            .navigationTitle("Add New PDFs")
+            .navigationBarItems(trailing: Button("Done") {
+                presentationMode.wrappedValue.dismiss()
+            })
             .fileImporter(
                 isPresented: $showFileImporter,
-                allowedContentTypes: [UTType.pdf],
+                allowedContentTypes: [.pdf],
                 allowsMultipleSelection: true
             ) { result in
                 handleFileImport(result)
             }
-            .sheet(isPresented: $showingEditView) {
-                if let category = selectedCategory {
-                    EditCategoryView(viewModel: viewModel, category: category)
-                }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text(alertTitle),
+                      message: Text(alertMessage),
+                      dismissButton: .default(Text("OK")) {
+                          if isSuccess {
+                              presentationMode.wrappedValue.dismiss()
+                          }
+                      })
             }
-            .overlay(
-                Group {
-                    if showAlert {
-                        Color.black.opacity(0.4)
-                            .edgesIgnoringSafeArea(.all)
-                            .overlay(
-                                CustomAlertView(
-                                    title: alertTitle,
-                                    message: alertMessage,
-                                    isSuccess: isSuccess,
-                                    dismissAction: { showAlert = false }
-                                )
-                            )
-                    }
-                }
-            )
         }
     }
-
-    func deletePDFs(at offsets: IndexSet) {
-        selectedPDFs.remove(atOffsets: offsets)
-    }
-
-    func handleFileImport(_ result: Result<[URL], Error>) {
+    
+    private func handleFileImport(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             selectedPDFs.append(contentsOf: urls)
-            showSuccessAlert(message: "PDFs selected successfully")
         case .failure(let error):
-            showErrorAlert(message: "Error selecting PDFs: \(error.localizedDescription)")
+            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
         }
     }
-
-    func uploadPDFs() {
+    
+    private func deletePDFs(at offsets: IndexSet) {
+        selectedPDFs.remove(atOffsets: offsets)
+    }
+    
+    private func uploadPDFs() {
         isUploading = true
-        uploadError = nil
-
+        
         Task {
             do {
                 for url in selectedPDFs {
-                    guard let data = try? Data(contentsOf: url) else { continue }
-                    let filename = url.lastPathComponent
+                    let data = try Data(contentsOf: url)
+                    let pdfName = url.deletingPathExtension().lastPathComponent
                     
-                    var pdfCategory = PDFCategory(
+                    let pdfCategory = PDFCategory(
+                        id: UUID().uuidString,
                         nameOfCategory: selectedFolder,
                         SOPForStaffTittle: sopForStaffTitle,
-                        pdfName: filename.replacingOccurrences(of: ".pdf", with: "")
+                        pdfName: pdfName
                     )
                     
-                    let downloadURL = try await storageManager.uploadPDF(data: data, category: pdfCategory)
-                    pdfCategory.pdfURL = downloadURL
-                    try await viewModel.updatePDFCategory(pdfCategory)
+                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
                 }
-                await viewModel.fetchPDFCategories()
-                showSuccessAlert(message: "All PDFs uploaded successfully")
-                isAddingNew = false
-                selectedPDFs = []
+                
+                await MainActor.run {
+                    isUploading = false
+                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+                }
             } catch {
-                showErrorAlert(message: "Error uploading PDFs: \(error.localizedDescription)")
+                await MainActor.run {
+                    isUploading = false
+                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+                }
             }
-            isUploading = false
         }
     }
-
-    func showSuccessAlert(message: String) {
-        alertTitle = "Success"
+    
+    private func showAlert(title: String, message: String, isSuccess: Bool) {
+        alertTitle = title
         alertMessage = message
-        isSuccess = true
-        showAlert = true
-    }
-
-    func showErrorAlert(message: String) {
-        alertTitle = "Error"
-        alertMessage = message
-        isSuccess = false
+        self.isSuccess = isSuccess
         showAlert = true
     }
 }
@@ -430,53 +358,45 @@ struct EditCategoryView: View {
     @State private var selectedPDF: URL?
     @State private var pdfDocument: PDFKit.PDFDocument?
     @State private var isUploading = false
-    @State private var errorMessage: String?
     @State private var showAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var isSuccess = false
-    
+    @State private var showingSaveConfirmation = false
+
     init(viewModel: PDFCategoryViewModel, category: PDFCategory) {
         self.viewModel = viewModel
         _editedCategory = State(initialValue: category)
+        _pdfDocument = State(initialValue: PDFKit.PDFDocument(url: URL(string: category.pdfURL ?? "")!))
     }
-    
+
     var body: some View {
-        NavigationView {
-            Form {
-                // ... (existing form content)
+        Form {
+            Section(header: Text("Category Details")) {
+                TextField("Name of Category", text: $editedCategory.nameOfCategory)
+                TextField("SOP For Staff Title", text: $editedCategory.SOPForStaffTittle)
+                TextField("PDF Name", text: $editedCategory.pdfName)
             }
-            .navigationTitle("Edit Category")
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button("Save") {
-                    saveCategory()
+
+            Section(header: Text("PDF Preview")) {
+                PDFPreviewView(pdfDocument: pdfDocument, pdfURL: editedCategory.pdfURL)
+                    .frame(height: 300)
+
+                Button("Change PDF") {
+                    showingPDFPicker = true
                 }
-            )
-            .overlay(
-                Group {
-                    if showAlert {
-                        Color.black.opacity(0.4)
-                            .edgesIgnoringSafeArea(.all)
-                            .overlay(
-                                CustomAlertView(
-                                    title: alertTitle,
-                                    message: alertMessage,
-                                    isSuccess: isSuccess,
-                                    dismissAction: {
-                                        showAlert = false
-                                        if isSuccess {
-                                            presentationMode.wrappedValue.dismiss()
-                                        }
-                                    }
-                                )
-                            )
-                    }
+            }
+
+            if isUploading {
+                Section {
+                    ProgressView("Uploading...")
                 }
-            )
+            }
         }
+        .navigationTitle("Edit Category")
+        .navigationBarItems(trailing: Button("Save") {
+            showingSaveConfirmation = true
+        })
         .fileImporter(
             isPresented: $showingPDFPicker,
             allowedContentTypes: [.pdf],
@@ -484,8 +404,27 @@ struct EditCategoryView: View {
         ) { result in
             handlePDFSelection(result)
         }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")) {
+                if isSuccess {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            })
+        }
+        .actionSheet(isPresented: $showingSaveConfirmation) {
+            ActionSheet(
+                title: Text("Save Changes"),
+                message: Text("Are you sure you want to save these changes?"),
+                buttons: [
+                    .default(Text("Save")) {
+                        saveCategory()
+                    },
+                    .cancel()
+                ]
+            )
+        }
     }
-    
+
     private func handlePDFSelection(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
@@ -503,14 +442,14 @@ struct EditCategoryView: View {
             showErrorAlert(message: "Error selecting PDF: \(error.localizedDescription)")
         }
     }
-    
+
     private func saveCategory() {
         isUploading = true
-        
+
         Task {
             do {
                 let originalCategory = viewModel.pdfCategories.first(where: { $0.id == editedCategory.id })
-                
+
                 if editedCategory.nameOfCategory != originalCategory?.nameOfCategory {
                     if let pdfURL = editedCategory.pdfURL, let url = URL(string: pdfURL) {
                         let pdfData = try Data(contentsOf: url)
@@ -519,16 +458,16 @@ struct EditCategoryView: View {
                         editedCategory.pdfURL = newURL
                     }
                 }
-                
+
                 if let selectedPDF = selectedPDF {
                     let pdfData = try Data(contentsOf: selectedPDF)
                     let storageManager = PDFStorageManager.shared
                     let url = try await storageManager.uploadPDF(data: pdfData, category: editedCategory)
                     editedCategory.pdfURL = url
                 }
-                
+
                 try await viewModel.updatePDFCategory(editedCategory)
-                
+
                 await MainActor.run {
                     isUploading = false
                     showSuccessAlert(message: "Category updated successfully")
@@ -541,14 +480,14 @@ struct EditCategoryView: View {
             }
         }
     }
-    
+
     func showSuccessAlert(message: String) {
         alertTitle = "Success"
         alertMessage = message
         isSuccess = true
         showAlert = true
     }
-    
+
     func showErrorAlert(message: String) {
         alertTitle = "Error"
         alertMessage = message

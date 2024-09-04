@@ -7,20 +7,29 @@
 
 import SwiftUI
 
+
 struct MainTabBarView: View {
     var body: some View {
-        NavigationStack{
+        TabView {
+            NavigationStack {
+                PDFCategoryListView()
+                    .navigationTitle("Upload PDFs")
+            }
+            .tabItem {
+                Label("Upload", systemImage: "arrow.up.doc.fill")
+            }
             
-          //  PDFUploadView()
-            PDFCategoryListView()
-               .navigationTitle("Upload PDFs")
+            NavigationStack {
+                QuizListView(viewModel: QuizListViewModel())
+                    .navigationTitle("Quizzes")
+            }
+            .tabItem {
+                Label("Quizzes", systemImage: "list.bullet.clipboard.fill")
+            }
         }
     }
 }
 
-#Preview {
-    MainTabBarView()
-}
 class NavigationHandler: ObservableObject {
     @Published var path = NavigationPath()
     @Published var selectedQuizWithScore: QuizWithScore?

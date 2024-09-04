@@ -46,6 +46,11 @@
 		5B5B22542C86C1240043C3B4 /* PDFCategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22532C86C1240043C3B4 /* PDFCategoryViewModel.swift */; };
 		5B5B22572C86D9680043C3B4 /* PDFCategoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22562C86D9680043C3B4 /* PDFCategoryListView.swift */; };
 		5B5B22592C86E1F30043C3B4 /* CustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22582C86E1F30043C3B4 /* CustomAlertView.swift */; };
+		5B5B225C2C8801380043C3B4 /* CreateQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B225B2C8801380043C3B4 /* CreateQuizView.swift */; };
+		5B5B225F2C88020B0043C3B4 /* CreateQuizViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B225E2C88020B0043C3B4 /* CreateQuizViewModel.swift */; };
+		5B5B22612C88024E0043C3B4 /* QuizManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22602C88024E0043C3B4 /* QuizManager.swift */; };
+		5B5B22632C8810130043C3B4 /* EditQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22622C8810130043C3B4 /* EditQuizView.swift */; };
+		5B5B22662C8811B50043C3B4 /* QuizListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22652C8811B50043C3B4 /* QuizListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,6 +102,11 @@
 		5B5B22532C86C1240043C3B4 /* PDFCategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFCategoryViewModel.swift; sourceTree = "<group>"; };
 		5B5B22562C86D9680043C3B4 /* PDFCategoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFCategoryListView.swift; sourceTree = "<group>"; };
 		5B5B22582C86E1F30043C3B4 /* CustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertView.swift; sourceTree = "<group>"; };
+		5B5B225B2C8801380043C3B4 /* CreateQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateQuizView.swift; sourceTree = "<group>"; };
+		5B5B225E2C88020B0043C3B4 /* CreateQuizViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateQuizViewModel.swift; sourceTree = "<group>"; };
+		5B5B22602C88024E0043C3B4 /* QuizManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizManager.swift; sourceTree = "<group>"; };
+		5B5B22622C8810130043C3B4 /* EditQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditQuizView.swift; sourceTree = "<group>"; };
+		5B5B22652C8811B50043C3B4 /* QuizListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +169,7 @@
 		5B5B21AB2C8691F50043C3B4 /* VivariumSOP */ = {
 			isa = PBXGroup;
 			children = (
+				5B5B225A2C8801190043C3B4 /* CreateQuiz */,
 				5B5B22512C86C1060043C3B4 /* PDFCategory */,
 				5B5B224C2C86AF9B0043C3B4 /* UploadPDfView */,
 				5B5B22432C86A3350043C3B4 /* Home */,
@@ -264,6 +275,7 @@
 			children = (
 				5B5B22372C86A0860043C3B4 /* UserManager.swift */,
 				5B5B224A2C86AF860043C3B4 /* PDFSTorageManager.swift */,
+				5B5B22602C88024E0043C3B4 /* QuizManager.swift */,
 			);
 			path = Firestore;
 			sourceTree = "<group>";
@@ -315,6 +327,33 @@
 				5B5B22562C86D9680043C3B4 /* PDFCategoryListView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		5B5B225A2C8801190043C3B4 /* CreateQuiz */ = {
+			isa = PBXGroup;
+			children = (
+				5B5B22642C8811A60043C3B4 /* QuizList */,
+				5B5B225D2C8801F00043C3B4 /* ViewModel */,
+				5B5B225B2C8801380043C3B4 /* CreateQuizView.swift */,
+				5B5B22622C8810130043C3B4 /* EditQuizView.swift */,
+			);
+			path = CreateQuiz;
+			sourceTree = "<group>";
+		};
+		5B5B225D2C8801F00043C3B4 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				5B5B225E2C88020B0043C3B4 /* CreateQuizViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		5B5B22642C8811A60043C3B4 /* QuizList */ = {
+			isa = PBXGroup;
+			children = (
+				5B5B22652C8811B50043C3B4 /* QuizListView.swift */,
+			);
+			path = QuizList;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -469,18 +508,23 @@
 				5B5B22492C86A38C0043C3B4 /* SOPService.swift in Sources */,
 				5B5B22382C86A0860043C3B4 /* UserManager.swift in Sources */,
 				5B5B22032C8696150043C3B4 /* RegisterUserView.swift in Sources */,
+				5B5B22632C8810130043C3B4 /* EditQuizView.swift in Sources */,
 				5B5B22572C86D9680043C3B4 /* PDFCategoryListView.swift in Sources */,
 				5B5B21AF2C8691F50043C3B4 /* ContentView.swift in Sources */,
+				5B5B225C2C8801380043C3B4 /* CreateQuizView.swift in Sources */,
 				5B5B22332C8698DD0043C3B4 /* PasswordTextField.swift in Sources */,
 				5B5B22312C8698AC0043C3B4 /* ViewAlignment.swift in Sources */,
 				5B5B22352C869C1E0043C3B4 /* LogInViewModel.swift in Sources */,
 				5B5B22502C86BEC00043C3B4 /* PDFDocument.swift in Sources */,
+				5B5B22662C8811B50043C3B4 /* QuizListView.swift in Sources */,
 				5B5B21AD2C8691F50043C3B4 /* VivariumSOPApp.swift in Sources */,
 				5B5B223C2C86A0F80043C3B4 /* Quiz.swift in Sources */,
 				5B5B224E2C86AFAC0043C3B4 /* PDFUploadView.swift in Sources */,
 				5B5B223A2C86A0AA0043C3B4 /* Querry.swift in Sources */,
 				5B5B22452C86A34A0043C3B4 /* MainTabBarView.swift in Sources */,
 				5B5B22402C86A1290043C3B4 /* Category.swift in Sources */,
+				5B5B22612C88024E0043C3B4 /* QuizManager.swift in Sources */,
+				5B5B225F2C88020B0043C3B4 /* CreateQuizViewModel.swift in Sources */,
 				5B5B22592C86E1F30043C3B4 /* CustomAlertView.swift in Sources */,
 				5B5B22542C86C1240043C3B4 /* PDFCategoryViewModel.swift in Sources */,
 				5B5B224B2C86AF860043C3B4 /* PDFSTorageManager.swift in Sources */,
