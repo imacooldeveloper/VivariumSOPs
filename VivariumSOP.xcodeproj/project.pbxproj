@@ -107,6 +107,7 @@
 		5B5B22602C88024E0043C3B4 /* QuizManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizManager.swift; sourceTree = "<group>"; };
 		5B5B22622C8810130043C3B4 /* EditQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditQuizView.swift; sourceTree = "<group>"; };
 		5B5B22652C8811B50043C3B4 /* QuizListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizListView.swift; sourceTree = "<group>"; };
+		5BA352382C8B2ACA004FFB8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +170,7 @@
 		5B5B21AB2C8691F50043C3B4 /* VivariumSOP */ = {
 			isa = PBXGroup;
 			children = (
+				5BA352382C8B2ACA004FFB8E /* Info.plist */,
 				5B5B225A2C8801190043C3B4 /* CreateQuiz */,
 				5B5B22512C86C1060043C3B4 /* PDFCategory */,
 				5B5B224C2C86AF9B0043C3B4 /* UploadPDfView */,
@@ -694,7 +696,10 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VivariumSOP/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VivariumSOP;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "$(MARKETING_VERSION)";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -733,7 +738,10 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VivariumSOP/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VivariumSOP;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "$(MARKETING_VERSION)";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -14,7 +14,7 @@ struct EditQuizView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingAddQuestion = false
     @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
-
+   
     var body: some View {
         NavigationView {
             Form {
@@ -78,6 +78,7 @@ struct EditQuizView: View {
         Task {
             do {
                 try await viewModel.updateQuiz()
+            
                 presentationMode.wrappedValue.dismiss()
             } catch {
                 print("Error updating quiz: \(error)")

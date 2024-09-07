@@ -210,6 +210,7 @@ struct AddQuestionView: View {
                 Section(header: Text("Options")) {
                     ForEach(0..<4) { index in
                         TextField("Option \(index + 1)", text: $question.options[index])
+                            
                     }
                 }
                 

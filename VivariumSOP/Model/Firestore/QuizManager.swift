@@ -258,6 +258,12 @@ class QuizManager {
                 ])
             }
         }
+    
+    
+    func deleteQuiz(_ quiz: Quiz) async throws {
+        let quizRef = db.collection("Quiz").document(quiz.id)
+        try await quizRef.delete()
+    }
         
 }
 enum AccountType: String, CaseIterable {

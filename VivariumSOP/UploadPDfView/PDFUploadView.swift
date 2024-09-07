@@ -144,7 +144,185 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 import PDFKit
-
+/// working
+//struct PDFUploadView: View {
+//    @ObservedObject var viewModel: PDFCategoryViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var selectedPDFs: [URL] = []
+//    @State private var showFileImporter = false
+//    @State private var selectedFolder = "Husbandry"
+//    @State private var sopForStaffTitle = "Standard Husbandry"
+//    @State private var isUploading = false
+//    @State private var showAlert = false
+//    @State private var alertTitle = ""
+//    @State private var alertMessage = ""
+//    @State private var isSuccess = false
+//    @State private var selectedSOPType: String = "Standard Husbandry"
+//    @State private var customSOPTitle: String = ""
+//      @State private var isCustomSOP: Bool = false
+//    
+//    let folders = ["Husbandry", "Vet Services"]
+//    
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Picker("Select Folder", selection: $selectedFolder) {
+//                    ForEach(folders, id: \.self) { folder in
+//                        Text(folder).tag(folder)
+//                    }
+//                }
+//                Section(header: Text("SOP Type")) {
+//                                  ScrollView(.horizontal, showsIndicators: false) {
+//                                      HStack {
+//                                          ForEach(viewModel.predefinedSOPTypes + ["Custom"], id: \.self) { sopType in
+//                                              Button(action: {
+//                                                  selectedSOPType = sopType
+//                                                  isCustomSOP = (sopType == "Custom")
+//                                                  if !isCustomSOP {
+//                                                      customSOPTitle = ""
+//                                                  }
+//                                              }) {
+//                                                  Text(sopType)
+//                                                      .padding(.horizontal, 12)
+//                                                      .padding(.vertical, 8)
+//                                                      .background(selectedSOPType == sopType ? Color.blue : Color.gray.opacity(0.2))
+//                                                      .foregroundColor(selectedSOPType == sopType ? .white : .primary)
+//                                                      .cornerRadius(8)
+//                                              }
+//                                          }
+//                                      }
+//                                      .padding(.vertical, 8)
+//                                  }
+//                              }
+//
+//                              if isCustomSOP {
+//                                  Section(header: Text("Custom SOP Title")) {
+//                                      TextField("Enter custom SOP title", text: $customSOPTitle)
+//                                  }
+//                              }
+//                
+//                if !isCustomSOP{
+//                    
+//                    Section(header: Text("SOP Title")) {
+//                        VStack {
+//                            
+//                            Text(isCustomSOP ? customSOPTitle.isEmpty ? "Custom (Not specified)" : customSOPTitle : selectedSOPType)
+//                                .font(.subheadline)
+//                                .foregroundColor(.black)
+//                        }
+//                    }
+//                }
+//                // Loading bar
+//                           if viewModel.isUploading {
+//                               VStack {
+//                                   Text("Uploading: \(viewModel.currentUploadingPDF)")
+//                                       .font(.caption)
+//                                   ProgressView(value: viewModel.uploadProgress, total: 1.0)
+//                                       .progressViewStyle(LinearProgressViewStyle())
+//                                   Text("\(Int(viewModel.uploadProgress * 100))%")
+//                                       .font(.caption)
+//                               }
+//                               .padding()
+//                           }
+//                
+////                          .padding()
+////                          .background(Color.gray.opacity(0.1))
+////                          .cornerRadius(10)
+////                          .padding()
+//                //TextField("SOP For Staff Title", text: $sopForStaffTitle)
+//                
+//                Section(header: Text("Selected PDFs")) {
+//                    ForEach(selectedPDFs, id: \.self) { url in
+//                        Text(url.lastPathComponent)
+//                    }
+//                    .onDelete(perform: deletePDFs)
+//                }
+//                
+//                Button("Select PDFs") {
+//                    showFileImporter = true
+//                }
+//                
+//                Button("Upload PDFs") {
+//                    uploadPDFs()
+//                }
+//                .disabled(viewModel.isUploading)
+//                //.disabled(selectedPDFs.isEmpty)
+//            }
+//            .navigationTitle("Add New PDFs")
+//            .navigationBarItems(trailing: Button("Done") {
+//                presentationMode.wrappedValue.dismiss()
+//            })
+//            .fileImporter(
+//                isPresented: $showFileImporter,
+//                allowedContentTypes: [.pdf],
+//                allowsMultipleSelection: true
+//            ) { result in
+//                handleFileImport(result)
+//            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(title: Text(alertTitle),
+//                      message: Text(alertMessage),
+//                      dismissButton: .default(Text("OK")) {
+//                          if isSuccess {
+//                              presentationMode.wrappedValue.dismiss()
+//                          }
+//                      })
+//            }
+//        }
+//    }
+//    
+//    private func handleFileImport(_ result: Result<[URL], Error>) {
+//        switch result {
+//        case .success(let urls):
+//            selectedPDFs.append(contentsOf: urls)
+//        case .failure(let error):
+//            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+//        }
+//    }
+//    
+//    private func deletePDFs(at offsets: IndexSet) {
+//        selectedPDFs.remove(atOffsets: offsets)
+//    }
+//    
+//    private func uploadPDFs() {
+//        isUploading = true
+//        
+//        Task {
+//            do {
+//                for url in selectedPDFs {
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName
+//                    )
+//                    
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func showAlert(title: String, message: String, isSuccess: Bool) {
+//        alertTitle = title
+//        alertMessage = message
+//        self.isSuccess = isSuccess
+//        showAlert = true
+//    }
+//}
 struct PDFUploadView: View {
     @ObservedObject var viewModel: PDFCategoryViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -157,6 +335,8 @@ struct PDFUploadView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var isSuccess = false
+    @State private var currentUploadingPDF = ""
+    @State private var uploadProgress: Double = 0
     
     let folders = ["Husbandry", "Vet Services"]
     
@@ -207,6 +387,37 @@ struct PDFUploadView: View {
                           }
                       })
             }
+            .overlay(
+                Group {
+                    if isUploading {
+                        VStack {
+                            Text(currentUploadingPDF)
+                                .font(.headline)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(height: 20)
+                                    Rectangle()
+                                        .fill(Color.blue)
+                                        .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+                                }
+                                .cornerRadius(10)
+                            }
+                            .frame(height: 20)
+                            Text("\(Int(uploadProgress * 100))%")
+                                .font(.headline)
+                        }
+                        .padding()
+                        .frame(width: 300, height: 150)
+                        .background(Color.white)
+                        .cornerRadius(20)
+                        .shadow(radius: 10)
+                    }
+                }
+            )
         }
     }
     
@@ -225,10 +436,11 @@ struct PDFUploadView: View {
     
     private func uploadPDFs() {
         isUploading = true
+        uploadProgress = 0
         
         Task {
             do {
-                for url in selectedPDFs {
+                for (index, url) in selectedPDFs.enumerated() {
                     let data = try Data(contentsOf: url)
                     let pdfName = url.deletingPathExtension().lastPathComponent
                     
@@ -239,7 +451,16 @@ struct PDFUploadView: View {
                         pdfName: pdfName
                     )
                     
+                    await MainActor.run {
+                        currentUploadingPDF = pdfName
+                    }
+                    
                     try await viewModel.uploadPDF(data: data, category: pdfCategory)
+                    
+                    // Update progress after each PDF upload
+                    await MainActor.run {
+                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+                    }
                 }
                 
                 await MainActor.run {
@@ -262,6 +483,63 @@ struct PDFUploadView: View {
         showAlert = true
     }
 }
+struct UploadProgressView: View {
+    let progress: Double
+    let currentPDF: String
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            Text(currentPDF)
+                .font(.headline)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: geometry.size.width, height: 20)
+                    
+                    Rectangle()
+                        .fill(LinearGradient(gradient: Gradient(colors: [.blue, .green]), startPoint: .leading, endPoint: .trailing))
+                        .frame(width: geometry.size.width * CGFloat(progress), height: 20)
+                }
+                .cornerRadius(10)
+            }
+            .frame(height: 20)
+            
+            Text("\(Int(progress * 100))%")
+                .font(.subheadline)
+                .bold()
+        }
+        .padding()
+        .frame(width: 250)
+        .background(Color.white)
+        .cornerRadius(15)
+        .shadow(radius: 10)
+    }
+}
+struct UploadSummaryView: View {
+    let uploadedPDFs: [String]
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(uploadedPDFs, id: \.self) { pdf in
+                    Text(pdf)
+                }
+            }
+            .navigationTitle("Uploaded PDFs")
+            .navigationBarItems(trailing: Button("Done") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+
+
 
 struct CategoryItemView: View {
     let category: PDFCategory
@@ -363,6 +641,10 @@ struct EditCategoryView: View {
     @State private var alertMessage = ""
     @State private var isSuccess = false
     @State private var showingSaveConfirmation = false
+    
+    
+    @State private var customSOPTitle: String = ""
+      @State private var isCustomSOP: Bool = false
 
     init(viewModel: PDFCategoryViewModel, category: PDFCategory) {
         self.viewModel = viewModel
@@ -620,3 +902,4 @@ struct PDFKitView: UIViewRepresentable {
 //           }
 //    }
 //}
+
