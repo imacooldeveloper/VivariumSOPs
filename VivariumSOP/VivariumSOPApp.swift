@@ -91,7 +91,7 @@ struct VivariumSOPApp: App {
                           }
                       }
               } else {
-                  RegisterUserView()
+                  LoginView()
               }
           }
       }

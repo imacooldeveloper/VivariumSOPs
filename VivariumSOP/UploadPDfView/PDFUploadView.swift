@@ -144,7 +144,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 import PDFKit
-/// working
+/// workingg
 //struct PDFUploadView: View {
 //    @ObservedObject var viewModel: PDFCategoryViewModel
 //    @Environment(\.presentationMode) var presentationMode
@@ -157,9 +157,8 @@ import PDFKit
 //    @State private var alertTitle = ""
 //    @State private var alertMessage = ""
 //    @State private var isSuccess = false
-//    @State private var selectedSOPType: String = "Standard Husbandry"
-//    @State private var customSOPTitle: String = ""
-//      @State private var isCustomSOP: Bool = false
+//    @State private var currentUploadingPDF = ""
+//    @State private var uploadProgress: Double = 0
 //    
 //    let folders = ["Husbandry", "Vet Services"]
 //    
@@ -171,65 +170,8 @@ import PDFKit
 //                        Text(folder).tag(folder)
 //                    }
 //                }
-//                Section(header: Text("SOP Type")) {
-//                                  ScrollView(.horizontal, showsIndicators: false) {
-//                                      HStack {
-//                                          ForEach(viewModel.predefinedSOPTypes + ["Custom"], id: \.self) { sopType in
-//                                              Button(action: {
-//                                                  selectedSOPType = sopType
-//                                                  isCustomSOP = (sopType == "Custom")
-//                                                  if !isCustomSOP {
-//                                                      customSOPTitle = ""
-//                                                  }
-//                                              }) {
-//                                                  Text(sopType)
-//                                                      .padding(.horizontal, 12)
-//                                                      .padding(.vertical, 8)
-//                                                      .background(selectedSOPType == sopType ? Color.blue : Color.gray.opacity(0.2))
-//                                                      .foregroundColor(selectedSOPType == sopType ? .white : .primary)
-//                                                      .cornerRadius(8)
-//                                              }
-//                                          }
-//                                      }
-//                                      .padding(.vertical, 8)
-//                                  }
-//                              }
-//
-//                              if isCustomSOP {
-//                                  Section(header: Text("Custom SOP Title")) {
-//                                      TextField("Enter custom SOP title", text: $customSOPTitle)
-//                                  }
-//                              }
 //                
-//                if !isCustomSOP{
-//                    
-//                    Section(header: Text("SOP Title")) {
-//                        VStack {
-//                            
-//                            Text(isCustomSOP ? customSOPTitle.isEmpty ? "Custom (Not specified)" : customSOPTitle : selectedSOPType)
-//                                .font(.subheadline)
-//                                .foregroundColor(.black)
-//                        }
-//                    }
-//                }
-//                // Loading bar
-//                           if viewModel.isUploading {
-//                               VStack {
-//                                   Text("Uploading: \(viewModel.currentUploadingPDF)")
-//                                       .font(.caption)
-//                                   ProgressView(value: viewModel.uploadProgress, total: 1.0)
-//                                       .progressViewStyle(LinearProgressViewStyle())
-//                                   Text("\(Int(viewModel.uploadProgress * 100))%")
-//                                       .font(.caption)
-//                               }
-//                               .padding()
-//                           }
-//                
-////                          .padding()
-////                          .background(Color.gray.opacity(0.1))
-////                          .cornerRadius(10)
-////                          .padding()
-//                //TextField("SOP For Staff Title", text: $sopForStaffTitle)
+//                TextField("SOP For Staff Title", text: $sopForStaffTitle)
 //                
 //                Section(header: Text("Selected PDFs")) {
 //                    ForEach(selectedPDFs, id: \.self) { url in
@@ -245,8 +187,7 @@ import PDFKit
 //                Button("Upload PDFs") {
 //                    uploadPDFs()
 //                }
-//                .disabled(viewModel.isUploading)
-//                //.disabled(selectedPDFs.isEmpty)
+//                .disabled(selectedPDFs.isEmpty)
 //            }
 //            .navigationTitle("Add New PDFs")
 //            .navigationBarItems(trailing: Button("Done") {
@@ -268,6 +209,37 @@ import PDFKit
 //                          }
 //                      })
 //            }
+//            .overlay(
+//                Group {
+//                    if isUploading {
+//                        VStack {
+//                            Text(currentUploadingPDF)
+//                                .font(.headline)
+//                                .lineLimit(1)
+//                                .truncationMode(.middle)
+//                            GeometryReader { geometry in
+//                                ZStack(alignment: .leading) {
+//                                    Rectangle()
+//                                        .fill(Color.gray.opacity(0.3))
+//                                        .frame(height: 20)
+//                                    Rectangle()
+//                                        .fill(Color.blue)
+//                                        .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+//                                }
+//                                .cornerRadius(10)
+//                            }
+//                            .frame(height: 20)
+//                            Text("\(Int(uploadProgress * 100))%")
+//                                .font(.headline)
+//                        }
+//                        .padding()
+//                        .frame(width: 300, height: 150)
+//                        .background(Color.white)
+//                        .cornerRadius(20)
+//                        .shadow(radius: 10)
+//                    }
+//                }
+//            )
 //        }
 //    }
 //    
@@ -286,10 +258,11 @@ import PDFKit
 //    
 //    private func uploadPDFs() {
 //        isUploading = true
+//        uploadProgress = 0
 //        
 //        Task {
 //            do {
-//                for url in selectedPDFs {
+//                for (index, url) in selectedPDFs.enumerated() {
 //                    let data = try Data(contentsOf: url)
 //                    let pdfName = url.deletingPathExtension().lastPathComponent
 //                    
@@ -300,7 +273,16 @@ import PDFKit
 //                        pdfName: pdfName
 //                    )
 //                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                    
 //                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    
+//                    // Update progress after each PDF upload
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
 //                }
 //                
 //                await MainActor.run {
@@ -323,6 +305,9 @@ import PDFKit
 //        showAlert = true
 //    }
 //}
+
+
+
 struct PDFUploadView: View {
     @ObservedObject var viewModel: PDFCategoryViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -433,13 +418,54 @@ struct PDFUploadView: View {
     private func deletePDFs(at offsets: IndexSet) {
         selectedPDFs.remove(atOffsets: offsets)
     }
-    
+    ///workingg
+//    private func uploadPDFs() {
+//        isUploading = true
+//        uploadProgress = 0
+//        
+//        Task {
+//            do {
+//                for (index, url) in selectedPDFs.enumerated() {
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName
+//                    )
+//                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                    
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    
+//                    // Update progress after each PDF upload
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
     private func uploadPDFs() {
-        isUploading = true
-        uploadProgress = 0
-        
         Task {
             do {
+                isUploading = true
+                uploadProgress = 0
+                
                 for (index, url) in selectedPDFs.enumerated() {
                     let data = try Data(contentsOf: url)
                     let pdfName = url.deletingPathExtension().lastPathComponent
@@ -454,10 +480,10 @@ struct PDFUploadView: View {
                     await MainActor.run {
                         currentUploadingPDF = pdfName
                     }
+                   
                     
                     try await viewModel.uploadPDF(data: data, category: pdfCategory)
                     
-                    // Update progress after each PDF upload
                     await MainActor.run {
                         uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
                     }
@@ -475,7 +501,6 @@ struct PDFUploadView: View {
             }
         }
     }
-    
     private func showAlert(title: String, message: String, isSuccess: Bool) {
         alertTitle = title
         alertMessage = message
@@ -483,6 +508,7 @@ struct PDFUploadView: View {
         showAlert = true
     }
 }
+
 struct UploadProgressView: View {
     let progress: Double
     let currentPDF: String

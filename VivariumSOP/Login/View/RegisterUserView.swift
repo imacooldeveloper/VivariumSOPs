@@ -10,7 +10,7 @@ import SwiftUI
 struct RegisterUserView: View {
     @StateObject private var viewModel = RegisterUserViewModel()
     @Environment(\.presentationMode) var presentationMode
-    
+    @Binding var showLoginView: Bool  // Add this line
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -46,7 +46,17 @@ struct RegisterUserView: View {
                         .cornerRadius(10)
                 }
                 .disabled(viewModel.isLoading)
+                // Add this new button for existing users
+                                Button(action: {
+                                    showLoginView = true
+                                    presentationMode.wrappedValue.dismiss()
+                                }) {
+                                    Text("Already have an account? Log in")
+                                        .foregroundColor(.blue)
+                                }
+                            
             }
+            
             .padding()
         }
         .alert(isPresented: $viewModel.showError) {
@@ -93,9 +103,9 @@ struct CategorySelectionView: View {
         }
     }
 }
-#Preview {
-    RegisterUserView()
-}
+//#Preview {
+//    RegisterUserView()
+//}
 struct Categorys: Identifiable {
     let id: String
     let categoryTitle: String
@@ -103,5 +113,121 @@ struct Categorys: Identifiable {
     init(id: String = UUID().uuidString, categoryTitle: String) {
         self.id = id
         self.categoryTitle = categoryTitle
+    }
+}
+struct LoginView: View {
+    @StateObject private var viewModel = LoginViewModel()
+    @State private var showRegisterView = false
+    @State private var showLoginView = true
+
+    var body: some View {
+        NavigationStack{
+            VStack(spacing: 20) {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.blue)
+                    .padding(.top, 50)
+
+                Text("Welcome Back!")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+
+                VStack(spacing: 15) {
+                    CustomTextFields(text: $viewModel.email,
+                                    placeholder: "Enter your email",
+                                    label: "Email",
+                                    isSecure: false,
+                                    icon: "envelope")
+
+                    CustomTextFields(text: $viewModel.password,
+                                    placeholder: "Enter your password",
+                                    label: "Password",
+                                    isSecure: true,
+                                    icon: "lock")
+                }
+                .padding(.horizontal)
+
+                Button(action: {
+                    viewModel.loginUser()
+                }) {
+                    Text("Log In")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                .disabled(viewModel.isLoading)
+
+                Button("Forgot Password?") {
+                    viewModel.forgotPassword()
+                }
+                .foregroundColor(.blue)
+
+                Spacer()
+
+                HStack {
+                                   Text("Don't have an account?")
+                                   Button("Register") {
+                                       showRegisterView = true
+                                   }
+                                   .foregroundColor(.blue)
+                               }
+                               .padding(.bottom)
+                           }
+                           .padding()
+                           .background(Color(.systemBackground))
+                           .overlay {
+                               if viewModel.isLoading {
+                                   ProgressView()
+                                       .scaleEffect(2)
+                                       .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                       .background(Color.black.opacity(0.4))
+                               }
+                           }
+                           .alert(isPresented: $viewModel.showError) {
+                               Alert(title: Text("Error"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("OK")))
+                           }
+                       }
+                       .sheet(isPresented: $showRegisterView) {
+                           RegisterUserView(showLoginView: $showLoginView)
+                       }
+                       .onChange(of: viewModel.logStatus) { newValue in
+                           if newValue {
+                               showLoginView = false
+                           }
+                       }
+    }
+}
+
+struct CustomTextFields: View {
+    @Binding var text: String
+    let placeholder: String
+    let label: String
+    let isSecure: Bool
+    let icon: String
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.gray)
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.gray)
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                } else {
+                    TextField(placeholder, text: $text)
+                        .autocapitalization(.none)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+        }
     }
 }

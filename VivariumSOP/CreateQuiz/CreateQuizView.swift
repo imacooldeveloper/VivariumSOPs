@@ -98,6 +98,16 @@ import SwiftUI
 //}
 //
 
+
+import UniformTypeIdentifiers
+
+
+
+import SwiftUI
+
+
+import SwiftUI
+
 struct CreateQuizView: View {
     @ObservedObject var viewModel: CreateQuizViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -210,7 +220,6 @@ struct AddQuestionView: View {
                 Section(header: Text("Options")) {
                     ForEach(0..<4) { index in
                         TextField("Option \(index + 1)", text: $question.options[index])
-                            
                     }
                 }
                 
@@ -259,3 +268,42 @@ struct EditQuestionView: View {
         .navigationBarItems(trailing: Button("Save") { presentationMode.wrappedValue.dismiss() })
     }
 }
+//struct EditQuestionView: View {
+//    @Binding var question: Question
+//    @Environment(\.presentationMode) var presentationMode
+//    
+//    var body: some View {
+//        Form {
+//            Section(header: Text("Question")) {
+//                TextField("Question text", text: $question.questionText)
+//            }
+//            
+//            Section(header: Text("Options")) {
+//                ForEach(0..<4) { index in
+//                    TextField("Option \(index + 1)", text: $question.options[index])
+//                }
+//            }
+//            
+//            Section(header: Text("Correct Answer")) {
+//                Picker("Select correct answer", selection: $question.answer) {
+//                    ForEach(question.options, id: \.self) { option in
+//                        Text(option).tag(option)
+//                    }
+//                }
+//            }
+//        }
+//        .navigationTitle("Edit Question")
+//        .navigationBarItems(trailing: Button("Save") { presentationMode.wrappedValue.dismiss() })
+//    }
+//}
+//
+//
+
+
+
+
+
+
+
+
+

@@ -14,10 +14,136 @@
             filePath = "VivariumSOP/UploadPDfView/PDFUploadView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "566"
-            endingLineNumber = "566"
+            startingLineNumber = "592"
+            endingLineNumber = "592"
             landmarkName = "unknown"
             landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E3DF3B5E-9002-4216-96BC-E975B92DD7BF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "248"
+            endingLineNumber = "248"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "E3DF3B5E-9002-4216-96BC-E975B92DD7BF - 2cb408be38ce775e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchPDFCategories() async -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "437"
+                  endingLineNumber = "437"
+                  offsetFromSymbolStart = "320">
+               </Location>
+               <Location
+                  uuid = "E3DF3B5E-9002-4216-96BC-E975B92DD7BF - 2390bc12a632324a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for VivariumSOP.PDFCategoryViewModel.fetchPDFCategories() async -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "437"
+                  endingLineNumber = "437"
+                  offsetFromSymbolStart = "52">
+               </Location>
+               <Location
+                  uuid = "E3DF3B5E-9002-4216-96BC-E975B92DD7BF - 6af5c756e06fb758"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchPDFCategories() async -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "437"
+                  endingLineNumber = "437"
+                  offsetFromSymbolStart = "44">
+               </Location>
+               <Location
+                  uuid = "E3DF3B5E-9002-4216-96BC-E975B92DD7BF - 1d13239b1dfd975b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchPDFCategories() async -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "437"
+                  endingLineNumber = "437"
+                  offsetFromSymbolStart = "92">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "62AC87E0-369C-454A-B280-C6A0782B6804"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "62AC87E0-369C-454A-B280-C6A0782B6804 - 3e756595d814edbe"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.String) -&gt; &lt;&lt;opaque return type of SwiftUI.View.swipeActions&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(edge: SwiftUI.HorizontalEdge, allowsFullSwipe: Swift.Bool, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in closure #1 () -&gt; SwiftUI.ForEach&lt;Swift.Array&lt;Swift.String&gt;, Swift.String, &lt;&lt;opaque return type of SwiftUI.View.swipeActions&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(edge: SwiftUI.HorizontalEdge, allowsFullSwipe: Swift.Bool, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt; in closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI._ConditionalContent&lt;SwiftUI.ProgressView&lt;SwiftUI.Text, SwiftUI.EmptyView&gt;, SwiftUI.Text&gt;, &lt;&lt;opaque return type of SwiftUI.View.listStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ListStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt; in VivariumSOP.PDFCategoryListView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "516">
+               </Location>
+               <Location
+                  uuid = "62AC87E0-369C-454A-B280-C6A0782B6804 - 51af3f502f6690c7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.Text)&gt; in closure #1 (Swift.String) -&gt; &lt;&lt;opaque return type of SwiftUI.View.swipeActions&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(edge: SwiftUI.HorizontalEdge, allowsFullSwipe: Swift.Bool, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in closure #1 () -&gt; SwiftUI.ForEach&lt;Swift.Array&lt;Swift.String&gt;, Swift.String, &lt;&lt;opaque return type of SwiftUI.View.swipeActions&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(edge: SwiftUI.HorizontalEdge, allowsFullSwipe: Swift.Bool, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt; in closure #1 () -&gt; SwiftUI._ConditionalContent&lt;SwiftUI._ConditionalContent&lt;SwiftUI.ProgressView&lt;SwiftUI.Text, SwiftUI.EmptyView&gt;, SwiftUI.Text&gt;, &lt;&lt;opaque return type of SwiftUI.View.listStyle&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.ListStyle&gt;(&#x3c4;_1_0) -&gt; some&gt;&gt;.0&gt; in VivariumSOP.PDFCategoryListView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "128">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

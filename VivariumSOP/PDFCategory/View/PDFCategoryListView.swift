@@ -26,6 +26,7 @@ struct PDFCategoryListView: View {
                     ForEach(viewModel.uniqueCategories, id: \.self) { category in
                         NavigationLink(destination: SubcategoryView(category: category, viewModel: viewModel)) {
                             Text(category)
+                            
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
@@ -52,7 +53,10 @@ struct PDFCategoryListView: View {
         }
         .onAppear {
             print("PDFCategoryListView appeared")
-            viewModel.fetchCategoriesIfNeeded()
+            Task {
+                await  viewModel.fetchCategoriesIfNeeded()
+            }
+           
         }
         .overlay(deleteAlertView)
         .sheet(isPresented: $showingPDFUploadView) {
@@ -179,6 +183,15 @@ struct PDFListView: View {
         }
         .sheet(isPresented: $showingCreateQuizView) {
             CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
+            
+//            let viewModel = CreateQuizViewModel(
+//                category: "Husbandry",
+//                subCategory: "What's the name",
+//                quizTitle: "H-H-06 HBS Mortalities",
+//                pdfName: "H-H-06 HBS Mortalities.pdf"
+//               
+//            )
+//           CreateQuizView(viewModel: viewModel)
                 .onAppear {
                     print("CreateQuizView sheet presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory)")
                 }
@@ -239,6 +252,7 @@ struct PDFListView: View {
         }
     }
 }
+
 
 struct PDFDetailView: View {
     @Environment(\.presentationMode) var presentationMode

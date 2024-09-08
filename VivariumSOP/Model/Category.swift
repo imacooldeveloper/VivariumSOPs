@@ -14,7 +14,7 @@ struct Category: Identifiable,Hashable, Codable {
 struct SOPCategory: Identifiable, Hashable, Codable {
     var id = UUID().uuidString
     var nameOfCategory: String
-    let SOPForStaffTittle: String
+    var SOPForStaffTittle: String
     var sopPages: String?
     
     init(id: String = UUID().uuidString, nameOfCategory: String, SOPForStaffTittle: String, sopPages: String? = nil) {
