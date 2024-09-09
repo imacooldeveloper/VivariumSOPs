@@ -13,7 +13,7 @@ struct QuizListView: View {
        @State private var selectedQuiz: Quiz?
        @State private var showingDeleteAlert = false
        @State private var quizToDelete: Quiz?
-
+        @State private var loginViewModel = LoginViewModel()
        var body: some View {
            ZStack {
                List {
@@ -62,7 +62,15 @@ struct QuizListView: View {
                    )
                }
            }
+           .toolbar {
+                           ToolbarItem(placement: .navigationBarTrailing) {
+                               Button("Sign Out") {
+                                   loginViewModel.logOutUser()
+                               }
+                           }
+                       }
        }
+       
 
        private func deleteQuiz(_ quiz: Quiz) {
            Task {

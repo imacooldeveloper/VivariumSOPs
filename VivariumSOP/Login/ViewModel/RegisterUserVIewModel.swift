@@ -128,7 +128,7 @@ final class RegisterUserViewModel: ObservableObject {
                                 userEmail: email,
                                 accountType: accountType,
                                 NHPAvalible: true,
-                                assignedCategoryIDs: Array(selectedCategoryIDs))
+                                assignedCategoryIDs: Array(selectedCategoryIDs),floor: "1st")
                 
                 do {
                     try  Firestore.firestore().collection("Users").document(userUID).setData(from: user)

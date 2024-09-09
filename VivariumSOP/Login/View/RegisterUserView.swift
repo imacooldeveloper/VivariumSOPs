@@ -17,18 +17,19 @@ struct RegisterUserView: View {
                 CustomTextField(text: $viewModel.email, placeholder: "Enter your email", label: "Email", isSecure: false, icon: "envelope", validator: viewModel.validateEmail)
                 
                 CustomTextField(text: $viewModel.password, placeholder: "Enter your password", label: "Password", isSecure: true, icon: "lock", validator: viewModel.validatePassword)
+                    .autocorrectionDisabled(true)
                 
                 CustomTextField(text: $viewModel.confirmPassword, placeholder: "Confirm your password", label: "Confirm Password", isSecure: true, icon: "lock")
                 
                 CustomTextField(text: $viewModel.firstName, placeholder: "Enter your first name", label: "First Name", isSecure: false, icon: "person")
-                
+                    .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.lastName, placeholder: "Enter your last name", label: "Last Name", isSecure: false, icon: "person")
-                
+                    .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.username, placeholder: "Enter your username", label: "Username", isSecure: false, icon: "person.circle")
-                
+                    .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.facilityName, placeholder: "Enter your facility name", label: "Facility Name", isSecure: false, icon: "building.2")
-                
-                CustomDropdown(selection: $viewModel.accountType, label: "Account Type", options: ["Student", "Teacher", "Administrator", "Parent", "Guest"])
+                    .autocorrectionDisabled(true)
+                CustomDropdown(selection: $viewModel.accountType, label: "Account Type", options: [ "Administrator"])
                 
                 CategorySelectionView(selectedCategories: $viewModel.selectedCategoryIDs, availableCategories: viewModel.availableCategories)
                 

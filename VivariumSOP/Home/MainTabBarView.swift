@@ -11,26 +11,24 @@ import SwiftUI
 struct MainTabBarView: View {
     @StateObject private var loginViewModel = LoginViewModel()
     var body: some View {
-        NavigationStack{
-            TabView {
-                NavigationStack {
-                    PDFCategoryListView()
-                        .navigationTitle("Upload PDFs")
-                }
-                .tabItem {
-                    Label("Upload", systemImage: "arrow.up.doc.fill")
-                }
-                
-                NavigationStack {
-                    QuizListView(viewModel: QuizListViewModel())
-                        .navigationTitle("Quizzes")
-                }
-                .tabItem {
-                    Label("Quizzes", systemImage: "list.bullet.clipboard.fill")
-                }
-               
+        TabView {
+            NavigationStack {
+                PDFCategoryListView()
+                    .navigationTitle("Upload PDFs")
             }
-            .navigationBarItems(trailing: signOutButton)
+            .tabItem {
+                Label("Upload", systemImage: "arrow.up.doc.fill")
+            }
+            
+            NavigationStack {
+                QuizListView(viewModel: QuizListViewModel())
+                    .navigationTitle("Quizzes")
+            }
+           
+            .tabItem {
+                Label("Quizzes", systemImage: "list.bullet.clipboard.fill")
+            }
+          //  .navigationBarItems(trailing: signOutButton)
         }
         
     }
