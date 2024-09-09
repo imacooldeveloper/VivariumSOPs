@@ -29,7 +29,7 @@ struct RegisterUserView: View {
                     .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.facilityName, placeholder: "Enter your facility name", label: "Facility Name", isSecure: false, icon: "building.2")
                     .autocorrectionDisabled(true)
-                CustomDropdown(selection: $viewModel.accountType, label: "Account Type", options: [ "Administrator"])
+                CustomDropdown(selection: $viewModel.accountType, label: "Account Type", options: [ "Husbandry", "Supervisor", "Admin", "Vet Services"])
                 
                 CategorySelectionView(selectedCategories: $viewModel.selectedCategoryIDs, availableCategories: viewModel.availableCategories)
                 

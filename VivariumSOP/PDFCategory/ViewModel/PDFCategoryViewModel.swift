@@ -545,7 +545,7 @@ class PDFCategoryViewModel: ObservableObject {
         isLoading = true
         
         do {
-            let snapshot = try await db.collection("PDFCategories").getDocuments()
+            let snapshot = try await db.collection("PDFCategory").getDocuments()
             let fetchedCategories = await withTaskGroup(of: PDFCategory?.self, returning: [PDFCategory].self) { group in
                 for document in snapshot.documents {
                     group.addTask {
@@ -589,7 +589,7 @@ class PDFCategoryViewModel: ObservableObject {
     func updatePDFCategory(_ category: PDFCategory) {
         Task {
             do {
-                let categoryRef = db.collection("PDFCategories").document(category.id)
+                let categoryRef = db.collection("PDFCategory").document(category.id)
                 try await categoryRef.setData(from: category, merge: true)
             } catch {
                 print("Error updating PDF category: \(error.localizedDescription)")
@@ -602,9 +602,9 @@ class PDFCategoryViewModel: ObservableObject {
             do {
                 var newCategory = category
                 if newCategory.id.isEmpty {
-                    newCategory.id = db.collection("PDFCategories").document().documentID
+                    newCategory.id = db.collection("PDFCategory").document().documentID
                 }
-                try await db.collection("PDFCategories").document(newCategory.id).setData(from: newCategory)
+                try await db.collection("PDFCategory").document(newCategory.id).setData(from: newCategory)
             } catch {
                 print("Error adding PDF category: \(error.localizedDescription)")
             }
@@ -615,7 +615,7 @@ class PDFCategoryViewModel: ObservableObject {
         Task {
             do {
                 let batch = db.batch()
-                let query = db.collection("PDFCategories").whereField("nameOfCategory", isEqualTo: category)
+                let query = db.collection("PDFCategory").whereField("nameOfCategory", isEqualTo: category)
                 let snapshot = try await query.getDocuments()
                 
                 for document in snapshot.documents {
@@ -638,7 +638,7 @@ class PDFCategoryViewModel: ObservableObject {
                 let id = pdf.id
                 
                 // Delete the document from Firestore
-                try await db.collection("PDFCategories").document(id).delete()
+                try await db.collection("PDFCategory").document(id).delete()
                 
                 // Delete the PDF file from Firebase Storage
                 if let pdfURL = pdf.pdfURL, let url = URL(string: pdfURL) {

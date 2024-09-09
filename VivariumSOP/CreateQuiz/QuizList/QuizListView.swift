@@ -14,6 +14,8 @@ struct QuizListView: View {
        @State private var showingDeleteAlert = false
        @State private var quizToDelete: Quiz?
         @State private var loginViewModel = LoginViewModel()
+    @State private var refreshID = UUID() // Add this line
+    @State private var selectedQuizID: String?
        var body: some View {
            ZStack {
                List {
@@ -22,6 +24,7 @@ struct QuizListView: View {
                            .onTapGesture {
                                selectedQuiz = quiz
                                showingEditQuizView = true
+                               refreshID = UUID() // Add this line
                            }
                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                Button(role: .destructive) {
@@ -31,8 +34,19 @@ struct QuizListView: View {
                                    Label("Delete", systemImage: "trash")
                                }
                            }
+                           .id(refreshID) // Add this line
                    }
                }
+               .onChange(of: selectedQuizID) { newValue in
+                          if let id = newValue, let quiz = viewModel.quizzes.first(where: { $0.id == id }) {
+                              selectedQuiz = quiz
+                          }
+                      }
+                      .sheet(isPresented: $showingEditQuizView) {
+                          if let quizToEdit = selectedQuiz {
+                              EditQuizView(viewModel: EditQuizViewModel(quiz: quizToEdit))
+                          }
+                      }
                .refreshable {
                    await viewModel.fetchQuizzesAsync()
                }
@@ -44,6 +58,7 @@ struct QuizListView: View {
                .onAppear {
                    if viewModel.quizzes.isEmpty {
                        viewModel.fetchQuizzes()
+                      // viewModel.
                    }
                }
 

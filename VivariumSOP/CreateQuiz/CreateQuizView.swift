@@ -125,19 +125,28 @@ struct CreateQuizView: View {
                 }
                 
                 Section(header: Text("Account Types")) {
-                    ForEach(viewModel.availableAccountTypes, id: \.self) { accountType in
-                        Toggle(accountType, isOn: Binding(
-                            get: { viewModel.selectedAccountTypes.contains(accountType) },
-                            set: { isSelected in
-                                if isSelected {
-                                    viewModel.selectedAccountTypes.insert(accountType)
-                                } else {
-                                    viewModel.selectedAccountTypes.remove(accountType)
-                                }
-                            }
-                        ))
-                    }
-                }
+                                   ForEach(viewModel.availableAccountTypes, id: \.self) { accountType in
+                                       Toggle(accountType, isOn: Binding(
+                                           get: { viewModel.selectedAccountTypes.contains(accountType) },
+                                           set: { _ in viewModel.toggleAccountType(accountType) }
+                                       ))
+                                   }
+                               }
+
+                               Section(header: Text("Assign to Users")) {
+                                   if viewModel.availableUsers.isEmpty {
+                                       Text("Loading users...")
+                                   } else {
+                                       ForEach(viewModel.availableUsers, id: \.id) { user in
+                                           Toggle(isOn: Binding(
+                                               get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+                                               set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+                                           )) {
+                                               Text("\(user.firstName) \(user.lastName) - \(user.accountType)")
+                                           }
+                                       }
+                                   }
+                               }
                 
                 Section(header: Text("Questions")) {
                     ForEach(viewModel.questions.indices, id: \.self) { index in
@@ -176,6 +185,7 @@ struct CreateQuizView: View {
                             }
                             .onAppear {
                                 viewModel.refreshQuiz() // Refresh when the view appears
+                                viewModel.fetchAvailableUsers()
                             }
 
                             if viewModel.isLoading {
@@ -240,34 +250,60 @@ struct AddQuestionView: View {
     }
 }
 
+//struct EditQuestionView: View {
+//    @Binding var question: Question
+//    @Environment(\.presentationMode) var presentationMode
+//    
+//    var body: some View {
+//        Form {
+//            Section(header: Text("Question")) {
+//                TextField("Question text", text: $question.questionText)
+//            }
+//            
+//            Section(header: Text("Options")) {
+//                ForEach(0..<4) { index in
+//                    TextField("Option \(index + 1)", text: $question.options[index])
+//                }
+//            }
+//            
+//            Section(header: Text("Correct Answer")) {
+//                Picker("Select correct answer", selection: $question.answer) {
+//                    ForEach(question.options, id: \.self) { option in
+//                        Text(option).tag(option)
+//                    }
+//                }
+//            }
+//        }
+//        .navigationTitle("Edit Question")
+//        .navigationBarItems(trailing: Button("Save") { presentationMode.wrappedValue.dismiss() })
+//    }
+//}
+
 struct EditQuestionView: View {
     @Binding var question: Question
     @Environment(\.presentationMode) var presentationMode
-    
+
     var body: some View {
         Form {
-            Section(header: Text("Question")) {
-                TextField("Question text", text: $question.questionText)
+            TextField("Question", text: $question.questionText)
+            ForEach(0..<4) { index in
+                TextField("Option \(index + 1)", text: $question.options[index])
             }
-            
-            Section(header: Text("Options")) {
-                ForEach(0..<4) { index in
-                    TextField("Option \(index + 1)", text: $question.options[index])
-                }
-            }
-            
-            Section(header: Text("Correct Answer")) {
-                Picker("Select correct answer", selection: $question.answer) {
-                    ForEach(question.options, id: \.self) { option in
-                        Text(option).tag(option)
-                    }
+            Picker("Correct Answer", selection: $question.answer) {
+                ForEach(question.options.indices, id: \.self) { index in
+                    Text(question.options[index]).tag(question.options[index])
                 }
             }
         }
         .navigationTitle("Edit Question")
-        .navigationBarItems(trailing: Button("Save") { presentationMode.wrappedValue.dismiss() })
+        .navigationBarItems(trailing: Button("Save") {
+            presentationMode.wrappedValue.dismiss()
+        })
     }
 }
+
+
+
 //struct EditQuestionView: View {
 //    @Binding var question: Question
 //    @Environment(\.presentationMode) var presentationMode

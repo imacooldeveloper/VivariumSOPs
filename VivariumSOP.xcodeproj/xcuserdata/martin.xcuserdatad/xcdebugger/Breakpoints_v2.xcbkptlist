@@ -98,5 +98,984 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "154"
+            endingLineNumber = "154"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - 1bf1038f162f57e0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "76">
+               </Location>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - bd15ccd11158b9e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "552">
+               </Location>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - 7c6634b73c11cfe4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "92">
+               </Location>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - baf9e658dc854034"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - afafba03010693e6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "84">
+               </Location>
+               <Location
+                  uuid = "CD6E683E-4785-4136-9CF9-700FEEAD7764 - bd15ccd11158b9e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "80">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "156"
+            endingLineNumber = "156"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - 7c6634b73c11ce78"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "158"
+                  endingLineNumber = "158"
+                  offsetFromSymbolStart = "92">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - baf9e658dc8541a8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "158"
+                  endingLineNumber = "158"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - afafba030106927a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "158"
+                  endingLineNumber = "158"
+                  offsetFromSymbolStart = "84">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - bd15ccd11158b87f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "158"
+                  endingLineNumber = "158"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - d5a5e751972c1d8b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
+                  offsetFromSymbolStart = "2756">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - 3a8cbe28766143fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
+                  offsetFromSymbolStart = "108">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - 7c6634b73c11ce26"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - 94210182e950f7a7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor @Sendable () -&gt; () in closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
+                  offsetFromSymbolStart = "64">
+               </Location>
+               <Location
+                  uuid = "28FC2EF2-B831-4609-9682-AEAB93A56F83 - f31d8121670c73de"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (VivariumSOP.User) -&gt; Swift.Optional&lt;Swift.String&gt; in closure #1 @Swift.MainActor @Sendable () -&gt; () in closure #2 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
+                  offsetFromSymbolStart = "52">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "189"
+            endingLineNumber = "189"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 3b6e6ab59d650cf7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "property wrapper backing initializer of VivariumSOP.EditQuizViewModel.selectedUserIDs : Swift.Set&lt;Swift.String&gt;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "24">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 57d8c7424592ddfb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.selectedUserIDs.getter : Swift.Set&lt;Swift.String&gt;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "28">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - a3a5289c1cc55064"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.selectedUserIDs.setter : Swift.Set&lt;Swift.String&gt;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "189"
+                  endingLineNumber = "189"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 926f466014bd155"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.selectedUserIDs.modify : Swift.Set&lt;Swift.String&gt;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "189"
+                  endingLineNumber = "189"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - fe856f161412db91"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.selectedUserIDs.modify : Swift.Set&lt;Swift.String&gt; with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 1dfe4fc066c5bbd2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.$selectedUserIDs.getter : Combine.Published&lt;Swift.Set&lt;Swift.String&gt;&gt;.Publisher"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "189"
+                  endingLineNumber = "189"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - a97761e97a1b887d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.$selectedUserIDs.setter : Combine.Published&lt;Swift.Set&lt;Swift.String&gt;&gt;.Publisher"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 326bf457db0e726c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.$selectedUserIDs.modify : Combine.Published&lt;Swift.Set&lt;Swift.String&gt;&gt;.Publisher"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "64">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - 675b3e84e54aac37"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.$selectedUserIDs.modify : Combine.Published&lt;Swift.Set&lt;Swift.String&gt;&gt;.Publisher with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "24">
+               </Location>
+               <Location
+                  uuid = "E099D758-E713-4EC7-A315-C2A3FB5DB6EC - b684425a90f3ba7f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "189"
+                  endingLineNumber = "189"
+                  offsetFromSymbolStart = "96">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "195"
+            endingLineNumber = "195"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - b3b640a781a3b5c6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "197"
+                  endingLineNumber = "197"
+                  offsetFromSymbolStart = "76">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - b325d7b7cd902f87"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "197"
+                  endingLineNumber = "197"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - 2f3a020028477d8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "197"
+                  endingLineNumber = "197"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - 498e30634217d6d9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "197"
+                  endingLineNumber = "197"
+                  offsetFromSymbolStart = "100">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - b684425a90f3a539"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "195"
+                  endingLineNumber = "195"
+                  offsetFromSymbolStart = "152">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - d4ed754bdb85f6e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "195"
+                  endingLineNumber = "195"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - b3b640a781a3b588"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "195"
+                  endingLineNumber = "195"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "7FAA4A6A-1700-413E-A7C0-50979CCA39BA - 2f3a02002847796"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "195"
+                  endingLineNumber = "195"
+                  offsetFromSymbolStart = "120">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1C41AC37-F345-4AA3-A4B0-CF408002FAFF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "1C41AC37-F345-4AA3-A4B0-CF408002FAFF - 2f3a020028477f9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "198"
+                  endingLineNumber = "198"
+                  offsetFromSymbolStart = "96">
+               </Location>
+               <Location
+                  uuid = "1C41AC37-F345-4AA3-A4B0-CF408002FAFF - 498e30634217d6f8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.fetchAvailableUsers() -&gt; ()"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "198"
+                  endingLineNumber = "198"
+                  offsetFromSymbolStart = "724">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EF5926CC-9E96-4874-BBB9-1BE3BB4DAD2E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "unknown"
+            landmarkType = "0">
+            <Locations>
+               <Location
+                  uuid = "EF5926CC-9E96-4874-BBB9-1BE3BB4DAD2E - dca905f40b1aadf3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83"
+                  offsetFromSymbolStart = "1008">
+               </Location>
+               <Location
+                  uuid = "EF5926CC-9E96-4874-BBB9-1BE3BB4DAD2E - c47a3d6cb8d63f57"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83"
+                  offsetFromSymbolStart = "248">
+               </Location>
+               <Location
+                  uuid = "EF5926CC-9E96-4874-BBB9-1BE3BB4DAD2E - 9a3ddad04048e8f7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #4 @Sendable () async -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.sheet&lt;&#x3c4;_0_0 where &#x3c4;_1_0: SwiftUI.View&gt;(isPresented: SwiftUI.Binding&lt;Swift.Bool&gt;, onDismiss: Swift.Optional&lt;() -&gt; ()&gt;, content: () -&gt; &#x3c4;_1_0) -&gt; some&gt;&gt;.0 in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83"
+                  offsetFromSymbolStart = "88">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FA9708AE-46A5-45B1-992E-E54980D29DAC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "424"
+            endingLineNumber = "424"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "FA9708AE-46A5-45B1-992E-E54980D29DAC - a217db40820aca9c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.FetchQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "424"
+                  endingLineNumber = "424"
+                  offsetFromSymbolStart = "268">
+               </Location>
+               <Location
+                  uuid = "FA9708AE-46A5-45B1-992E-E54980D29DAC - 6d671d4af8e19193"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; Swift.Optional&lt;SwiftUI._ConditionalContent&lt;SwiftUI._ConditionalContent&lt;SwiftUI.ProgressView&lt;SwiftUI.Text, SwiftUI.EmptyView&gt;, VivariumSOP.EditQuizView&gt;, SwiftUI.Text&gt;&gt; in VivariumSOP.FetchQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "424"
+                  endingLineNumber = "424"
+                  offsetFromSymbolStart = "1084">
+               </Location>
+               <Location
+                  uuid = "FA9708AE-46A5-45B1-992E-E54980D29DAC - 6d671d4af8e19193"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; Swift.Optional&lt;SwiftUI._ConditionalContent&lt;SwiftUI._ConditionalContent&lt;SwiftUI.ProgressView&lt;SwiftUI.Text, SwiftUI.EmptyView&gt;, VivariumSOP.EditQuizView&gt;, SwiftUI.Text&gt;&gt; in VivariumSOP.FetchQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "424"
+                  endingLineNumber = "424"
+                  offsetFromSymbolStart = "2028">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A9162C53-1DE0-416B-BAC6-75F64699F86B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "292"
+            endingLineNumber = "292"
+            landmarkName = "init(quiz:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "A9162C53-1DE0-416B-BAC6-75F64699F86B - baf9e658dc85566e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "292"
+                  endingLineNumber = "292"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "A9162C53-1DE0-416B-BAC6-75F64699F86B - c194699a1c14896d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "292"
+                  endingLineNumber = "292"
+                  offsetFromSymbolStart = "40">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5CAE50C3-385E-4EC2-A25E-CD957AAA4EAF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "291"
+            endingLineNumber = "291"
+            landmarkName = "init(quiz:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5CAE50C3-385E-4EC2-A25E-CD957AAA4EAF - 7c6634b73c11d95f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "291"
+                  endingLineNumber = "291"
+                  offsetFromSymbolStart = "64">
+               </Location>
+               <Location
+                  uuid = "5CAE50C3-385E-4EC2-A25E-CD957AAA4EAF - baf9e658dc85568f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "291"
+                  endingLineNumber = "291"
+                  offsetFromSymbolStart = "40">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DA8B1A21-835E-474B-A797-92E3DDEBAAAE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "293"
+            endingLineNumber = "293"
+            landmarkName = "init(quiz:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "DA8B1A21-835E-474B-A797-92E3DDEBAAAE - c194699a1c148942"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "293"
+                  endingLineNumber = "293"
+                  offsetFromSymbolStart = "80">
+               </Location>
+               <Location
+                  uuid = "DA8B1A21-835E-474B-A797-92E3DDEBAAAE - 936f9d55de7e843"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) await resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "293"
+                  endingLineNumber = "293"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "DA8B1A21-835E-474B-A797-92E3DDEBAAAE - 1bf1038f162f4195"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for closure #1 @Sendable () async -&gt; () in VivariumSOP.EditQuizViewModel.init(quiz: VivariumSOP.Quiz) -&gt; VivariumSOP.EditQuizViewModel"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "293"
+                  endingLineNumber = "293"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "099CF085-F2C1-4C85-BB8E-70E61ED66E06"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/CreateQuiz/EditQuizView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "557"
+            endingLineNumber = "557"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "099CF085-F2C1-4C85-BB8E-70E61ED66E06 - 2c2d039b84633e14"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in closure #2 () -&gt; () in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "557"
+                  endingLineNumber = "557"
+                  offsetFromSymbolStart = "76">
+               </Location>
+               <Location
+                  uuid = "099CF085-F2C1-4C85-BB8E-70E61ED66E06 - b735cab0f7860cd0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in closure #2 () -&gt; () in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "557"
+                  endingLineNumber = "557"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "099CF085-F2C1-4C85-BB8E-70E61ED66E06 - 43dcf008f63c7216"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in closure #2 () -&gt; () in VivariumSOP.EditQuizView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/CreateQuiz/EditQuizView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "557"
+                  endingLineNumber = "557"
+                  offsetFromSymbolStart = "52">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "890D96A3-45CE-4249-BBB5-D79BE51361C2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/Model/Firestore/UserManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
+            landmarkName = "getAllUserss()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

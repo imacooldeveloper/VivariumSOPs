@@ -121,7 +121,138 @@ struct LazyView<Content: View>: View {
         build()
     }
 }
-
+///working ast of sept 9
+//struct PDFListView: View {
+//    let category: String
+//    let subcategory: String
+//    @ObservedObject var viewModel: PDFCategoryViewModel
+//    @State private var showingDeleteAlert = false
+//    @State private var pdfToDelete: PDFCategory?
+//    @State private var showingErrorAlert = false
+//    @State private var errorMessage = ""
+//    @State private var showingCreateQuizView = false
+//    @State private var selectedPDFName: String?
+//    @State private var quizCreationCount = 0
+//    var filteredPDFs: [PDFCategory] {
+//        let pdfs = viewModel.pdfCategories.filter { $0.nameOfCategory == category && $0.SOPForStaffTittle == subcategory }
+//        print("Filtered PDFs for \(category) - \(subcategory): \(pdfs.count)")
+//        return pdfs.sorted(by: { $0.pdfName < $1.pdfName })
+//    }
+//
+//    var body: some View {
+//        VStack {
+//            if filteredPDFs.isEmpty {
+//                Text("No PDFs found for this subcategory")
+//                    .foregroundColor(.gray)
+//            } else {
+//                List {
+//                    ForEach(filteredPDFs, id: \.id) { pdf in
+//                        NavigationLink(destination: PDFDetailView(pdf: pdf, viewModel: viewModel)) {
+//                            Text(pdf.pdfName)
+//                        }
+//                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//                            Button(role: .destructive) {
+//                                pdfToDelete = pdf
+//                                showingDeleteAlert = true
+//                            } label: {
+//                                Label("Delete", systemImage: "trash")
+//                            }
+//                        }
+//                    }
+//                }
+//                .listStyle(InsetGroupedListStyle())
+//            }
+//        }
+//        .navigationTitle(subcategory)
+//       
+//            .toolbar {
+//                      ToolbarItem(placement: .bottomBar) {
+//                          CreateQuizButton(action: createQuiz, isDisabled: filteredPDFs.isEmpty)
+//                      }
+//                  }
+//     
+//        .overlay(deleteAlert)
+//        .alert("Error", isPresented: $showingErrorAlert, actions: {
+//            Button("OK", role: .cancel) {}
+//        }, message: {
+//            Text(errorMessage)
+//        })
+//        .onAppear {
+//            print("PDFListView appeared for \(category) - \(subcategory)")
+//            print("Filtered PDFs: \(filteredPDFs.count)")
+//        }
+//        .sheet(isPresented: $showingCreateQuizView) {
+//            CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
+//            
+////            let viewModel = CreateQuizViewModel(
+////                category: "Husbandry",
+////                subCategory: "What's the name",
+////                quizTitle: "H-H-06 HBS Mortalities",
+////                pdfName: "H-H-06 HBS Mortalities.pdf"
+////               
+////            )
+////           CreateQuizView(viewModel: viewModel)
+//                .onAppear {
+//                    print("CreateQuizView sheet presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory)")
+//                }
+//                .onDisappear {
+//                    print("CreateQuizView sheet dismissed")
+//                    self.selectedPDFName = nil
+//                }
+//        }
+//    }
+//
+//    private func createQuiz() {
+//           print("Create Quiz button tapped")
+//           quizCreationCount += 1
+//           
+//           let quizTitle: String
+//           if quizCreationCount == 1, let firstPDF = filteredPDFs.first {
+//               quizTitle = firstPDF.pdfName
+//               print("Selected PDF: \(firstPDF.pdfName)")
+//           } else {
+//               quizTitle = subcategory
+//               print("Using subcategory as quiz title: \(subcategory)")
+//           }
+//           
+//           selectedPDFName = quizTitle
+//           showingCreateQuizView = true
+//       }
+//
+//    private var deleteAlert: some View {
+//        Group {
+//            if showingDeleteAlert, let pdf = pdfToDelete {
+//                Color.black.opacity(0.4)
+//                    .edgesIgnoringSafeArea(.all)
+//                    .overlay(
+//                        CustomAlertView(
+//                            title: "Delete PDF",
+//                            message: "Are you sure you want to delete '\(pdf.pdfName)'?",
+//                            primaryButton: AlertButton(title: "Delete", action: {
+//                                deletePDF(pdf)
+//                            }),
+//                            secondaryButton: AlertButton(title: "Cancel", action: {
+//                                showingDeleteAlert = false
+//                            })
+//                        )
+//                    )
+//            }
+//        }
+//    }
+//
+//    private func deletePDF(_ pdf: PDFCategory) {
+//        Task {
+//            do {
+//                try await viewModel.deletePDF(pdf)
+//                showingDeleteAlert = false
+//            } catch {
+//                errorMessage = error.localizedDescription
+//                showingErrorAlert = true
+//            }
+//        }
+//    }
+//}
+//
 struct PDFListView: View {
     let category: String
     let subcategory: String
@@ -133,6 +264,10 @@ struct PDFListView: View {
     @State private var showingCreateQuizView = false
     @State private var selectedPDFName: String?
     @State private var quizCreationCount = 0
+    @State private var refreshToggle = false // Add this line
+    @State private var isEditingExistingQuiz = false
+    @State private var existingQuiz: Quiz?
+    
     var filteredPDFs: [PDFCategory] {
         let pdfs = viewModel.pdfCategories.filter { $0.nameOfCategory == category && $0.SOPForStaffTittle == subcategory }
         print("Filtered PDFs for \(category) - \(subcategory): \(pdfs.count)")
@@ -164,13 +299,11 @@ struct PDFListView: View {
             }
         }
         .navigationTitle(subcategory)
-       
-            .toolbar {
-                      ToolbarItem(placement: .bottomBar) {
-                          CreateQuizButton(action: createQuiz, isDisabled: filteredPDFs.isEmpty)
-                      }
-                  }
-     
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                CreateQuizButton(action: createQuiz, isDisabled: filteredPDFs.isEmpty)
+            }
+        }
         .overlay(deleteAlert)
         .alert("Error", isPresented: $showingErrorAlert, actions: {
             Button("OK", role: .cancel) {}
@@ -182,78 +315,134 @@ struct PDFListView: View {
             print("Filtered PDFs: \(filteredPDFs.count)")
         }
         .sheet(isPresented: $showingCreateQuizView) {
-            CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
-            
-//            let viewModel = CreateQuizViewModel(
-//                category: "Husbandry",
-//                subCategory: "What's the name",
-//                quizTitle: "H-H-06 HBS Mortalities",
-//                pdfName: "H-H-06 HBS Mortalities.pdf"
-//               
-//            )
-//           CreateQuizView(viewModel: viewModel)
-                .onAppear {
-                    print("CreateQuizView sheet presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory)")
+            Group {
+                if isEditingExistingQuiz, let quiz = existingQuiz {
+                    EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+                } 
+                
+                else {
+                    CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
                 }
-                .onDisappear {
-                    print("CreateQuizView sheet dismissed")
-                    self.selectedPDFName = nil
-                }
+            }
+            .onAppear {
+                print("Quiz view presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory), editing: \(isEditingExistingQuiz)")
+            }
+            .onDisappear {
+                print("Quiz view dismissed")
+                self.selectedPDFName = nil
+                self.isEditingExistingQuiz = false
+                self.existingQuiz = nil
+                self.refreshToggle.toggle()
+            }
         }
+        //.id(refreshToggle) // Add this line
     }
 
     private func createQuiz() {
-           print("Create Quiz button tapped")
-           quizCreationCount += 1
-           
-           let quizTitle: String
-           if quizCreationCount == 1, let firstPDF = filteredPDFs.first {
-               quizTitle = firstPDF.pdfName
-               print("Selected PDF: \(firstPDF.pdfName)")
-           } else {
-               quizTitle = subcategory
-               print("Using subcategory as quiz title: \(subcategory)")
-           }
-           
-           selectedPDFName = quizTitle
-           showingCreateQuizView = true
-       }
-
-    private var deleteAlert: some View {
-        Group {
-            if showingDeleteAlert, let pdf = pdfToDelete {
-                Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
-                    .overlay(
-                        CustomAlertView(
-                            title: "Delete PDF",
-                            message: "Are you sure you want to delete '\(pdf.pdfName)'?",
-                            primaryButton: AlertButton(title: "Delete", action: {
-                                deletePDF(pdf)
-                            }),
-                            secondaryButton: AlertButton(title: "Cancel", action: {
-                                showingDeleteAlert = false
-                            })
-                        )
-                    )
+        print("Create Quiz button tapped")
+        quizCreationCount += 1
+        
+        let quizTitle: String
+        if quizCreationCount == 1, let firstPDF = filteredPDFs.first {
+            quizTitle = firstPDF.pdfName
+            print("Selected PDF: \(firstPDF.pdfName)")
+        } else {
+            quizTitle = subcategory
+            print("Using subcategory as quiz title: \(subcategory)")
+        }
+        
+        selectedPDFName = quizTitle
+        
+        Task {
+            do {
+                if let quiz = try await QuizManager.shared.getQuizForCategory(category: quizTitle) {
+                    existingQuiz = quiz
+                    isEditingExistingQuiz = true
+                    print("Existing quiz found: \(quiz.id)")
+                } else {
+                    existingQuiz = nil
+                    isEditingExistingQuiz = false
+                    print("No existing quiz found")
+                }
+                showingCreateQuizView = true
+            } catch {
+                print("Error checking for existing quiz: \(error)")
+                // Handle the error appropriately
             }
         }
     }
+   
+   
+       private var deleteAlert: some View {
+           Group {
+               if showingDeleteAlert, let pdf = pdfToDelete {
+                   Color.black.opacity(0.4)
+                       .edgesIgnoringSafeArea(.all)
+                       .overlay(
+                           CustomAlertView(
+                               title: "Delete PDF",
+                               message: "Are you sure you want to delete '\(pdf.pdfName)'?",
+                               primaryButton: AlertButton(title: "Delete", action: {
+                                   deletePDF(pdf)
+                               }),
+                               secondaryButton: AlertButton(title: "Cancel", action: {
+                                   showingDeleteAlert = false
+                               })
+                           )
+                       )
+               }
+           }
+       }
+   
+       private func deletePDF(_ pdf: PDFCategory) {
+           Task {
+               do {
+                   try await viewModel.deletePDF(pdf)
+                   showingDeleteAlert = false
+               } catch {
+                   errorMessage = error.localizedDescription
+                   showingErrorAlert = true
+               }
+           }
+       }
+       
+           
+    // ... rest of the code remains the same
+}
 
-    private func deletePDF(_ pdf: PDFCategory) {
+struct FetchQuizView: View {
+    let quizId: String
+    @State private var quiz: Quiz?
+    @State private var isLoading = true
+    @State private var error: Error?
+
+    var body: some View {
+        Group {
+            if isLoading {
+                ProgressView("Loading quiz...")
+            } else if let quiz = quiz {
+                EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+            } else if let error = error {
+                Text("Error loading quiz: \(error.localizedDescription)")
+            }
+        }
+        .onAppear {
+            fetchQuiz()
+        }
+    }
+
+    private func fetchQuiz() {
         Task {
             do {
-                try await viewModel.deletePDF(pdf)
-                showingDeleteAlert = false
+                self.quiz = try await QuizManager.shared.getQuiz(id: quizId)
+                self.isLoading = false
             } catch {
-                errorMessage = error.localizedDescription
-                showingErrorAlert = true
+                self.error = error
+                self.isLoading = false
             }
         }
     }
 }
-
-
 struct PDFDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var pdf: PDFCategory
