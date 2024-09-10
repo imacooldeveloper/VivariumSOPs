@@ -107,7 +107,7 @@ import SwiftUI
 
 
 import SwiftUI
-
+/// trabajando
 struct CreateQuizView: View {
     @ObservedObject var viewModel: CreateQuizViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -249,6 +249,8 @@ struct AddQuestionView: View {
         }
     }
 }
+
+
 
 //struct EditQuestionView: View {
 //    @Binding var question: Question
