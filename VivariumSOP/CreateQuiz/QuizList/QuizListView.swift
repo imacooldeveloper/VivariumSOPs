@@ -20,29 +20,39 @@ struct QuizListView: View {
            ZStack {
                List {
                    ForEach(viewModel.quizzes) { quiz in
-                       QuizRowView(quiz: quiz)
-                           .onTapGesture {
-                               selectedQuiz = quiz
-                               showingEditQuizView = true
-                               refreshID = UUID() // Add this line
-                           }
-                           .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                               Button(role: .destructive) {
-                                   quizToDelete = quiz
-                                   showingDeleteAlert = true
-                               } label: {
-                                   Label("Delete", systemImage: "trash")
-                               }
-                           }
-                           .id(refreshID) // Add this line
-                   }
-               }
+                                     ZStack {
+                                         QuizRowView(quiz: quiz)
+                                         
+                                         NavigationLink(destination: EmptyView()) {
+                                             EmptyView()
+                                         }
+                                         .opacity(0)
+                                         .buttonStyle(PlainButtonStyle())
+                                     }
+                                     .contentShape(Rectangle())
+                                     .onTapGesture {
+                                         selectedQuiz = quiz
+                                         showingEditQuizView = true
+                                         refreshID = UUID()
+                                     }
+                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                         Button(role: .destructive) {
+                                             quizToDelete = quiz
+                                             showingDeleteAlert = true
+                                         } label: {
+                                             Label("Delete", systemImage: "trash")
+                                         }
+                                     }
+                                     .id(refreshID)
+                                 }
+                             }
+                             .listStyle(PlainListStyle())// This removes the default list styling
                .onChange(of: selectedQuizID) { newValue in
                           if let id = newValue, let quiz = viewModel.quizzes.first(where: { $0.id == id }) {
                               selectedQuiz = quiz
                           }
                       }
-                      .sheet(isPresented: $showingEditQuizView) {
+               .sheet(isPresented: $showingEditQuizView) {
                           if let quizToEdit = selectedQuiz {
                               EditQuizView(viewModel: EditQuizViewModel(quiz: quizToEdit))
                           }
@@ -120,21 +130,94 @@ struct QuizListView: View {
        }
 }
 
+//struct QuizRowView: View {
+//    let quiz: Quiz
+//    
+//    var body: some View {
+//        VStack(alignment: .leading) {
+//            Text(quiz.info.title)
+//                .font(.headline)
+//            Text(quiz.quizCategory)
+//                .font(.subheadline)
+//            Text("Due: \(quiz.dueDate?.formatted() ?? "No due date")")
+//                .font(.caption)
+//        }
+//    }
+//}
 struct QuizRowView: View {
     let quiz: Quiz
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(quiz.info.title)
-                .font(.headline)
-            Text(quiz.quizCategory)
-                .font(.subheadline)
-            Text("Due: \(quiz.dueDate?.formatted() ?? "No due date")")
-                .font(.caption)
+        HStack(spacing: 16) {
+            // Quiz icon
+            ZStack {
+                Circle()
+                    .fill(colorForCategory(quiz.quizCategory))
+                    .frame(width: 50, height: 50)
+                
+                Image(systemName: iconForCategory(quiz.quizCategory))
+                    .foregroundColor(.white)
+                    .font(.system(size: 24))
+            }
+            
+            // Quiz details
+            VStack(alignment: .leading, spacing: 4) {
+                Text(quiz.info.title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Text(quiz.quizCategory)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                HStack {
+                    Image(systemName: "calendar")
+                        .foregroundColor(.blue)
+                    Text(dueDateText)
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            Spacer()
+            
+            // Chevron icon
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private var dueDateText: String {
+        if let dueDate = quiz.dueDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            return formatter.string(from: dueDate)
+        } else {
+            return "No due date"
+        }
+    }
+    
+    private func colorForCategory(_ category: String) -> Color {
+        switch category.lowercased() {
+        case "biology": return .green
+        case "chemistry": return .blue
+        case "physics": return .orange
+        case "math": return .red
+        default: return .gray
+        }
+    }
+    
+    private func iconForCategory(_ category: String) -> String {
+        switch category.lowercased() {
+        case "biology": return "leaf.fill"
+        case "chemistry": return "flask.fill"
+        case "physics": return "atom"
+        case "math": return "function"
+        default: return "book.fill"
         }
     }
 }
-
 class QuizListViewModel: ObservableObject {
     @Published var quizzes: [Quiz] = []
     

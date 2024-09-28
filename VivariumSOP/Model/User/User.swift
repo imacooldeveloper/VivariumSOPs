@@ -23,6 +23,8 @@ struct User: Hashable, Codable, Identifiable {
     var quizScores: [UserQuizScore]?
     var floor: String?
 
+    
+    
     init(id: String? = nil, firstName: String, lastName: String, facilityName: String, username: String, userUID: String, userEmail: String, accountType: String, userPDFProgress: UserPDFProgress? = nil, NHPAvalible: Bool, assignedCategoryIDs: [String]? = nil, quizScores: [UserQuizScore]? = nil, floor: String? = nil) {
         self.id = id
         self.firstName = firstName
@@ -76,22 +78,90 @@ struct User: Hashable, Codable, Identifiable {
         try container.encodeIfPresent(self.quizScores, forKey: .quizScores)
         try container.encodeIfPresent(self.floor, forKey: .floor)
     }
+    
+    
+    
 }
+/// working method
+//struct UserQuizScore: Hashable, Codable {
+//    var quizID: String
+//    var scores: [CGFloat]
+//    var completionDates: [Date]
+//    var dueDates: [String: Date?]?
+//
+//    init(quizID: String, scores: [CGFloat], completionDates: [Date], dueDates: [String: Date?]? = nil) {
+//        self.quizID = quizID
+//        self.scores = scores
+//        self.completionDates = completionDates
+//        self.dueDates = dueDates
+//    }
+//    func toDictionary() -> [String: Any] {
+//         var dict: [String: Any] = [
+//             "quizID": quizID,
+//             "scores": scores,
+//             "completionDates": completionDates.map { $0.timeIntervalSince1970 }
+//         ]
+//         if let dueDates = dueDates {
+//             dict["dueDates"] = dueDates.mapValues { $0?.timeIntervalSince1970 }
+//         }
+//         return dict
+//     }
+//    
+//}
+
 
 struct UserQuizScore: Hashable, Codable {
     var quizID: String
-    var scores: [CGFloat]
-    var completionDates: [Date]
-    var dueDates: [String: Date?]?
+       var scores: [CGFloat]
+       var completionDates: [Date]
+       var dueDates: [String: Date?]?
+       var nextRenewalDates: [String: Date?]?
 
-    init(quizID: String, scores: [CGFloat], completionDates: [Date], dueDates: [String: Date?]? = nil) {
-        self.quizID = quizID
-        self.scores = scores
-        self.completionDates = completionDates
-        self.dueDates = dueDates
+       init(quizID: String, scores: [CGFloat], completionDates: [Date], dueDates: [String: Date?]? = nil, nextRenewalDates: [String: Date?]? = nil) {
+           self.quizID = quizID
+           self.scores = scores
+           self.completionDates = completionDates
+           self.dueDates = dueDates
+           self.nextRenewalDates = nextRenewalDates
+       }
+
+    func toDictionary() -> [String: Any] {
+        var dict: [String: Any] = [
+            "quizID": quizID,
+            "scores": scores,
+            "completionDates": completionDates.map { $0.timeIntervalSince1970 }
+        ]
+        if let dueDates = dueDates {
+            dict["dueDates"] = dueDates.mapValues { $0?.timeIntervalSince1970 }
+        }
+        if let nextRenewalDates = nextRenewalDates {
+            dict["nextRenewalDates"] = nextRenewalDates.mapValues { $0?.timeIntervalSince1970 }
+        }
+        return dict
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case quizID, scores, completionDates, dueDates, nextRenewalDates
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.quizID = try container.decode(String.self, forKey: .quizID)
+        self.scores = try container.decode([CGFloat].self, forKey: .scores)
+        self.completionDates = try container.decode([Date].self, forKey: .completionDates)
+        self.dueDates = try container.decodeIfPresent([String: Date?].self, forKey: .dueDates)
+        self.nextRenewalDates = try container.decodeIfPresent([String: Date?].self, forKey: .nextRenewalDates)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.quizID, forKey: .quizID)
+        try container.encode(self.scores, forKey: .scores)
+        try container.encode(self.completionDates, forKey: .completionDates)
+        try container.encodeIfPresent(self.dueDates, forKey: .dueDates)
+        try container.encodeIfPresent(self.nextRenewalDates, forKey: .nextRenewalDates)
     }
 }
-
 struct UserPDFProgress: Hashable, Codable {
     var userID: String
     var completedPDFs: [String]

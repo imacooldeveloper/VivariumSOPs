@@ -51,6 +51,11 @@
 		5B5B22612C88024E0043C3B4 /* QuizManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22602C88024E0043C3B4 /* QuizManager.swift */; };
 		5B5B22632C8810130043C3B4 /* EditQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22622C8810130043C3B4 /* EditQuizView.swift */; };
 		5B5B22662C8811B50043C3B4 /* QuizListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22652C8811B50043C3B4 /* QuizListView.swift */; };
+		5B98AB082CA44E0E00EE5DF2 /* MangementListUserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B98AB072CA44E0E00EE5DF2 /* MangementListUserView.swift */; };
+		5B98AB0A2CA44E2300EE5DF2 /* CardGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B98AB092CA44E2300EE5DF2 /* CardGroupView.swift */; };
+		5B98AB0C2CA44EBA00EE5DF2 /* UserHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B98AB0B2CA44EBA00EE5DF2 /* UserHomeView.swift */; };
+		5B98AB0E2CA44F4000EE5DF2 /* UserProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B98AB0D2CA44F4000EE5DF2 /* UserProfileViewModel.swift */; };
+		5B98AB102CA4574C00EE5DF2 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B98AB0F2CA4574C00EE5DF2 /* UserProfileView.swift */; };
 		5BA3523E2C8C38EF004FFB8E /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 5BA3523D2C8C38EF004FFB8E /* OpenAI */; };
 /* End PBXBuildFile section */
 
@@ -108,6 +113,11 @@
 		5B5B22602C88024E0043C3B4 /* QuizManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizManager.swift; sourceTree = "<group>"; };
 		5B5B22622C8810130043C3B4 /* EditQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditQuizView.swift; sourceTree = "<group>"; };
 		5B5B22652C8811B50043C3B4 /* QuizListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizListView.swift; sourceTree = "<group>"; };
+		5B98AB072CA44E0E00EE5DF2 /* MangementListUserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangementListUserView.swift; sourceTree = "<group>"; };
+		5B98AB092CA44E2300EE5DF2 /* CardGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardGroupView.swift; sourceTree = "<group>"; };
+		5B98AB0B2CA44EBA00EE5DF2 /* UserHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHomeView.swift; sourceTree = "<group>"; };
+		5B98AB0D2CA44F4000EE5DF2 /* UserProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileViewModel.swift; sourceTree = "<group>"; };
+		5B98AB0F2CA4574C00EE5DF2 /* UserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		5BA352382C8B2ACA004FFB8E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -172,6 +182,7 @@
 		5B5B21AB2C8691F50043C3B4 /* VivariumSOP */ = {
 			isa = PBXGroup;
 			children = (
+				5B98AB062CA44DE500EE5DF2 /* Managment */,
 				5BA352382C8B2ACA004FFB8E /* Info.plist */,
 				5B5B225A2C8801190043C3B4 /* CreateQuiz */,
 				5B5B22512C86C1060043C3B4 /* PDFCategory */,
@@ -360,6 +371,18 @@
 			path = QuizList;
 			sourceTree = "<group>";
 		};
+		5B98AB062CA44DE500EE5DF2 /* Managment */ = {
+			isa = PBXGroup;
+			children = (
+				5B98AB072CA44E0E00EE5DF2 /* MangementListUserView.swift */,
+				5B98AB092CA44E2300EE5DF2 /* CardGroupView.swift */,
+				5B98AB0B2CA44EBA00EE5DF2 /* UserHomeView.swift */,
+				5B98AB0D2CA44F4000EE5DF2 /* UserProfileViewModel.swift */,
+				5B98AB0F2CA4574C00EE5DF2 /* UserProfileView.swift */,
+			);
+			path = Managment;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -511,6 +534,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B98AB082CA44E0E00EE5DF2 /* MangementListUserView.swift in Sources */,
 				5B5B22492C86A38C0043C3B4 /* SOPService.swift in Sources */,
 				5B5B22382C86A0860043C3B4 /* UserManager.swift in Sources */,
 				5B5B22032C8696150043C3B4 /* RegisterUserView.swift in Sources */,
@@ -519,6 +543,7 @@
 				5B5B21AF2C8691F50043C3B4 /* ContentView.swift in Sources */,
 				5B5B225C2C8801380043C3B4 /* CreateQuizView.swift in Sources */,
 				5B5B22332C8698DD0043C3B4 /* PasswordTextField.swift in Sources */,
+				5B98AB0C2CA44EBA00EE5DF2 /* UserHomeView.swift in Sources */,
 				5B5B22312C8698AC0043C3B4 /* ViewAlignment.swift in Sources */,
 				5B5B22352C869C1E0043C3B4 /* LogInViewModel.swift in Sources */,
 				5B5B22502C86BEC00043C3B4 /* PDFDocument.swift in Sources */,
@@ -526,14 +551,17 @@
 				5B5B21AD2C8691F50043C3B4 /* VivariumSOPApp.swift in Sources */,
 				5B5B223C2C86A0F80043C3B4 /* Quiz.swift in Sources */,
 				5B5B224E2C86AFAC0043C3B4 /* PDFUploadView.swift in Sources */,
+				5B98AB0E2CA44F4000EE5DF2 /* UserProfileViewModel.swift in Sources */,
 				5B5B223A2C86A0AA0043C3B4 /* Querry.swift in Sources */,
 				5B5B22452C86A34A0043C3B4 /* MainTabBarView.swift in Sources */,
 				5B5B22402C86A1290043C3B4 /* Category.swift in Sources */,
 				5B5B22612C88024E0043C3B4 /* QuizManager.swift in Sources */,
+				5B98AB102CA4574C00EE5DF2 /* UserProfileView.swift in Sources */,
 				5B5B225F2C88020B0043C3B4 /* CreateQuizViewModel.swift in Sources */,
 				5B5B22592C86E1F30043C3B4 /* CustomAlertView.swift in Sources */,
 				5B5B22542C86C1240043C3B4 /* PDFCategoryViewModel.swift in Sources */,
 				5B5B224B2C86AF860043C3B4 /* PDFSTorageManager.swift in Sources */,
+				5B98AB0A2CA44E2300EE5DF2 /* CardGroupView.swift in Sources */,
 				5B5B223E2C86A1130043C3B4 /* Info.swift in Sources */,
 				5B5B22062C8696270043C3B4 /* RegisterUserVIewModel.swift in Sources */,
 				5B5B21EB2C8694EE0043C3B4 /* User.swift in Sources */,
@@ -693,17 +721,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VivariumSOP/VivariumSOP.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VivariumSOP/Preview Content\"";
-				DEVELOPMENT_TEAM = C3H3F2K42A;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = J5M8ZQUM64;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VivariumSOP/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VivariumSOP;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = 1.0;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -719,8 +750,10 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TheCooldeveloper.VivariumSOP;
+				PRODUCT_BUNDLE_IDENTIFIER = com.VivariumSOPuserss;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SOPUSERADMIN_IPADS_PROV;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -735,17 +768,20 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VivariumSOP/VivariumSOP.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VivariumSOP/Preview Content\"";
-				DEVELOPMENT_TEAM = C3H3F2K42A;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = J5M8ZQUM64;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VivariumSOP/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VivariumSOP;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = 1.0;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -761,8 +797,10 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TheCooldeveloper.VivariumSOP;
+				PRODUCT_BUNDLE_IDENTIFIER = com.VivariumSOPuserss;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SOPUSERADMIN_IPADS_PROV;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;

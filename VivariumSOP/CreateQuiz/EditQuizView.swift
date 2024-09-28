@@ -254,11 +254,18 @@ class EditQuizViewModel: ObservableObject {
     private let userManager = UserManager.shared
     private let quizManager = QuizManager.shared
     private let quizId: String
-    
+    @Published var renewalFrequency: Quiz.RenewalFrequency?
+    @Published var nextRenewalDate: Date?
+    @Published var customRenewalDate: Date = Date()
+   
     var availableAccountTypes: [AccountType] {
         AccountType.allCases
     }
-    
+    func updateRenewalFrequency(_ newValue: Quiz.RenewalFrequency?) {
+           print("Attempting to update renewal frequency to: \(String(describing: newValue))")
+           self.renewalFrequency = newValue
+           print("Renewal frequency is now: \(String(describing: self.renewalFrequency))")
+       }
     init(quiz: Quiz) {
 //        self.quizId = quiz.id
 //        self.quizTitle = quiz.info.title
@@ -277,14 +284,20 @@ class EditQuizViewModel: ObservableObject {
         
         
         self.quizId = quiz.id
-          self.quizTitle = quiz.info.title
-          self.quizDescription = quiz.info.description
-          self.quizCategory = quiz.quizCategory
-          self.quizCategoryID = quiz.quizCategoryID
-          self.quizDueDate = quiz.dueDate ?? Date()
-          self.selectedAccountTypes = Set(quiz.accountTypes)
-          self.questions = []
-          
+            self.quizTitle = quiz.info.title
+            self.quizDescription = quiz.info.description
+            self.quizCategory = quiz.quizCategory
+            self.quizCategoryID = quiz.quizCategoryID
+            self.quizDueDate = quiz.dueDate ?? Date()
+            self.selectedAccountTypes = Set(quiz.accountTypes)
+            self.questions = []
+           // self.renewalFrequency = quiz.renewalFrequency
+               // self.nextRenewalDate = quiz.nextRenewalDates ?? Date()
+        
+        self.renewalFrequency = quiz.renewalFrequency
+        
+        self.nextRenewalDate = quiz.nextRenewalDates
+        self.customRenewalDate = quiz.nextRenewalDates ?? Date()
           print("Initializing EditQuizViewModel with quiz: \(quiz.id)")
           
           Task {
@@ -371,37 +384,63 @@ class EditQuizViewModel: ObservableObject {
 //            selectedUserIDs.insert(userId)
 //        }
 //    }
-    
-    func updateQuiz() async throws {
-        let updatedQuiz = Quiz(
-            id: quizId,
-            info: Info(
-                title: quizTitle,
-                description: quizDescription,
-                peopleAttended: 0,
-                rules: [""]
-            ),
-            quizCategory: quizCategory,
-            quizCategoryID: quizCategoryID,
-            accountTypes: Array(selectedAccountTypes),
-            dateCreated: nil,
-            dueDate: quizDueDate
-        )
-        
-        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-        
-        // Assign quiz to selected users
-        for userID in selectedUserIDs {
-            try await userManager.assignQuizToUser(userID: userID, quizID: quizId, dueDate: quizDueDate)
-        }
-        
-        // Remove quiz from unselected users
-        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
-        for userID in unselectedUsers {
-            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
-        }
-    }
-    
+    /// working method 
+//    func updateQuiz() async throws {
+//        let updatedQuiz = Quiz(
+//            id: quizId,
+//            info: Info(
+//                title: quizTitle,
+//                description: quizDescription,
+//                peopleAttended: 0,
+//                rules: [""]
+//            ),
+//            quizCategory: quizCategory,
+//            quizCategoryID: quizCategoryID,
+//            accountTypes: Array(selectedAccountTypes),
+//            dateCreated: nil,
+//            dueDate: quizDueDate
+//        )
+//        
+//        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+//        
+//        // Assign quiz to selected users
+//        for userID in selectedUserIDs {
+//            try await userManager.assignQuizToUser(userID: userID, quizID: quizId, dueDate: quizDueDate)
+//        }
+//        
+//        // Remove quiz from unselected users
+//        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+//        for userID in unselectedUsers {
+//            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+//        }
+//    }
+//    func updateQuiz() async throws {
+//        let updatedQuiz = Quiz(
+//            id: quizId,
+//            info: Info(
+//                title: quizTitle,
+//                description: quizDescription,
+//                peopleAttended: 0,
+//                rules: [""]
+//            ),
+//            quizCategory: quizCategory,
+//            quizCategoryID: quizCategoryID,
+//            accountTypes: Array(selectedAccountTypes),
+//            dateCreated: nil,
+//            dueDate: quizDueDate,
+//            renewalFrequency: renewalFrequency,
+//            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil
+//        )
+//        
+//        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+//        
+//        // Assign quiz to selected users
+//        for userID in selectedUserIDs {
+//            if let user = try await userManager.fetchUsers(by: userID) {
+//                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//            }
+//        }
+//    }
 //    func toggleUserSelection(_ userId: String) {
 //            if selectedUserIDs.contains(userId) {
 //                selectedUserIDs.remove(userId)
@@ -445,7 +484,18 @@ class EditQuizViewModel: ObservableObject {
                 self.userLoadingError = error.localizedDescription
             }
         }
-
+    func fetchQuizDetails() async {
+        do {
+            let fetchedQuiz = try await quizManager.getQuiz(id: quizId)
+            await MainActor.run {
+                self.renewalFrequency = fetchedQuiz.renewalFrequency
+                self.nextRenewalDate = fetchedQuiz.nextRenewalDates
+                self.customRenewalDate = fetchedQuiz.nextRenewalDates ?? Date()
+            }
+        } catch {
+            print("Error fetching quiz details: \(error)")
+        }
+    }
         private func updateSelectedUsers() {
             // Update selectedUserIDs based on the current quiz and fetched users
             selectedUserIDs = Set(availableUsers.filter { user in
@@ -477,51 +527,131 @@ class EditQuizViewModel: ObservableObject {
            }
            objectWillChange.send()
        }
+    
+    
+    func calculateNextRenewalDate() -> Date? {
+            guard let frequency = renewalFrequency else { return nil }
+            let calendar = Calendar.current
+            switch frequency {
+            case .quarterly:
+                return calendar.date(byAdding: .month, value: 3, to: quizDueDate)
+            case .yearly:
+                return calendar.date(byAdding: .year, value: 1, to: quizDueDate)
+            case .custom:
+                return nextRenewalDate
+            }
+        }
+    
+    func updateQuiz() async throws {
+            let nextRenewalDate = calculateNextRenewalDate()
+            let updatedQuiz = Quiz(
+                id: quizId,
+                info: Info(
+                    title: quizTitle,
+                    description: quizDescription,
+                    peopleAttended: 0,
+                    rules: [""]
+                ),
+                quizCategory: quizCategory,
+                quizCategoryID: quizCategoryID,
+                accountTypes: Array(selectedAccountTypes),
+                dateCreated: nil,
+                dueDate: quizDueDate,
+                renewalFrequency: renewalFrequency,
+                nextRenewalDates: nextRenewalDate,
+                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil
+            )
+            
+            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+            
+            // Assign quiz to selected users
+            for userID in selectedUserIDs {
+                if let user = try await userManager.fetchUsers(by: userID) {
+                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+                }
+            }
+        }
 }
+
+
 struct EditQuizView: View {
     @ObservedObject var viewModel: EditQuizViewModel
-    @Environment(\.presentationMode) var presentationMode
-    @State private var showingAddQuestion = false
-    @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
-    @State private var refreshToggle = false
+       @Environment(\.presentationMode) var presentationMode
+       @State private var showingAddQuestion = false
+       @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+       @State private var refreshToggle = false
+       @State private var selectedRenewalFrequency: Quiz.RenewalFrequency?
+       @State private var customRenewalDate: Date = Date()
+    private var renewalFrequencyBinding: Binding<Quiz.RenewalFrequency?> {
+            Binding<Quiz.RenewalFrequency?>(
+                get: { self.viewModel.renewalFrequency },
+                set: { self.viewModel.updateRenewalFrequency($0) }
+            )
+        }
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Quiz Details")) {
-                    TextField("Quiz Title", text: $viewModel.quizTitle)
-                        .disabled(true)
-                    TextField("Description", text: $viewModel.quizDescription)
-                    DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
-                }
+                           Section(header: Text("Quiz Details")) {
+                               TextField("Quiz Title", text: $viewModel.quizTitle)
+                                   .disabled(true)
+                               TextField("Description", text: $viewModel.quizDescription)
+                               DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+                           }
+                
+                Section(header: Text("Renewal Settings")) {
+                    Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
+                        Text("None").tag(Quiz.RenewalFrequency?.none)
+                        Text("Quarterly").tag(Quiz.RenewalFrequency?.some(.quarterly))
+                        Text("Yearly").tag(Quiz.RenewalFrequency?.some(.yearly))
+                        Text("Custom").tag(Quiz.RenewalFrequency?.some(.custom))
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+
+                    if viewModel.renewalFrequency == .custom {
+                        DatePicker("Custom Renewal Date", selection: $viewModel.customRenewalDate, displayedComponents: .date)
+                    }
+
+                    if let nextRenewalDate = viewModel.nextRenewalDate {
+                        Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
+                    }
+                              }
+//
+//                    if selectedRenewalFrequency == .custom {
+//                        DatePicker("Custom Renewal Date", selection: $customRenewalDate, displayedComponents: .date)
+//                            .onChange(of: customRenewalDate) { newValue in
+//                                viewModel.customRenewalDate = newValue
+//                            }
+//                    }
+               // }
                 
                 Section(header: Text("Account Types")) {
-                                 ForEach(AccountType.allCases, id: \.self) { accountType in
-                                     Toggle(accountType.rawValue, isOn: Binding(
-                                         get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
-                                         set: { _ in viewModel.toggleAccountType(accountType.rawValue) }
-                                     ))
-                                 }
-                             }
+                    ForEach(AccountType.allCases, id: \.self) { accountType in
+                        Toggle(accountType.rawValue, isOn: Binding(
+                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+                            set: { _ in viewModel.toggleAccountType(accountType.rawValue) }
+                        ))
+                    }
+                }
                 
                 Section(header: Text("Assign to Users")) {
-                                   if viewModel.isLoadingUsers {
-                                       ProgressView("Loading users...")
-                                   } else if let error = viewModel.userLoadingError {
-                                       Text("Error: \(error)")
-                                           .foregroundColor(.red)
-                                   } else if viewModel.availableUsers.isEmpty {
-                                       Text("No users available")
-                                   } else {
-                                       ForEach(viewModel.availableUsers, id: \.id) { user in
-                                           Toggle(isOn: Binding(
-                                               get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
-                                               set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
-                                           )) {
-                                               Text("\(user.username) - \(user.accountType)")
-                                           }
-                                       }
-                                   }
-                               }
+                    if viewModel.isLoadingUsers {
+                        ProgressView("Loading users...")
+                    } else if let error = viewModel.userLoadingError {
+                        Text("Error: \(error)")
+                            .foregroundColor(.red)
+                    } else if viewModel.availableUsers.isEmpty {
+                        Text("No users available")
+                    } else {
+                        ForEach(viewModel.availableUsers, id: \.id) { user in
+                            Toggle(isOn: Binding(
+                                get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+                                set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+                            )) {
+                                Text("\(user.username) - \(user.accountType)")
+                            }
+                        }
+                    }
+                }
                 
                 Section(header: Text("Questions")) {
                     ForEach(viewModel.questions.indices, id: \.self) { index in
@@ -552,8 +682,11 @@ struct EditQuizView: View {
             }
         }
         .id(refreshToggle)
-        .onAppear{
+        .onAppear {
+//            selectedRenewalFrequency = viewModel.renewalFrequency
+//            customRenewalDate = viewModel.customRenewalDate ?? Date()
             Task {
+                await viewModel.fetchQuizDetails()
                 await viewModel.fetchAvailableUsers()
             }
         }
@@ -573,5 +706,10 @@ struct EditQuizView: View {
             }
         }
     }
-    
+    private let itemFormatter: DateFormatter = {
+           let formatter = DateFormatter()
+           formatter.dateStyle = .medium
+           formatter.timeStyle = .short
+           return formatter
+       }()
 }

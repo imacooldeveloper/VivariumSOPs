@@ -406,15 +406,35 @@ struct PDFUploadView: View {
         }
     }
     
+//    private func handleFileImport(_ result: Result<[URL], Error>) {
+//        switch result {
+//        case .success(let urls):
+//            selectedPDFs.append(contentsOf: urls)
+//        case .failure(let error):
+//            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+//        }
+//    }
     private func handleFileImport(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
-            selectedPDFs.append(contentsOf: urls)
+            for url in urls {
+                // Start accessing a security-scoped resource.
+                guard url.startAccessingSecurityScopedResource() else {
+                    print("Failed to access the resource.")
+                    continue
+                }
+                
+                // Make sure you release the security-scoped resource when you finish.
+                defer { url.stopAccessingSecurityScopedResource() }
+                
+                // Here, you can create a local copy of the file if needed
+                // For now, we'll just add the URL to our selectedPDFs array
+                selectedPDFs.append(url)
+            }
         case .failure(let error):
             showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
         }
     }
-    
     private func deletePDFs(at offsets: IndexSet) {
         selectedPDFs.remove(atOffsets: offsets)
     }
@@ -460,6 +480,52 @@ struct PDFUploadView: View {
 //            }
 //        }
 //    }
+    
+    
+    /// working on
+//    private func uploadPDFs() {
+//        Task {
+//            do {
+//                isUploading = true
+//                uploadProgress = 0
+//                
+//                for (index, url) in selectedPDFs.enumerated() {
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName
+//                    )
+//                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                   
+//                    
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    
+    
     private func uploadPDFs() {
         Task {
             do {
@@ -467,6 +533,12 @@ struct PDFUploadView: View {
                 uploadProgress = 0
                 
                 for (index, url) in selectedPDFs.enumerated() {
+                    guard url.startAccessingSecurityScopedResource() else {
+                        print("Failed to access the resource.")
+                        continue
+                    }
+                    defer { url.stopAccessingSecurityScopedResource() }
+                    
                     let data = try Data(contentsOf: url)
                     let pdfName = url.deletingPathExtension().lastPathComponent
                     
@@ -480,7 +552,6 @@ struct PDFUploadView: View {
                     await MainActor.run {
                         currentUploadingPDF = pdfName
                     }
-                   
                     
                     try await viewModel.uploadPDF(data: data, category: pdfCategory)
                     

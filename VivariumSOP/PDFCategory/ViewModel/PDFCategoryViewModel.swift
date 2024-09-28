@@ -438,7 +438,7 @@ class PDFCategoryViewModel: ObservableObject {
         Task {
             await fetchPDFCategories()
             await fetchSOPCategories()
-            await fetchCategories()
+            await fetchCategoriesonHome()
         }
     }
     func fetchCategories() async {
@@ -448,21 +448,61 @@ class PDFCategoryViewModel: ObservableObject {
                    try? document.data(as: Category.self)
                }
                self.categories = fetchedCategories
+               
+               print(self.categories)
            } catch {
                print("Error fetching categories: \(error.localizedDescription)")
            }
        }
-
-       func addCategory(_ categoryTitle: String) async {
+// this adds a new category when the user creates a new tittle
+       func addCategorywith(_ categoryTitle: String) async {
            do {
                let newCategory = Category(id: UUID().uuidString, categoryTitle: categoryTitle)
                try await db.collection("categoryList").document(newCategory.id).setData(from: newCategory)
+               
+               
                self.categories.append(newCategory)
+               
+               print(newCategory)
            } catch {
                print("Error adding category: \(error.localizedDescription)")
            }
        }
 
+    
+    func addCategory(_ categoryTitle: String) async {
+            do {
+                let newCategory = Category(id: UUID().uuidString, categoryTitle: categoryTitle)
+                try await db.collection("categoryList").document(newCategory.id).setData(from: newCategory)
+                
+                await MainActor.run {
+                    self.categories.append(newCategory)
+                    if !self.uniqueCategories.contains(categoryTitle) {
+                        self.uniqueCategories.append(categoryTitle)
+                    }
+                }
+                
+                // Refresh the categories after adding a new one
+                await fetchCategories()
+            } catch {
+                print("Error adding category: \(error.localizedDescription)")
+            }
+        }
+    
+    func fetchCategoriesonHome() async {
+          do {
+              let snapshot = try await db.collection("categoryList").getDocuments()
+              let fetchedCategories = snapshot.documents.compactMap { document -> Category? in
+                  try? document.data(as: Category.self)
+              }
+              self.categories = fetchedCategories
+              self.uniqueCategories = Array(Set(fetchedCategories.map { $0.categoryTitle })).sorted()
+              print(self.uniqueCategories)
+          } catch {
+              print("Error fetching categories: \(error.localizedDescription)")
+          }
+      }
+    
        func updateCategory(_ category: Category) async {
            do {
                try await db.collection("categoryList").document(category.id).setData(from: category)
@@ -536,7 +576,7 @@ class PDFCategoryViewModel: ObservableObject {
     @MainActor
     func fetchCategoriesIfNeeded() async {
         Task {
-            await fetchPDFCategories()
+            await fetchCategories()
         }
     }
     
@@ -586,17 +626,72 @@ class PDFCategoryViewModel: ObservableObject {
             .sorted(by: { $0.pdfName < $1.pdfName })
     }
     
-    func updatePDFCategory(_ category: PDFCategory) {
-        Task {
-            do {
-                let categoryRef = db.collection("PDFCategory").document(category.id)
-                try await categoryRef.setData(from: category, merge: true)
-            } catch {
-                print("Error updating PDF category: \(error.localizedDescription)")
+//    func updatePDFCategory(_ category: PDFCategory) {
+//        Task {
+//            do {
+//                let categoryRef = db.collection("PDFCategory").document(category.id)
+//                try await categoryRef.setData(from: category, merge: true)
+//            } catch {
+//                print("Error updating PDF category: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+    
+    @MainActor
+    func updatePDFCategory(_ category: PDFCategory) async throws {
+        do {
+            var updatedCategory = category // Create a mutable copy
+            
+            // Update Firestore
+            let categoryRef = db.collection("PDFCategory").document(category.id)
+            try await categoryRef.setData(from: updatedCategory, merge: true)
+            
+            // Update local array
+            if let index = pdfCategories.firstIndex(where: { $0.id == updatedCategory.id }) {
+                pdfCategories[index] = updatedCategory
             }
+            
+            // Update Firebase Storage if the PDF file has changed
+            if let pdfURL = updatedCategory.pdfURL, let url = URL(string: pdfURL) {
+                let path = "pdfs/\(updatedCategory.nameOfCategory)/\(updatedCategory.SOPForStaffTittle)/\(updatedCategory.pdfName).pdf"
+                let storageRef = storage.reference().child(path)
+                
+                // Check if the file exists in Storage
+                do {
+                    _ = try await storageRef.downloadURL()
+                    // If we get here, the file exists, so we update it
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    _ = try await storageRef.putDataAsync(data)
+                    let newDownloadURL = try await storageRef.downloadURL()
+                    
+                    // Update Firestore with the new URL if it has changed
+                    if newDownloadURL.absoluteString != pdfURL {
+                        try await categoryRef.updateData(["pdfURL": newDownloadURL.absoluteString])
+                        updatedCategory.pdfURL = newDownloadURL.absoluteString
+                    }
+                } catch {
+                    // If the file doesn't exist, we create it
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    _ = try await storageRef.putDataAsync(data)
+                    let newDownloadURL = try await storageRef.downloadURL()
+                    try await categoryRef.updateData(["pdfURL": newDownloadURL.absoluteString])
+                    updatedCategory.pdfURL = newDownloadURL.absoluteString
+                }
+            }
+            
+            // Update local array again with potentially modified URL
+            if let index = pdfCategories.firstIndex(where: { $0.id == updatedCategory.id }) {
+                pdfCategories[index] = updatedCategory
+            }
+            
+            // Update unique categories
+            self.updateUniqueCategories()
+            
+        } catch {
+            print("Error updating PDF category: \(error.localizedDescription)")
+            throw error
         }
     }
-    
     func addPDFCategory(_ category: PDFCategory) {
         Task {
             do {

@@ -177,11 +177,22 @@ class CreateQuizViewModel: ObservableObject {
         // Upload the quiz and get the quiz ID
         let uploadedQuizID = try await uploadQuizs()
         
+        // Fetch the uploaded quiz
+        guard let uploadedQuiz = try await quizManager.getQuizByTitle(quizTitle) else {
+            throw NSError(domain: "CreateQuizViewModel", code: 404, userInfo: [NSLocalizedDescriptionKey: "Uploaded quiz not found"])
+        }
+        
         // Assign quiz to selected users
         for userID in selectedUserIDs {
-            try await UserManager.shared.assignQuizToUser(userID: userID, quizID: uploadedQuizID, dueDate: quizDueDate)
+            do {
+                let user = try await UserManager.shared.fetchUser(by: userID)
+                try await UserManager.shared.assignQuizToUser(user: user, quiz: uploadedQuiz)
+            } catch {
+                print("Error assigning quiz to user \(userID): \(error)")
+            }
         }
     }
+    
 
     func uploadQuizs() async throws -> String {
         let quizToUpload = Quiz(

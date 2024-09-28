@@ -44,6 +44,23 @@ class QuizManager {
              
      }
     
+    func fetchQuizzesForAccountTypes(_ accountTypes: [String]) async throws -> [Quiz] {
+          let db = Firestore.firestore()
+          let quizSnapshot = try await db.collection("Quiz")
+              .whereField("accountTypes", arrayContainsAny: accountTypes)
+              .getDocuments()
+          
+          return quizSnapshot.documents.compactMap { document in
+              try? document.data(as: Quiz.self)
+          }
+      }
+    
+//    func getQuizByTitle(_ title: String) async throws -> Quiz? {
+//        let snapshot = try await db.collection("Quizzes").whereField("info.title", isEqualTo: title).getDocuments()
+//        return try snapshot.documents.first?.data(as: Quiz.self)
+//    }
+    
+    
 //    func getQuizList(category: String?) async throws -> [Quiz]  {
 //        var query = getQuizQuery()
 //
@@ -202,7 +219,16 @@ class QuizManager {
                 try? document.data(as: Quiz.self)
             }
         }
-    
+//    func getQuiz(id: String) async throws -> Quiz {
+//         let db = Firestore.firestore()
+//         let docSnapshot = try await db.collection("Quiz").document(id).getDocument()
+//         
+//         guard let data = docSnapshot.data(), docSnapshot.exists else {
+//             throw NSError(domain: "QuizManager", code: 404, userInfo: [NSLocalizedDescriptionKey: "Quiz not found"])
+//         }
+//         
+//         return try Firestore.Decoder().decode(Quiz.self, from: data)
+//     }
     func updateQuizDueDate(quizId: String, newDate: Date) async throws {
         let db = Firestore.firestore()
         try await db.collection("quizzes").document(quizId).updateData([
@@ -210,10 +236,10 @@ class QuizManager {
         ])
     }
     
-    func getQuizByTitle(_ title: String) async throws -> Quiz? {
-           let snapshot = try await quizCollection.whereField("info.title", isEqualTo: title).getDocuments()
-           return try snapshot.documents.first?.data(as: Quiz.self)
-       }
+//    func getQuizByTitle(_ title: String) async throws -> Quiz? {
+//           let snapshot = try await quizCollection.whereField("info.title", isEqualTo: title).getDocuments()
+//           return try snapshot.documents.first?.data(as: Quiz.self)
+//       }
     
     func getQuestionsForQuiz(quizId: String) async throws -> [Question] {
             let questionsSnapshot = try await quizCollection.document(quizId).collection("Questions").getDocuments()
@@ -221,13 +247,17 @@ class QuizManager {
                 try? document.data(as: Question.self)
             }
         }
+    
+    func getQuizByTitle(_ title: String) async throws -> Quiz? {
+        let snapshot = try await db.collection("Quizzes").whereField("info.title", isEqualTo: title).getDocuments()
+        return try snapshot.documents.first?.data(as: Quiz.self)
+    }
         
         func updateQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws {
             let db = Firestore.firestore()
-            
             let quizRef = db.collection("Quiz").document(quiz.id)
             
-            let quizData: [String: Any] = [
+            var quizData: [String: Any] = [
                 "info": [
                     "title": quiz.info.title,
                     "description": quiz.info.description,
@@ -237,10 +267,13 @@ class QuizManager {
                 "quizCategory": quiz.quizCategory,
                 "quizCategoryID": quiz.quizCategoryID,
                 "accountTypes": quiz.accountTypes,
-                "dueDate": quiz.dueDate ?? Date()
+                "dateCreated": quiz.dateCreated ?? FieldValue.serverTimestamp(),
+                "dueDate": quiz.dueDate ?? FieldValue.serverTimestamp(),
+                "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
+                "nextRenewalDate": quiz.nextRenewalDates ?? NSNull()
             ]
-            
-            try await quizRef.updateData(quizData)
+            try await quizRef.setData(quizData, merge: true)
+            //try await quizRef.updateData(quizData)
             
             // Delete existing questions
             let existingQuestions = try await quizRef.collection("Questions").getDocuments()

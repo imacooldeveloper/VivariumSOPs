@@ -26,7 +26,16 @@ class UserManager {
         let snapshot = try await userCollection.getDocuments()
         return try snapshot.documents.compactMap { try $0.data(as: User.self) }
     }
-    
+    func getAllUser() async throws -> [User] {
+        let snapshot = try await userCollection.getDocuments()
+        var room: [User] = []
+        
+        for doc in snapshot.documents {
+            let rooms = try doc.data(as: User.self)
+            room.append(rooms)
+        }
+        return room
+    }
     private func getUserQuery() -> Query {
         userCollection
     }
@@ -95,6 +104,12 @@ class UserManager {
         return user
     }
     
+    func fetchUsers(by userId: String) async throws -> User? {
+        let userRef = userDocuments(id: userId)
+        let snapshot = try await userRef.getDocument()
+        return try? snapshot.data(as: User.self)
+    }
+    
     func updateUserCategories(userID: String, categories: [String]) async throws {
         let userRef = userDocuments(id: userID)
         try await userRef.updateData([User.CodingKeys.assignedCategoryIDs.rawValue: categories])
@@ -111,27 +126,108 @@ class UserManager {
     
     /// assign quiz to user
     ///
-    func assignQuizToUser(userID: String, quizID: String, dueDate: Date) async throws {
-        let userRef = userDocuments(id: userID)
-        
-        let userSnapshot = try await userRef.getDocument()
-        var user = try userSnapshot.data(as: User.self)
-        
-        if user.quizScores == nil {
-            user.quizScores = []
+
+    ///WOrking MEthod
+    
+    //    func assignQuizToUser(userID: String, quizID: String, dueDate: Date) async throws {
+//        let userRef = userDocuments(id: userID)
+//        
+//        let userSnapshot = try await userRef.getDocument()
+//        var user = try userSnapshot.data(as: User.self)
+//        
+//        if user.quizScores == nil {
+//            user.quizScores = []
+//        }
+//        
+//        if let index = user.quizScores?.firstIndex(where: { $0.quizID == quizID }) {
+//            // Update existing quiz score
+//            user.quizScores?[index].dueDates = [quizID: dueDate]
+//        } else {
+//            // Add new quiz score
+//            let newQuizScore = UserQuizScore(quizID: quizID, scores: [], completionDates: [], dueDates: [quizID: dueDate])
+//            user.quizScores?.append(newQuizScore)
+//        }
+//        
+//        try await uploadUser(user: user)
+//    }
+//    
+    func updateUser(_ user: User) async throws {
+            guard let userId = user.id else {
+                throw NSError(domain: "UserManager", code: 400, userInfo: [NSLocalizedDescriptionKey: "User ID is missing"])
+            }
+            let userRef = userDocuments(id: userId)
+            try await userRef.setData(from: user, merge: true)
         }
-        
-        if let index = user.quizScores?.firstIndex(where: { $0.quizID == quizID }) {
-            // Update existing quiz score
-            user.quizScores?[index].dueDates = [quizID: dueDate]
+    func assignQuizToUser(user: User, quiz: Quiz) async throws {
+        var updatedUser = user
+        let now = Date()
+        let dueDate = quiz.dueDate ?? now
+        let nextRenewalDate = calculateNextRenewalDate(for: quiz, from: dueDate)
+
+        if updatedUser.quizScores == nil {
+            updatedUser.quizScores = []
+        }
+
+        if let index = updatedUser.quizScores?.firstIndex(where: { $0.quizID == quiz.id }) {
+            updatedUser.quizScores?[index].dueDates = [quiz.id: dueDate]
+            updatedUser.quizScores?[index].nextRenewalDates = [quiz.id: nextRenewalDate]
         } else {
-            // Add new quiz score
-            let newQuizScore = UserQuizScore(quizID: quizID, scores: [], completionDates: [], dueDates: [quizID: dueDate])
-            user.quizScores?.append(newQuizScore)
+            let newQuizScore = UserQuizScore(
+                quizID: quiz.id,
+                scores: [],
+                completionDates: [],
+                dueDates: [quiz.id: dueDate],
+                nextRenewalDates: [quiz.id: nextRenewalDate]
+            )
+            updatedUser.quizScores?.append(newQuizScore)
         }
-        
-        try await uploadUser(user: user)
+
+        try await updateUser(updatedUser)
     }
+
+    func calculateNextRenewalDate(for quiz: Quiz, from date: Date) -> Date? {
+        guard let renewalFrequency = quiz.renewalFrequency else { return nil }
+        
+        let calendar = Calendar.current
+        switch renewalFrequency {
+        case .quarterly:
+            return calendar.date(byAdding: .month, value: 3, to: date)
+        case .yearly:
+            return calendar.date(byAdding: .year, value: 1, to: date)
+        case .custom:
+            return quiz.customRenewalDate
+        }
+    }
+    func checkAndUpdateQuizRenewals(for user: User) async throws {
+        var updatedUser = user
+        let now = Date()
+
+        for (index, quizScore) in updatedUser.quizScores?.enumerated() ?? [].enumerated() {
+            if let nextRenewalDate = quizScore.nextRenewalDates?[quizScore.quizID],
+               let unwrappedNextRenewalDate = nextRenewalDate, // Safely unwrap the optional Date
+               unwrappedNextRenewalDate <= now {
+                // Fetch the quiz to get the current renewal frequency
+                guard let quiz = try await fetchQuiz(id: quizScore.quizID) else { continue }
+
+                // Reset scores and update dates
+                updatedUser.quizScores?[index].scores = []
+                updatedUser.quizScores?[index].completionDates = []
+                updatedUser.quizScores?[index].dueDates = [quizScore.quizID: now]
+                
+                let nextRenewalDate = quiz.calculateNextRenewalDate(from: now)
+                updatedUser.quizScores?[index].nextRenewalDates = [quizScore.quizID: nextRenewalDate]
+            }
+        }
+
+        // Update user in Firestore
+        try await updateUser(updatedUser)
+    }
+    // You'll also need to implement this method:
+       func fetchQuiz(id: String) async throws -> Quiz? {
+           let quizRef = db.collection("Quizzes").document(id)
+           let document = try await quizRef.getDocument()
+           return try? document.data(as: Quiz.self)
+       }
 //    func getAllUserss() async throws -> [User] {
 //        let snapshot = try await userCollection.getDocuments()
 //        return snapshot.documents.compactMap { document -> User? in
@@ -263,22 +359,31 @@ class UserManager {
          }
            
        
-       func assignQuizzesForNewUser(user: User) async throws {
-           let quizzes = try await getQuizzesForAccountType(accountType: user.accountType)
-           for quiz in quizzes {
-               try await assignQuizToUser(userID: user.userUID, quizID: quiz.id, dueDate: quiz.dueDate ?? Date())
-           }
-       }
+    func assignQuizzesForNewUser(user: User) async throws {
+        let quizzes = try await getQuizzesForAccountType(accountType: user.accountType)
+        for quiz in quizzes {
+            try await assignQuizToUser(user: user, quiz: quiz)
+        }
+    }
        
-       func getQuizzesForAccountType(accountType: String) async throws -> [Quiz] {
-           let snapshot = try await db.collection("Quizzes")
-               .whereField("accountTypes", arrayContains: accountType)
-               .getDocuments()
-           
-           return snapshot.documents.compactMap { document in
-               try? document.data(as: Quiz.self)
-           }
-       }
+//       func getQuizzesForAccountType(accountType: String) async throws -> [Quiz] {
+//           let snapshot = try await db.collection("Quizzes")
+//               .whereField("accountTypes", arrayContains: accountType)
+//               .getDocuments()
+//           
+//           return snapshot.documents.compactMap { document in
+//               try? document.data(as: Quiz.self)
+//           }
+//       }
+    func getQuizzesForAccountType(accountType: String) async throws -> [Quiz] {
+        let snapshot = try await db.collection("Quizzes")
+            .whereField("accountTypes", arrayContains: accountType)
+            .getDocuments()
+        
+        return snapshot.documents.compactMap { document in
+            try? document.data(as: Quiz.self)
+        }
+    }
        
        func getAllUserss() async throws -> [User] {
            print("Fetching all users")

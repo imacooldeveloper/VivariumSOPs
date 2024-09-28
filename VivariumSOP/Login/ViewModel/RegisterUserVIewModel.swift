@@ -176,7 +176,86 @@ final class RegisterUserViewModel: ObservableObject {
 //    }
 
   
-    
+    /// working form
+//    func registerUser() {
+//        guard validateForm() else { return }
+//        
+//        isLoading = true
+//        Task {
+//            do {
+//                // Step 1: Create Authentication User
+//                let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+//                let userUID = authResult.user.uid
+//                
+//                print("Authentication user created with UID: \(userUID)")
+//                
+//                // Step 2: Fetch relevant quizzes based on account type
+//                let relevantQuizzes = try await fetchQuizzesForAccountType(accountType)
+//                
+//                // Step 3: Create initial quiz scores for the user
+//                let initialQuizScores = relevantQuizzes.map { quiz in
+//                    UserQuizScore(
+//                        quizID: quiz.id,
+//                        scores: [],
+//                        completionDates: [],
+//                        dueDate: [quiz.id: quiz.dueDate ?? Date().addingTimeInterval(7 * 24 * 60 * 60)] // Default to 1 week from now if no due date
+//                    )
+//                }
+//                
+//                // Step 4: Create Firestore User Document
+//                let user = User(
+//                    id: userUID,
+//                    firstName: firstName,
+//                    lastName: lastName,
+//                    facilityName: facilityName,
+//                    username: username,
+//                    userUID: userUID,
+//                    userEmail: email,
+//                    accountType: accountType,
+//                    userPDFProgress: UserPDFProgress(userID: userUID, completedPDFs: []),
+//                    NHPAvalible: true,
+//                    assignedCategoryIDs: Array(selectedCategoryIDs),
+//                    quizScores: initialQuizScores,
+//                    floor: "1st"
+//                )
+//                
+//                // Step 5: Save user to Firestore
+//                let db = Firestore.firestore()
+//                do {
+//                    try await db.collection("Users").document(userUID).setData(from: user)
+//                    print("Firestore user document created successfully with \(initialQuizScores.count) assigned quizzes")
+//                    
+//                    // Print assigned quizzes for verification
+//                    for quizScore in initialQuizScores {
+//                        print("Assigned quiz: \(quizScore.quizID), Due date: \(quizScore.dueDates?[quizScore.quizID] ?? Date())")
+//                    }
+//                } catch {
+//                    print("Error creating Firestore user document: \(error.localizedDescription)")
+//                    throw error
+//                }
+//                
+//                // Step 6: Update ViewModel State
+//                await MainActor.run {
+//                    self.userUID = userUID
+//                    self.userNameStored = username
+//                    self.userAccountType = accountType
+//                    self.logStatus = true
+//                    self.isLoading = false
+//                }
+//                
+//                print("User registration completed successfully")
+//            } catch {
+//                print("Error during user registration: \(error.localizedDescription)")
+//                if let error = error as NSError? {
+//                    print("Error domain: \(error.domain)")
+//                    print("Error code: \(error.code)")
+//                }
+//                await setError(error.localizedDescription)
+//            }
+//        }
+//    }
+//
+//    
     func registerUser() {
         guard validateForm() else { return }
         
@@ -198,7 +277,8 @@ final class RegisterUserViewModel: ObservableObject {
                         quizID: quiz.id,
                         scores: [],
                         completionDates: [],
-                        dueDates: [quiz.id: quiz.dueDate ?? Date().addingTimeInterval(7 * 24 * 60 * 60)] // Default to 1 week from now if no due date
+                        dueDates: [quiz.id: quiz.dueDate ?? Date().addingTimeInterval(7 * 24 * 60 * 60)], // Default to 1 week from now if no due date
+                        nextRenewalDates: nil
                     )
                 }
                 
@@ -227,7 +307,11 @@ final class RegisterUserViewModel: ObservableObject {
                     
                     // Print assigned quizzes for verification
                     for quizScore in initialQuizScores {
-                        print("Assigned quiz: \(quizScore.quizID), Due date: \(quizScore.dueDates?[quizScore.quizID] ?? Date())")
+                        if let dueDate = quizScore.dueDates?[quizScore.quizID] {
+                            print("Assigned quiz: \(quizScore.quizID), Due date: \(dueDate)")
+                        } else {
+                            print("Assigned quiz: \(quizScore.quizID), Due date: Not set")
+                        }
                     }
                 } catch {
                     print("Error creating Firestore user document: \(error.localizedDescription)")
@@ -254,7 +338,7 @@ final class RegisterUserViewModel: ObservableObject {
             }
         }
     }
-
+    
 //    func fetchQuizzesForAccountType(_ accountType: String) async throws -> [Quiz] {
 //        let db = Firestore.firestore()
 //        print("Fetching quizzes for account type: \(accountType)")
