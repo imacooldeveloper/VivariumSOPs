@@ -159,6 +159,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5B21FCB62CA8A0C500F63805 /* HusbandryProfile */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = HusbandryProfile;
+			sourceTree = "<group>";
+		};
 		5B5B21A02C8691F50043C3B4 = {
 			isa = PBXGroup;
 			children = (
@@ -182,6 +189,7 @@
 		5B5B21AB2C8691F50043C3B4 /* VivariumSOP */ = {
 			isa = PBXGroup;
 			children = (
+				5B21FCB62CA8A0C500F63805 /* HusbandryProfile */,
 				5B98AB062CA44DE500EE5DF2 /* Managment */,
 				5BA352382C8B2ACA004FFB8E /* Info.plist */,
 				5B5B225A2C8801190043C3B4 /* CreateQuiz */,
