@@ -14,8 +14,8 @@
             filePath = "VivariumSOP/UploadPDfView/PDFUploadView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "663"
-            endingLineNumber = "663"
+            startingLineNumber = "683"
+            endingLineNumber = "683"
             landmarkName = "unknown"
             landmarkType = "0">
          </BreakpointContent>
@@ -977,8 +977,8 @@
             filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "500"
-            endingLineNumber = "500"
+            startingLineNumber = "522"
+            endingLineNumber = "522"
             landmarkName = "fetchCategoriesonHome()"
             landmarkType = "7">
             <Locations>
@@ -1042,8 +1042,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "452"
             endingLineNumber = "452"
-            landmarkName = "fetchCategories()"
-            landmarkType = "7">
+            landmarkName = "PDFCategoryViewModel"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

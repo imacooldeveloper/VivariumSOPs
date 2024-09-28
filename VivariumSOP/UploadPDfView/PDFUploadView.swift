@@ -310,101 +310,121 @@ import PDFKit
 
 struct PDFUploadView: View {
     @ObservedObject var viewModel: PDFCategoryViewModel
-    @Environment(\.presentationMode) var presentationMode
-    @State private var selectedPDFs: [URL] = []
-    @State private var showFileImporter = false
-    @State private var selectedFolder = "Husbandry"
-    @State private var sopForStaffTitle = "Standard Husbandry"
-    @State private var isUploading = false
-    @State private var showAlert = false
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var isSuccess = false
-    @State private var currentUploadingPDF = ""
-    @State private var uploadProgress: Double = 0
-    
-    let folders = ["Husbandry", "Vet Services"]
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Picker("Select Folder", selection: $selectedFolder) {
-                    ForEach(folders, id: \.self) { folder in
-                        Text(folder).tag(folder)
-                    }
-                }
-                
-                TextField("SOP For Staff Title", text: $sopForStaffTitle)
-                
-                Section(header: Text("Selected PDFs")) {
-                    ForEach(selectedPDFs, id: \.self) { url in
-                        Text(url.lastPathComponent)
-                    }
-                    .onDelete(perform: deletePDFs)
-                }
-                
-                Button("Select PDFs") {
-                    showFileImporter = true
-                }
-                
-                Button("Upload PDFs") {
-                    uploadPDFs()
-                }
-                .disabled(selectedPDFs.isEmpty)
-            }
-            .navigationTitle("Add New PDFs")
-            .navigationBarItems(trailing: Button("Done") {
-                presentationMode.wrappedValue.dismiss()
-            })
-            .fileImporter(
-                isPresented: $showFileImporter,
-                allowedContentTypes: [.pdf],
-                allowsMultipleSelection: true
-            ) { result in
-                handleFileImport(result)
-            }
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text(alertTitle),
-                      message: Text(alertMessage),
-                      dismissButton: .default(Text("OK")) {
-                          if isSuccess {
-                              presentationMode.wrappedValue.dismiss()
-                          }
-                      })
-            }
-            .overlay(
-                Group {
-                    if isUploading {
-                        VStack {
-                            Text(currentUploadingPDF)
-                                .font(.headline)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            GeometryReader { geometry in
-                                ZStack(alignment: .leading) {
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(height: 20)
-                                    Rectangle()
-                                        .fill(Color.blue)
-                                        .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
-                                }
-                                .cornerRadius(10)
-                            }
-                            .frame(height: 20)
-                            Text("\(Int(uploadProgress * 100))%")
-                                .font(.headline)
-                        }
-                        .padding()
-                        .frame(width: 300, height: 150)
-                        .background(Color.white)
-                        .cornerRadius(20)
-                        .shadow(radius: 10)
-                    }
-                }
-            )
-        }
-    }
+       @Environment(\.presentationMode) var presentationMode
+       @State private var selectedPDFs: [URL] = []
+       @State private var showFileImporter = false
+       @State private var selectedFolder = ""
+       @State private var sopForStaffTitle = ""
+       @State private var isUploading = false
+       @State private var showAlert = false
+       @State private var alertTitle = ""
+       @State private var alertMessage = ""
+       @State private var isSuccess = false
+       @State private var currentUploadingPDF = ""
+       @State private var uploadProgress: Double = 0
+       
+       var body: some View {
+           NavigationView {
+               Form {
+                   Picker("Select Folder", selection: $selectedFolder) {
+                       ForEach(viewModel.uniqueCategories, id: \.self) { folder in
+                           Text(folder).tag(folder)
+                       }
+                   }
+                   
+                   TextField("SOP Title", text: $sopForStaffTitle)
+                       .padding()
+                       .overlay(
+                           RoundedRectangle(cornerRadius: 5)
+                               .stroke(sopForStaffTitle.isEmpty ? Color.red : Color.clear, lineWidth: 1)
+                       )
+                   
+                   if sopForStaffTitle.isEmpty {
+                       Text("SOP Title is required")
+                           .font(.caption)
+                           .foregroundColor(.red)
+                   }
+                   
+                   Section(header: Text("Selected PDFs")) {
+                       ForEach(selectedPDFs, id: \.self) { url in
+                           Text(url.lastPathComponent)
+                       }
+                       .onDelete(perform: deletePDFs)
+                   }
+                   
+                   Button("Select PDFs") {
+                       showFileImporter = true
+                   }
+                   
+                   Button("Upload PDFs") {
+                       uploadPDFs()
+                   }
+                   .disabled(selectedPDFs.isEmpty || selectedFolder.isEmpty || sopForStaffTitle.isEmpty)
+               }
+               .navigationTitle("Add New PDFs")
+               .navigationBarItems(trailing: Button("Done") {
+                   presentationMode.wrappedValue.dismiss()
+               })
+               .fileImporter(
+                   isPresented: $showFileImporter,
+                   allowedContentTypes: [.pdf],
+                   allowsMultipleSelection: true
+               ) { result in
+                   handleFileImport(result)
+               }
+               .alert(isPresented: $showAlert) {
+                   Alert(title: Text(alertTitle),
+                         message: Text(alertMessage),
+                         dismissButton: .default(Text("OK")) {
+                             if isSuccess {
+                                 presentationMode.wrappedValue.dismiss()
+                             }
+                         })
+               }
+               .overlay(uploadProgressView)
+               .onAppear {
+                   if viewModel.uniqueCategories.isEmpty {
+                       Task {
+                           await viewModel.fetchCategories()
+                       }
+                   }
+                   if !viewModel.uniqueCategories.isEmpty {
+                       selectedFolder = viewModel.uniqueCategories[0]
+                   }
+               }
+           }
+       }
+       
+       @ViewBuilder
+       private var uploadProgressView: some View {
+           if isUploading {
+               VStack {
+                   Text(currentUploadingPDF)
+                       .font(.headline)
+                       .lineLimit(1)
+                       .truncationMode(.middle)
+                   GeometryReader { geometry in
+                       ZStack(alignment: .leading) {
+                           Rectangle()
+                               .fill(Color.gray.opacity(0.3))
+                               .frame(height: 20)
+                           Rectangle()
+                               .fill(Color.blue)
+                               .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+                       }
+                       .cornerRadius(10)
+                   }
+                   .frame(height: 20)
+                   Text("\(Int(uploadProgress * 100))%")
+                       .font(.headline)
+               }
+               .padding()
+               .frame(width: 300, height: 150)
+               .background(Color.white)
+               .cornerRadius(20)
+               .shadow(radius: 10)
+           }
+       }
     
 //    private func handleFileImport(_ result: Result<[URL], Error>) {
 //        switch result {

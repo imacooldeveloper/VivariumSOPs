@@ -441,19 +441,41 @@ class PDFCategoryViewModel: ObservableObject {
             await fetchCategoriesonHome()
         }
     }
+//    func fetchCategories() async {
+//           do {
+//               let snapshot = try await db.collection("categoryList").getDocuments()
+//               let fetchedCategories = snapshot.documents.compactMap { document -> Category? in
+//                   try? document.data(as: Category.self)
+//               }
+//               self.categories = fetchedCategories
+//               
+//               print(self.categories)
+//           } catch {
+//               print("Error fetching categories: \(error.localizedDescription)")
+//           }
+//       }
+    
     func fetchCategories() async {
+           isLoading = true
            do {
                let snapshot = try await db.collection("categoryList").getDocuments()
                let fetchedCategories = snapshot.documents.compactMap { document -> Category? in
                    try? document.data(as: Category.self)
                }
-               self.categories = fetchedCategories
-               
-               print(self.categories)
+               await MainActor.run {
+                   self.categories = fetchedCategories
+                   self.uniqueCategories = Array(Set(fetchedCategories.map { $0.categoryTitle })).sorted()
+                   self.isLoading = false
+               }
            } catch {
                print("Error fetching categories: \(error.localizedDescription)")
+               await MainActor.run {
+                   self.isLoading = false
+               }
            }
        }
+    
+    
 // this adds a new category when the user creates a new tittle
        func addCategorywith(_ categoryTitle: String) async {
            do {
