@@ -1,0 +1,414 @@
+//
+//  HusbandryQuestionView.swift
+//  VivariumSOP
+//
+//  Created by Martin Gallardo on 9/28/24.
+//
+
+import SwiftUI
+
+import FirebaseAuth
+import FirebaseFirestore
+//struct HusbandryQuestionView: View {
+//    @StateObject var vm: HusbandryQuestionViewModel
+//    var quizId: String
+//    var onFinish: () -> Void
+//    
+//    init(quizId: String, onFinish: @escaping () -> Void) {
+//        self.quizId = quizId
+//        self.onFinish = onFinish
+//        self._vm = StateObject(wrappedValue: HusbandryQuestionViewModel())
+//    }
+//    
+//    @Environment(\.dismiss) private var dismiss
+//    @State private var currentIndex: Int = 0
+//    @State private var showScoreCard: Bool = false
+//    @State private var answerSelected = false
+//
+//    private var progress: CGFloat {
+//        guard !vm.questions.isEmpty else { return 0 }
+//        return CGFloat(currentIndex + 1) / CGFloat(vm.questions.count)
+//    }
+//    
+//    var body: some View {
+//        VStack {
+//            // Header
+//            HStack {
+//                Button(action: dismiss.callAsFunction) {
+//                    Image(systemName: "xmark")
+//                        .font(.title3)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.white)
+//                }
+//                Spacer()
+//                Text(vm.quizInfo?.title ?? "Quiz")
+//                    .font(.title)
+//                    .fontWeight(.semibold)
+//                Spacer()
+//            }
+//            .padding()
+//            
+//            // Progress bar
+//            GeometryReader { geometry in
+//                ZStack(alignment: .leading) {
+//                    Rectangle().fill(Color.gray.opacity(0.2))
+//                    Rectangle().fill(Color.blue).frame(width: progress * geometry.size.width)
+//                }
+//                .clipShape(Capsule())
+//            }
+//            .frame(height: 20)
+//            .padding(.horizontal)
+//            
+//            // Question content
+//            if currentIndex < vm.questions.count {
+//                questionContent(vm.questions[currentIndex])
+//            }
+//            
+//            Spacer()
+//        }
+//        .onAppear {
+//            Task {
+//                await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+//            }
+//        }
+//        .fullScreenCover(isPresented: $showScoreCard) {
+//            ScoreCardView(score: vm.finalScore, onDismiss: onFinish, onRedo: restartQuiz)
+//        }
+//        .padding()
+//        .background(Color("Background"))
+//        .edgesIgnoringSafeArea(.all)
+//    }
+//
+//    @ViewBuilder
+//    private func questionContent(_ question: Question) -> some View {
+//        VStack(alignment: .leading, spacing: 20) {
+//            Text("Question \(currentIndex + 1) of \(vm.questions.count)")
+//                .font(.headline)
+//            
+//            Text(question.questionText)
+//                .font(.title2)
+//                .fontWeight(.semibold)
+//            
+//            ForEach(question.options.indices, id: \.self) { index in
+//                Button(action: {
+//                    selectAnswer(question.options[index])
+//                }) {
+//                    OptionView(
+//                        option: question.options[index],
+//                        isSelected: vm.userAnswers[currentIndex] == question.options[index]
+//                    )
+//                }
+//            }
+//        }
+//        .padding()
+//        .background(Color.white)
+//        .cornerRadius(10)
+//        .shadow(radius: 5)
+//    }
+//    
+//    private func selectAnswer(_ answer: String) {
+//        withAnimation(.easeInOut) {
+//            vm.userAnswers[currentIndex] = answer
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                if currentIndex < vm.questions.count - 1 {
+//                    currentIndex += 1
+//                } else {
+//                    finishQuiz()
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func finishQuiz() {
+//        Task {
+//            await vm.finalizeQuizAndRecordScore(forQuiz: quizId)
+//            showScoreCard = true
+//        }
+//    }
+//    
+//    private func restartQuiz() {
+//        currentIndex = 0
+//        vm.userAnswers = Array(repeating: "", count: vm.questions.count)
+//        showScoreCard = false
+//        Task {
+//            await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+//        }
+//    }
+//}
+
+//struct HusbandryQuestionView: View {
+//    @StateObject var vm = HusbandryQuestionViewModel()
+//      var quizId: String
+//      var quizTitle: String
+//      var onFinish: () -> Void
+//      
+//      @State private var currentIndex: Int = 0
+//      @State private var showScoreCard: Bool = false
+//
+//      var body: some View {
+//          VStack {
+//              if vm.isLoading {
+//                  ProgressView("Loading quiz...")
+//              } else if vm.questions.isEmpty {
+//                  Text("No questions available")
+//              } else {
+//                  // Quiz content
+//                  Text(quizTitle)
+//                      .font(.headline)
+//                      .padding()
+//                  
+//                  if currentIndex < vm.questions.count {
+//                      QuestionView(
+//                          question: vm.questions[currentIndex],
+//                          onAnswer: { answer in
+//                              if currentIndex < vm.userAnswers.count {
+//                                  vm.userAnswers[currentIndex] = answer
+//                              } else {
+//                                  vm.userAnswers.append(answer)
+//                              }
+//                              moveToNextQuestion()
+//                          }
+//                      )
+//                  } else {
+//                      Button("Finish Quiz") {
+//                          finishQuiz()
+//                      }
+//                  }
+//              }
+//          }
+//          .onAppear {
+//              Task {
+//                  await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+//              }
+//          }
+//          .sheet(isPresented: $showScoreCard) {
+//              ScoreCardView(
+//                  score: vm.finalScore,
+//                  onDismiss: onFinish,
+//                  onRedo: redoQuiz
+//              )
+//          }
+//      }
+//      
+//      private func moveToNextQuestion() {
+//          if currentIndex < vm.questions.count - 1 {
+//              currentIndex += 1
+//          } else {
+//              finishQuiz()
+//          }
+//      }
+//      
+//      private func finishQuiz() {
+//          vm.calculateFinalScore()
+//          Task {
+//              await vm.finalizeQuizAndRecordScore(forQuiz: quizId)
+//              showScoreCard = true
+//          }
+//      }
+//      
+//      private func redoQuiz() {
+//          currentIndex = 0
+//          vm.userAnswers.removeAll()
+//          showScoreCard = false
+//          Task {
+//              await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+//          }
+//      }
+//    private func selectAnswer(_ answer: String) {
+//        vm.userAnswers.append(answer)
+//        if currentIndex < vm.questions.count - 1 {
+//            currentIndex += 1
+//        } else {
+//            finishQuiz()
+//        }
+//    }
+//    
+////    private func finishQuiz() {
+////        Task {
+////            await vm.finalizeQuizAndRecordScore(forQuiz: quizId)
+////            showScoreCard = true
+////        }
+////    }
+//    
+//    private func restartQuiz() {
+//        currentIndex = 0
+//        vm.userAnswers = []
+//        showScoreCard = false
+//        Task {
+//            await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+//        }
+//    }
+//}
+//
+//struct QuestionView: View {
+//    let question: Question
+//    let onAnswer: (String) -> Void
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 20) {
+//            Text(question.questionText)
+//                .font(.title2)
+//            
+//            ForEach(question.options, id: \.self) { option in
+//                Button(action: {
+//                    onAnswer(option)
+//                }) {
+//                    Text(option)
+//                        .padding()
+//                        .frame(maxWidth: .infinity, alignment: .leading)
+//                        .background(Color.blue.opacity(0.1))
+//                        .cornerRadius(8)
+//                }
+//            }
+//        }
+//        .padding()
+//    }
+//}
+//struct OptionView: View {
+//    let option: String
+//    let isSelected: Bool
+//    
+//    var body: some View {
+//        Text(option)
+//            .foregroundColor(isSelected ? .white : .primary)
+//            .padding()
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//            .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
+//            .cornerRadius(10)
+//    }
+//}
+struct HusbandryQuestionView: View {
+    @StateObject var vm = HusbandryQuestionViewModel()
+    var quizId: String
+    var quizTitle: String
+    var onFinish: () -> Void
+    
+    @Environment(\.dismiss) private var dismiss
+    @State private var currentIndex: Int = 0
+    @State private var showScoreCard: Bool = false
+    @State private var answerSelected = false
+
+    private var progress: CGFloat {
+        guard !vm.questions.isEmpty else { return 0 }
+        return CGFloat(currentIndex + 1) / CGFloat(vm.questions.count)
+    }
+    
+    var body: some View {
+        VStack {
+            // Header
+            HStack {
+                Button(action: dismiss.callAsFunction) {
+                    Image(systemName: "xmark")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                Spacer()
+                Text(quizTitle)
+                    .font(.title)
+                    .fontWeight(.semibold)
+                Spacer()
+            }
+            .padding()
+            
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Rectangle().fill(Color.gray.opacity(0.2))
+                    Rectangle().fill(Color.blue).frame(width: progress * geometry.size.width)
+                }
+                .clipShape(Capsule())
+            }
+            .frame(height: 20)
+            .padding(.horizontal)
+            
+            // Question content
+            if currentIndex < vm.questions.count {
+                questionContent(vm.questions[currentIndex])
+            }
+            
+            Spacer()
+        }
+        .onAppear {
+            Task {
+                await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+            }
+        }
+        .fullScreenCover(isPresented: $showScoreCard) {
+            ScoreCardView(score: vm.finalScore, onDismiss: onFinish, onRedo: restartQuiz)
+        }
+        .padding()
+        .background(Color("Background"))
+        .edgesIgnoringSafeArea(.all)
+    }
+
+    @ViewBuilder
+    private func questionContent(_ question: Question) -> some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Question \(currentIndex + 1) of \(vm.questions.count)")
+                .font(.headline)
+            
+            Text(question.questionText)
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            ForEach(question.options.indices, id: \.self) { index in
+                Button(action: {
+                    selectAnswer(question.options[index])
+                }) {
+                    OptionView(
+                        option: question.options[index],
+                        isSelected: vm.userAnswers[currentIndex] == question.options[index]
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 5)
+    }
+    
+    private func selectAnswer(_ answer: String) {
+        withAnimation(.easeInOut) {
+            vm.userAnswers[currentIndex] = answer
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if currentIndex < vm.questions.count - 1 {
+                    currentIndex += 1
+                } else {
+                    finishQuiz()
+                }
+            }
+        }
+    }
+    
+    private func finishQuiz() {
+        Task {
+            await vm.finalizeQuizAndRecordScore(forQuiz: quizId)
+            showScoreCard = true
+        }
+    }
+    
+    private func restartQuiz() {
+        currentIndex = 0
+        vm.userAnswers = Array(repeating: "", count: vm.questions.count)
+        showScoreCard = false
+        Task {
+            await vm.fetchQuizInfoAndQuestions(quizId: quizId)
+        }
+    }
+}
+
+struct OptionView: View {
+    let option: String
+    let isSelected: Bool
+    
+    var body: some View {
+        Text(option)
+            .foregroundColor(isSelected ? .white : .primary)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
+            .cornerRadius(10)
+    }
+}

@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B21FCBA2CA8A14E00F63805 /* SopCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */; };
+		5B21FCBD2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */; };
+		5B21FCBF2CA8A2F400F63805 /* CategoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */; };
+		5B21FCC22CA8A66700F63805 /* HuabndrySOPLIstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCC12CA8A66700F63805 /* HuabndrySOPLIstView.swift */; };
+		5B21FCC42CA8A6C300F63805 /* HusbandrySOPListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCC32CA8A6C300F63805 /* HusbandrySOPListViewModel.swift */; };
+		5B21FCC72CA8A7DB00F63805 /* HusbandryQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCC62CA8A7DB00F63805 /* HusbandryQuestionView.swift */; };
+		5B21FCC92CA8A81700F63805 /* ScoreCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCC82CA8A81700F63805 /* ScoreCardView.swift */; };
+		5B21FCCB2CA8A85500F63805 /* HusbandryQuestionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCCA2CA8A85500F63805 /* HusbandryQuestionViewModel.swift */; };
+		5B21FCCE2CA8AB2200F63805 /* HusbandrySOPDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCCD2CA8AB2200F63805 /* HusbandrySOPDetailView.swift */; };
+		5B21FCD02CA8AB8500F63805 /* HusbandrySOPDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCCF2CA8AB8500F63805 /* HusbandrySOPDetailViewModel.swift */; };
+		5B21FCD32CA8B4BC00F63805 /* HusbandrySopSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCD22CA8B4BC00F63805 /* HusbandrySopSearchView.swift */; };
+		5B21FCD62CA8B61A00F63805 /* HusbandryUserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCD52CA8B61A00F63805 /* HusbandryUserProfileView.swift */; };
 		5B5B21AD2C8691F50043C3B4 /* VivariumSOPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B21AC2C8691F50043C3B4 /* VivariumSOPApp.swift */; };
 		5B5B21AF2C8691F50043C3B4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B21AE2C8691F50043C3B4 /* ContentView.swift */; };
 		5B5B21B12C8691F60043C3B4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B5B21B02C8691F60043C3B4 /* Assets.xcassets */; };
@@ -77,6 +89,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SopCategoryView.swift; sourceTree = "<group>"; };
+		5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOpCategoryHUsbandryViewModel.swift; sourceTree = "<group>"; };
+		5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManager.swift; sourceTree = "<group>"; };
+		5B21FCC12CA8A66700F63805 /* HuabndrySOPLIstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HuabndrySOPLIstView.swift; sourceTree = "<group>"; };
+		5B21FCC32CA8A6C300F63805 /* HusbandrySOPListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandrySOPListViewModel.swift; sourceTree = "<group>"; };
+		5B21FCC62CA8A7DB00F63805 /* HusbandryQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandryQuestionView.swift; sourceTree = "<group>"; };
+		5B21FCC82CA8A81700F63805 /* ScoreCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCardView.swift; sourceTree = "<group>"; };
+		5B21FCCA2CA8A85500F63805 /* HusbandryQuestionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandryQuestionViewModel.swift; sourceTree = "<group>"; };
+		5B21FCCD2CA8AB2200F63805 /* HusbandrySOPDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandrySOPDetailView.swift; sourceTree = "<group>"; };
+		5B21FCCF2CA8AB8500F63805 /* HusbandrySOPDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandrySOPDetailViewModel.swift; sourceTree = "<group>"; };
+		5B21FCD22CA8B4BC00F63805 /* HusbandrySopSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandrySopSearchView.swift; sourceTree = "<group>"; };
+		5B21FCD52CA8B61A00F63805 /* HusbandryUserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HusbandryUserProfileView.swift; sourceTree = "<group>"; };
 		5B5B21A92C8691F50043C3B4 /* VivariumSOP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VivariumSOP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B5B21AC2C8691F50043C3B4 /* VivariumSOPApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VivariumSOPApp.swift; sourceTree = "<group>"; };
 		5B5B21AE2C8691F50043C3B4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -162,8 +186,83 @@
 		5B21FCB62CA8A0C500F63805 /* HusbandryProfile */ = {
 			isa = PBXGroup;
 			children = (
+				5B21FCD42CA8B5F800F63805 /* HusbandryProfileCard */,
+				5B21FCD12CA8B49B00F63805 /* HusbandrySearchView */,
+				5B21FCCC2CA8AB0500F63805 /* HusbandrySOPDetailView */,
+				5B21FCC52CA8A7BE00F63805 /* HusbandryQuestionView */,
+				5B21FCC02CA8A64A00F63805 /* HUsbandrySOPCardView */,
+				5B21FCB72CA8A12600F63805 /* SOPCategory */,
 			);
 			path = HusbandryProfile;
+			sourceTree = "<group>";
+		};
+		5B21FCB72CA8A12600F63805 /* SOPCategory */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCBB2CA8A20500F63805 /* ViewModel */,
+				5B21FCB82CA8A14100F63805 /* View */,
+			);
+			path = SOPCategory;
+			sourceTree = "<group>";
+		};
+		5B21FCB82CA8A14100F63805 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		5B21FCBB2CA8A20500F63805 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		5B21FCC02CA8A64A00F63805 /* HUsbandrySOPCardView */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCC12CA8A66700F63805 /* HuabndrySOPLIstView.swift */,
+				5B21FCC32CA8A6C300F63805 /* HusbandrySOPListViewModel.swift */,
+			);
+			path = HUsbandrySOPCardView;
+			sourceTree = "<group>";
+		};
+		5B21FCC52CA8A7BE00F63805 /* HusbandryQuestionView */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCC62CA8A7DB00F63805 /* HusbandryQuestionView.swift */,
+				5B21FCC82CA8A81700F63805 /* ScoreCardView.swift */,
+				5B21FCCA2CA8A85500F63805 /* HusbandryQuestionViewModel.swift */,
+			);
+			path = HusbandryQuestionView;
+			sourceTree = "<group>";
+		};
+		5B21FCCC2CA8AB0500F63805 /* HusbandrySOPDetailView */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCCD2CA8AB2200F63805 /* HusbandrySOPDetailView.swift */,
+				5B21FCCF2CA8AB8500F63805 /* HusbandrySOPDetailViewModel.swift */,
+			);
+			path = HusbandrySOPDetailView;
+			sourceTree = "<group>";
+		};
+		5B21FCD12CA8B49B00F63805 /* HusbandrySearchView */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCD22CA8B4BC00F63805 /* HusbandrySopSearchView.swift */,
+			);
+			path = HusbandrySearchView;
+			sourceTree = "<group>";
+		};
+		5B21FCD42CA8B5F800F63805 /* HusbandryProfileCard */ = {
+			isa = PBXGroup;
+			children = (
+				5B21FCD52CA8B61A00F63805 /* HusbandryUserProfileView.swift */,
+			);
+			path = HusbandryProfileCard;
 			sourceTree = "<group>";
 		};
 		5B5B21A02C8691F50043C3B4 = {
@@ -299,6 +398,7 @@
 				5B5B22372C86A0860043C3B4 /* UserManager.swift */,
 				5B5B224A2C86AF860043C3B4 /* PDFSTorageManager.swift */,
 				5B5B22602C88024E0043C3B4 /* QuizManager.swift */,
+				5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */,
 			);
 			path = Firestore;
 			sourceTree = "<group>";
@@ -543,6 +643,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B98AB082CA44E0E00EE5DF2 /* MangementListUserView.swift in Sources */,
+				5B21FCBF2CA8A2F400F63805 /* CategoryManager.swift in Sources */,
 				5B5B22492C86A38C0043C3B4 /* SOPService.swift in Sources */,
 				5B5B22382C86A0860043C3B4 /* UserManager.swift in Sources */,
 				5B5B22032C8696150043C3B4 /* RegisterUserView.swift in Sources */,
@@ -550,26 +651,37 @@
 				5B5B22572C86D9680043C3B4 /* PDFCategoryListView.swift in Sources */,
 				5B5B21AF2C8691F50043C3B4 /* ContentView.swift in Sources */,
 				5B5B225C2C8801380043C3B4 /* CreateQuizView.swift in Sources */,
+				5B21FCCB2CA8A85500F63805 /* HusbandryQuestionViewModel.swift in Sources */,
 				5B5B22332C8698DD0043C3B4 /* PasswordTextField.swift in Sources */,
 				5B98AB0C2CA44EBA00EE5DF2 /* UserHomeView.swift in Sources */,
 				5B5B22312C8698AC0043C3B4 /* ViewAlignment.swift in Sources */,
 				5B5B22352C869C1E0043C3B4 /* LogInViewModel.swift in Sources */,
 				5B5B22502C86BEC00043C3B4 /* PDFDocument.swift in Sources */,
+				5B21FCC22CA8A66700F63805 /* HuabndrySOPLIstView.swift in Sources */,
+				5B21FCC92CA8A81700F63805 /* ScoreCardView.swift in Sources */,
 				5B5B22662C8811B50043C3B4 /* QuizListView.swift in Sources */,
 				5B5B21AD2C8691F50043C3B4 /* VivariumSOPApp.swift in Sources */,
 				5B5B223C2C86A0F80043C3B4 /* Quiz.swift in Sources */,
 				5B5B224E2C86AFAC0043C3B4 /* PDFUploadView.swift in Sources */,
 				5B98AB0E2CA44F4000EE5DF2 /* UserProfileViewModel.swift in Sources */,
+				5B21FCC42CA8A6C300F63805 /* HusbandrySOPListViewModel.swift in Sources */,
+				5B21FCCE2CA8AB2200F63805 /* HusbandrySOPDetailView.swift in Sources */,
 				5B5B223A2C86A0AA0043C3B4 /* Querry.swift in Sources */,
 				5B5B22452C86A34A0043C3B4 /* MainTabBarView.swift in Sources */,
+				5B21FCD02CA8AB8500F63805 /* HusbandrySOPDetailViewModel.swift in Sources */,
 				5B5B22402C86A1290043C3B4 /* Category.swift in Sources */,
 				5B5B22612C88024E0043C3B4 /* QuizManager.swift in Sources */,
 				5B98AB102CA4574C00EE5DF2 /* UserProfileView.swift in Sources */,
 				5B5B225F2C88020B0043C3B4 /* CreateQuizViewModel.swift in Sources */,
+				5B21FCC72CA8A7DB00F63805 /* HusbandryQuestionView.swift in Sources */,
+				5B21FCD62CA8B61A00F63805 /* HusbandryUserProfileView.swift in Sources */,
+				5B21FCBD2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift in Sources */,
 				5B5B22592C86E1F30043C3B4 /* CustomAlertView.swift in Sources */,
 				5B5B22542C86C1240043C3B4 /* PDFCategoryViewModel.swift in Sources */,
 				5B5B224B2C86AF860043C3B4 /* PDFSTorageManager.swift in Sources */,
+				5B21FCBA2CA8A14E00F63805 /* SopCategoryView.swift in Sources */,
 				5B98AB0A2CA44E2300EE5DF2 /* CardGroupView.swift in Sources */,
+				5B21FCD32CA8B4BC00F63805 /* HusbandrySopSearchView.swift in Sources */,
 				5B5B223E2C86A1130043C3B4 /* Info.swift in Sources */,
 				5B5B22062C8696270043C3B4 /* RegisterUserVIewModel.swift in Sources */,
 				5B5B21EB2C8694EE0043C3B4 /* User.swift in Sources */,

@@ -107,7 +107,7 @@ struct CategorySelectionView: View {
 //#Preview {
 //    RegisterUserView()
 //}
-struct Categorys: Identifiable {
+struct Categorys: Identifiable, Codable, Hashable {
     let id: String
     let categoryTitle: String
     

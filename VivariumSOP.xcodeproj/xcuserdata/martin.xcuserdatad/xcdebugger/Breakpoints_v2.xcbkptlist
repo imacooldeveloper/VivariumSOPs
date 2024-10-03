@@ -970,69 +970,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "8EF691E0-41C3-49D6-B2CD-059CB17BC513"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "522"
-            endingLineNumber = "522"
-            landmarkName = "fetchCategoriesonHome()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "8EF691E0-41C3-49D6-B2CD-059CB17BC513 - 925674ddf7bb5389"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchCategoriesonHome() async -&gt; ()"
-                  moduleName = "VivariumSOP"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "500"
-                  endingLineNumber = "500"
-                  offsetFromSymbolStart = "620">
-               </Location>
-               <Location
-                  uuid = "8EF691E0-41C3-49D6-B2CD-059CB17BC513 - 7e539dfe94b7e188"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchCategoriesonHome() async -&gt; ()"
-                  moduleName = "VivariumSOP"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "500"
-                  endingLineNumber = "500"
-                  offsetFromSymbolStart = "140">
-               </Location>
-               <Location
-                  uuid = "8EF691E0-41C3-49D6-B2CD-059CB17BC513 - 925674ddf7bb5389"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for VivariumSOP.PDFCategoryViewModel.fetchCategoriesonHome() async -&gt; ()"
-                  moduleName = "VivariumSOP"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "500"
-                  endingLineNumber = "500"
-                  offsetFromSymbolStart = "660">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "24B36C5D-DBCA-42CE-9AB5-8CEBA7C59C34"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -1044,6 +981,194 @@
             endingLineNumber = "452"
             landmarkName = "PDFCategoryViewModel"
             landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
+            landmarkName = "CategoryListView"
+            landmarkType = "14">
+            <Locations>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - 4696e36bd601536b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "property wrapper backing initializer of VivariumSOP.CategoryListView.categoryName : Swift.String"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - 9b9bb14c79ad82ac"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.CategoryListView.categoryName.getter : Swift.String"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - 532ac64f0bae3f3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.CategoryListView.categoryName.setter : Swift.String"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "129"
+                  endingLineNumber = "129"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - c58f7614ff9d0fc0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.CategoryListView.categoryName.modify : Swift.String"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "129"
+                  endingLineNumber = "129"
+                  offsetFromSymbolStart = "0">
+               </Location>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - 40ce81dc8711a1a9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.CategoryListView.categoryName.modify : Swift.String with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "48">
+               </Location>
+               <Location
+                  uuid = "39CA64EC-CF77-46D7-BC43-8E29B5E1CE78 - fd07890fd46d4e8b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VivariumSOP.CategoryListView.$categoryName.getter : SwiftUI.Binding&lt;Swift.String&gt;"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/SOPCategory/View/SopCategoryView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "129"
+                  endingLineNumber = "129"
+                  offsetFromSymbolStart = "0">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D4E35EFF-8717-47A2-A212-C338CBE0D6C3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/HUsbandrySOPCardView/HuabndrySOPLIstView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "76"
+            endingLineNumber = "76"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "D4E35EFF-8717-47A2-A212-C338CBE0D6C3 - 11984cba6be1dd2d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #3 () -&gt; SwiftUI._ConditionalContent&lt;VivariumSOP.HusbandryQuestionView, SwiftUI.Text&gt; in VivariumSOP.HusbandryPDFListView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/HUsbandrySOPCardView/HuabndrySOPLIstView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "76"
+                  endingLineNumber = "76"
+                  offsetFromSymbolStart = "1432">
+               </Location>
+               <Location
+                  uuid = "D4E35EFF-8717-47A2-A212-C338CBE0D6C3 - f1c980c3281684c6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #3 () -&gt; SwiftUI._ConditionalContent&lt;VivariumSOP.HusbandryQuestionView, SwiftUI.Text&gt; in VivariumSOP.HusbandryPDFListView.body.getter : some"
+                  moduleName = "VivariumSOP"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/HusbandryProfile/HUsbandrySOPCardView/HuabndrySOPLIstView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "76"
+                  endingLineNumber = "76"
+                  offsetFromSymbolStart = "148">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E1808D65-DEB8-45F2-A9C2-07F52DF2B2C7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/HUsbandrySOPCardView/HuabndrySOPLIstView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "80"
+            endingLineNumber = "80"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A54DA54E-F92C-4B8A-9E40-09EC40953B2B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/Home/MainTabBarView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
