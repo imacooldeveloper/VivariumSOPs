@@ -178,20 +178,21 @@ struct MainTabBarView: View {
                     SOPCategoryView()
                         .navigationTitle("Upload PDFs")
                         .tabItem {
-                            Label("Upload", systemImage: "arrow.up.doc.fill")
+                            Label("Home", systemImage: "folder.fill")
                         }
                         .tag(0)
                     
                     SopSearchView()
                         .navigationTitle("Search")
+                   
                         .tabItem {
-                            Label("Search", systemImage: "person.3.fill")
+                            Label("Search", systemImage: "doc.text.magnifyingglass")
                         }
                         .tag(2)
                     
                     HusbandryUserProfileView()
                         .tabItem {
-                            Label("Home", systemImage: "person.3.fill")
+                            Label("Home", systemImage: "person.circle.fill")
                         }
                         .tag(3)
                 }

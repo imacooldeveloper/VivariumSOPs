@@ -287,6 +287,7 @@ struct HusbandryQuestionView: View {
     @State private var currentIndex: Int = 0
     @State private var showScoreCard: Bool = false
     @State private var answerSelected = false
+    @State private var showCorrectAnswer = false
 
     private var progress: CGFloat {
         guard !vm.questions.isEmpty else { return 0 }
@@ -358,9 +359,12 @@ struct HusbandryQuestionView: View {
                 }) {
                     OptionView(
                         option: question.options[index],
-                        isSelected: vm.userAnswers[currentIndex] == question.options[index]
+                        isSelected: vm.userAnswers[currentIndex] == question.options[index],
+                        isCorrect: question.answer == question.options[index],
+                        showCorrectAnswer: showCorrectAnswer
                     )
                 }
+                .disabled(answerSelected)
             }
         }
         .padding()
@@ -372,9 +376,14 @@ struct HusbandryQuestionView: View {
     private func selectAnswer(_ answer: String) {
         withAnimation(.easeInOut) {
             vm.userAnswers[currentIndex] = answer
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            answerSelected = true
+            showCorrectAnswer = vm.questions[currentIndex].answer != answer
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                 if currentIndex < vm.questions.count - 1 {
                     currentIndex += 1
+                    answerSelected = false
+                    showCorrectAnswer = false
                 } else {
                     finishQuiz()
                 }
@@ -393,6 +402,8 @@ struct HusbandryQuestionView: View {
         currentIndex = 0
         vm.userAnswers = Array(repeating: "", count: vm.questions.count)
         showScoreCard = false
+        answerSelected = false
+        showCorrectAnswer = false
         Task {
             await vm.fetchQuizInfoAndQuestions(quizId: quizId)
         }
@@ -402,13 +413,48 @@ struct HusbandryQuestionView: View {
 struct OptionView: View {
     let option: String
     let isSelected: Bool
+    let isCorrect: Bool
+    let showCorrectAnswer: Bool
     
     var body: some View {
         Text(option)
-            .foregroundColor(isSelected ? .white : .primary)
+            .foregroundColor(foregroundColor)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
+            .background(backgroundColor)
             .cornerRadius(10)
     }
+    
+    private var foregroundColor: Color {
+        if isSelected {
+            return .white
+        } else if showCorrectAnswer && isCorrect {
+            return .white
+        } else {
+            return .primary
+        }
+    }
+    
+    private var backgroundColor: Color {
+        if isSelected {
+            return isCorrect ? .green : .blue
+        } else if showCorrectAnswer && isCorrect {
+            return .red
+        } else {
+            return Color.gray.opacity(0.2)
+        }
+    }
 }
+//struct OptionView: View {
+//    let option: String
+//    let isSelected: Bool
+//    
+//    var body: some View {
+//        Text(option)
+//            .foregroundColor(isSelected ? .white : .primary)
+//            .padding()
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//            .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
+//            .cornerRadius(10)
+//    }
+//}

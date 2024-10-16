@@ -251,6 +251,9 @@ class EditQuizViewModel: ObservableObject {
     @Published var isLoadingUsers = false
     @Published var userLoadingError: String?
     
+     @Published var excludedUsers: Set<String> = []
+     @Published var individuallyAssignedUsers: Set<String> = []
+    
     private let userManager = UserManager.shared
     private let quizManager = QuizManager.shared
     private let quizId: String
@@ -503,30 +506,67 @@ class EditQuizViewModel: ObservableObject {
                 return user.quizScores?.contains(where: { $0.quizID == quizId }) ?? false
             }.compactMap { $0.id })
         }
-       func toggleUserSelection(_ userId: String) {
-           if selectedUserIDs.contains(userId) {
-               selectedUserIDs.remove(userId)
-           } else {
-               selectedUserIDs.insert(userId)
-           }
-           objectWillChange.send()
-       }
+    ///working
+//       func toggleUserSelection(_ userId: String) {
+//           if selectedUserIDs.contains(userId) {
+//               selectedUserIDs.remove(userId)
+//           } else {
+//               selectedUserIDs.insert(userId)
+//           }
+//           objectWillChange.send()
+//       }
+//
+//       func toggleAccountType(_ accountType: String) {
+//           if selectedAccountTypes.contains(accountType) {
+//               selectedAccountTypes.remove(accountType)
+//               // Deselect users with this account type
+//               selectedUserIDs = selectedUserIDs.filter { userID in
+//                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
+//               }
+//           } else {
+//               selectedAccountTypes.insert(accountType)
+//               // Select users with this account type
+//               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
+//               selectedUserIDs.formUnion(usersToAdd)
+//           }
+//           objectWillChange.send()
+//       }
+    
+    func toggleAccountType(_ accountType: String) {
+            if selectedAccountTypes.contains(accountType) {
+                selectedAccountTypes.remove(accountType)
+                // Remove all users of this account type from selectedUserIDs, unless individually assigned
+                selectedUserIDs = selectedUserIDs.filter { userID in
+                    let user = availableUsers.first(where: { $0.id == userID })
+                    return user?.accountType != accountType || individuallyAssignedUsers.contains(userID)
+                }
+            } else {
+                selectedAccountTypes.insert(accountType)
+                // Add all users of this account type to selectedUserIDs, unless excluded
+                let usersToAdd = availableUsers.filter { $0.accountType == accountType && !excludedUsers.contains($0.id ?? "") }.compactMap { $0.id }
+                selectedUserIDs.formUnion(usersToAdd)
+            }
+            objectWillChange.send()
+        }
 
-       func toggleAccountType(_ accountType: String) {
-           if selectedAccountTypes.contains(accountType) {
-               selectedAccountTypes.remove(accountType)
-               // Deselect users with this account type
-               selectedUserIDs = selectedUserIDs.filter { userID in
-                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
-               }
-           } else {
-               selectedAccountTypes.insert(accountType)
-               // Select users with this account type
-               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
-               selectedUserIDs.formUnion(usersToAdd)
-           }
-           objectWillChange.send()
-       }
+        func toggleUserSelection(_ userId: String) {
+            if let user = availableUsers.first(where: { $0.id == userId }) {
+                if selectedUserIDs.contains(userId) {
+                    selectedUserIDs.remove(userId)
+                    if selectedAccountTypes.contains(user.accountType) {
+                        excludedUsers.insert(userId)
+                    }
+                    individuallyAssignedUsers.remove(userId)
+                } else {
+                    selectedUserIDs.insert(userId)
+                    excludedUsers.remove(userId)
+                    if !selectedAccountTypes.contains(user.accountType) {
+                        individuallyAssignedUsers.insert(userId)
+                    }
+                }
+            }
+            objectWillChange.send()
+        }
     
     
     func calculateNextRenewalDate() -> Date? {
@@ -565,12 +605,24 @@ class EditQuizViewModel: ObservableObject {
             try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
             
             // Assign quiz to selected users
-            for userID in selectedUserIDs {
-                if let user = try await userManager.fetchUsers(by: userID) {
-                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//            for userID in selectedUserIDs {
+//                if let user = try await userManager.fetchUsers(by: userID) {
+//                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//                }
+//            }
+        for userID in selectedUserIDs {
+                   if let user = try await userManager.fetchUsers(by: userID) {
+                       try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+                   }
+               }
+        
+        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+                for userID in unselectedUsers {
+                    try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
                 }
-            }
         }
+    
+    
 }
 
 
@@ -625,33 +677,42 @@ struct EditQuizView: View {
                // }
                 
                 Section(header: Text("Account Types")) {
-                    ForEach(AccountType.allCases, id: \.self) { accountType in
-                        Toggle(accountType.rawValue, isOn: Binding(
-                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
-                            set: { _ in viewModel.toggleAccountType(accountType.rawValue) }
-                        ))
-                    }
-                }
+                                   ForEach(AccountType.allCases, id: \.self) { accountType in
+                                       Toggle(accountType.rawValue, isOn: Binding(
+                                           get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+                                           set: { _ in viewModel.toggleAccountType(accountType.rawValue) }
+                                       ))
+                                   }
+                               }
                 
                 Section(header: Text("Assign to Users")) {
-                    if viewModel.isLoadingUsers {
-                        ProgressView("Loading users...")
-                    } else if let error = viewModel.userLoadingError {
-                        Text("Error: \(error)")
-                            .foregroundColor(.red)
-                    } else if viewModel.availableUsers.isEmpty {
-                        Text("No users available")
-                    } else {
-                        ForEach(viewModel.availableUsers, id: \.id) { user in
-                            Toggle(isOn: Binding(
-                                get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
-                                set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
-                            )) {
-                                Text("\(user.username) - \(user.accountType)")
-                            }
-                        }
-                    }
-                }
+                                   if viewModel.isLoadingUsers {
+                                       ProgressView("Loading users...")
+                                   } else if let error = viewModel.userLoadingError {
+                                       Text("Error: \(error)")
+                                           .foregroundColor(.red)
+                                   } else if viewModel.availableUsers.isEmpty {
+                                       Text("No users available")
+                                   } else {
+                                       ForEach(viewModel.availableUsers, id: \.id) { user in
+                                           Toggle(isOn: Binding(
+                                               get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+                                               set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+                                           )) {
+                                               HStack {
+                                                   Text("\(user.username) - \(user.accountType)")
+                                                   if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
+                                                       Image(systemName: "person.fill")
+                                                           .foregroundColor(.blue)
+                                                   } else if viewModel.excludedUsers.contains(user.id ?? "") {
+                                                       Image(systemName: "person.fill.xmark")
+                                                           .foregroundColor(.red)
+                                                   }
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
                 
                 Section(header: Text("Questions")) {
                     ForEach(viewModel.questions.indices, id: \.self) { index in
@@ -712,4 +773,7 @@ struct EditQuizView: View {
            formatter.timeStyle = .short
            return formatter
        }()
+    
+    
+    
 }

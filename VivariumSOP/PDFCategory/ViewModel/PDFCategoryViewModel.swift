@@ -728,27 +728,47 @@ class PDFCategoryViewModel: ObservableObject {
         }
     }
     
-    func deleteCategory(_ category: String) {
-        Task {
-            do {
-                let batch = db.batch()
-                let query = db.collection("PDFCategory").whereField("nameOfCategory", isEqualTo: category)
-                let snapshot = try await query.getDocuments()
-                
-                for document in snapshot.documents {
-                    batch.deleteDocument(document.reference)
-                }
-                
-                try await batch.commit()
-                
+//    func deleteCategory(_ category: String) {
+//        Task {
+//            do {
+//                let batch = db.batch()
+//                let query = db.collection("PDFCategory").whereField("nameOfCategory", isEqualTo: category)
+//                let snapshot = try await query.getDocuments()
+//                
+//                for document in snapshot.documents {
+//                    batch.deleteDocument(document.reference)
+//                }
+//                
+//                try await batch.commit()
+//                
+//                self.pdfCategories.removeAll { $0.nameOfCategory == category }
+//                self.updateUniqueCategories()
+//            } catch {
+//                print("Error deleting category: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+    func deleteCategory(_ category: String) async throws {
+        do {
+            let batch = db.batch()
+            let query = db.collection("categoryList").whereField("categoryTitle", isEqualTo: category)
+            let snapshot = try await query.getDocuments()
+            
+            for document in snapshot.documents {
+                batch.deleteDocument(document.reference)
+            }
+            
+            try await batch.commit()
+            
+            await MainActor.run {
                 self.pdfCategories.removeAll { $0.nameOfCategory == category }
                 self.updateUniqueCategories()
-            } catch {
-                print("Error deleting category: \(error.localizedDescription)")
             }
+        } catch {
+            print("Error deleting category: \(error.localizedDescription)")
+            throw error // Re-throw the error so it can be caught in the view
         }
     }
-    
     func deletePDF(_ pdf: PDFCategory) {
         Task {
             do {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B1E27842CB6B838007EA84A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */; };
 		5B21FCBA2CA8A14E00F63805 /* SopCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */; };
 		5B21FCBD2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */; };
 		5B21FCBF2CA8A2F400F63805 /* CategoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */; };
@@ -49,7 +50,6 @@
 		5B5B223C2C86A0F80043C3B4 /* Quiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B223B2C86A0F80043C3B4 /* Quiz.swift */; };
 		5B5B223E2C86A1130043C3B4 /* Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B223D2C86A1130043C3B4 /* Info.swift */; };
 		5B5B22402C86A1290043C3B4 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B223F2C86A1290043C3B4 /* Category.swift */; };
-		5B5B22422C86A20F0043C3B4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B5B22412C86A20F0043C3B4 /* GoogleService-Info.plist */; };
 		5B5B22452C86A34A0043C3B4 /* MainTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22442C86A34A0043C3B4 /* MainTabBarView.swift */; };
 		5B5B22492C86A38C0043C3B4 /* SOPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B22482C86A38C0043C3B4 /* SOPService.swift */; };
 		5B5B224B2C86AF860043C3B4 /* PDFSTorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B5B224A2C86AF860043C3B4 /* PDFSTorageManager.swift */; };
@@ -89,6 +89,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../../Users/martin/Desktop/VivaSOPFacility/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SopCategoryView.swift; sourceTree = "<group>"; };
 		5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOpCategoryHUsbandryViewModel.swift; sourceTree = "<group>"; };
 		5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManager.swift; sourceTree = "<group>"; };
@@ -123,7 +124,6 @@
 		5B5B223B2C86A0F80043C3B4 /* Quiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quiz.swift; sourceTree = "<group>"; };
 		5B5B223D2C86A1130043C3B4 /* Info.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Info.swift; sourceTree = "<group>"; };
 		5B5B223F2C86A1290043C3B4 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
-		5B5B22412C86A20F0043C3B4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Users/martin/Desktop/VivariumSOP/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B5B22442C86A34A0043C3B4 /* MainTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarView.swift; sourceTree = "<group>"; };
 		5B5B22482C86A38C0043C3B4 /* SOPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOPService.swift; sourceTree = "<group>"; };
 		5B5B224A2C86AF860043C3B4 /* PDFSTorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSTorageManager.swift; sourceTree = "<group>"; };
@@ -301,7 +301,6 @@
 				5B5B21AC2C8691F50043C3B4 /* VivariumSOPApp.swift */,
 				5B5B21AE2C8691F50043C3B4 /* ContentView.swift */,
 				5B5B21B02C8691F60043C3B4 /* Assets.xcassets */,
-				5B5B22412C86A20F0043C3B4 /* GoogleService-Info.plist */,
 				5B5B21B22C8691F60043C3B4 /* VivariumSOP.entitlements */,
 				5B5B21B32C8691F60043C3B4 /* Preview Content */,
 			);
@@ -343,6 +342,7 @@
 				5B5B223D2C86A1130043C3B4 /* Info.swift */,
 				5B5B223F2C86A1290043C3B4 /* Category.swift */,
 				5B5B224F2C86BEC00043C3B4 /* PDFDocument.swift */,
+				5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -617,7 +617,7 @@
 			files = (
 				5B5B21B52C8691F60043C3B4 /* Preview Assets.xcassets in Resources */,
 				5B5B21B12C8691F60043C3B4 /* Assets.xcassets in Resources */,
-				5B5B22422C86A20F0043C3B4 /* GoogleService-Info.plist in Resources */,
+				5B1E27842CB6B838007EA84A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -842,12 +842,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VivariumSOP/VivariumSOP.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VivariumSOP/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = J5M8ZQUM64;
+				DEVELOPMENT_TEAM = C3H3F2K42A;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -870,10 +868,9 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.VivariumSOPuserss;
+				PRODUCT_BUNDLE_IDENTIFIER = com.TheCooldeveloper.VivariumSOPs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SOPUSERADMIN_IPADS_PROV;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -889,12 +886,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VivariumSOP/VivariumSOP.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VivariumSOP/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = J5M8ZQUM64;
+				DEVELOPMENT_TEAM = C3H3F2K42A;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -917,10 +912,9 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.VivariumSOPuserss;
+				PRODUCT_BUNDLE_IDENTIFIER = com.TheCooldeveloper.VivariumSOPs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = SOPUSERADMIN_IPADS_PROV;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;

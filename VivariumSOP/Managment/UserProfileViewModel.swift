@@ -1445,23 +1445,39 @@ final class HusbandryUserProfileViewModel: ObservableObject {
             let allQuizzes = try await QuizManager.shared.getAllQuiz()
             
             // Filter quizzes based on direct assignment, user's account type, assigned categories, and quizScores
+//            let assignedQuizzes = allQuizzes.filter { quiz in
+//                // Check if the quiz is directly assigned to the user
+//                let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
+//                
+//                // Check if the quiz is assigned to the user's account type
+//                let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
+//                
+//                // Check if the quiz category matches any of the user's assigned category IDs
+//                let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
+//                
+//                // Check if the quiz is in the user's quizScores
+//                let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
+//                
+//                // The quiz is considered assigned if any of these conditions are true
+//                return isDirectlyAssigned || isAccountTypeAssigned || isCategoryAssigned || isInQuizScores
+//            }
             let assignedQuizzes = allQuizzes.filter { quiz in
-                // Check if the quiz is directly assigned to the user
                 let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
-                
-                // Check if the quiz is assigned to the user's account type
                 let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
-                
-                // Check if the quiz category matches any of the user's assigned category IDs
                 let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
-                
-                // Check if the quiz is in the user's quizScores
                 let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
                 
-                // The quiz is considered assigned if any of these conditions are true
-                return isDirectlyAssigned || isAccountTypeAssigned || isCategoryAssigned || isInQuizScores
+                // Prioritize direct assignments
+                if isDirectlyAssigned {
+                    return true
+                } else if isInQuizScores {
+                    // Keep quizzes that have been started or completed
+                    return true
+                } else {
+                    // For account type or category assignments, check if there's a due date
+                    return (isAccountTypeAssigned || isCategoryAssigned) && user.quizScores?.contains(where: { $0.quizID == quiz.id && $0.dueDates?[quiz.id] != nil }) == true
+                }
             }
-            
             var tempQuizzesWithScores: [QuizWithScore] = []
             var tempUncompletedQuizzes: [Quiz] = []
             

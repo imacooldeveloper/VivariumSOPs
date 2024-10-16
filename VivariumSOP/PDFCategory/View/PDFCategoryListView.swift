@@ -18,6 +18,11 @@ struct PDFCategoryListView: View {
     @State private var showingAddCategorySheet = false
     @State private var newCategoryTitle = ""
     
+    
+    // Add these new state variables
+        @State private var alertTitle = ""
+        @State private var alertMessage = ""
+        @State private var showAlert = false
     var body: some View {
         ZStack {
             Group {
@@ -33,8 +38,17 @@ struct PDFCategoryListView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
-                                    categoryToDelete = category
-                                    showingDeleteAlert = true
+                                    isDeleting = true
+                                    Task {
+                                        do {
+                                            try await viewModel.deleteCategory(category)
+                                            isDeleting = false
+                                        } catch {
+                                            isDeleting = false
+                                            // Handle error here
+                                            print("Error deleting category: \(error.localizedDescription)")
+                                        }
+                                    }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -87,6 +101,10 @@ struct PDFCategoryListView: View {
         .sheet(isPresented: $showingAddCategorySheet) {
             addCategoryView
         }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+        
     }
     
     private var addCategoryView: some View {
@@ -136,16 +154,36 @@ struct PDFCategoryListView: View {
         }
     }
     
+//    private func deleteCategory(_ category: String) {
+//        isDeleting = true
+//        Task {
+//            await viewModel.deleteCategory(category)
+//            showingDeleteAlert = false
+//            isDeleting = false
+//        }
+//    }
+//    
     private func deleteCategory(_ category: String) {
         isDeleting = true
         Task {
-            await viewModel.deleteCategory(category)
-            showingDeleteAlert = false
-            isDeleting = false
+            do {
+                try await viewModel.deleteCategory(category)
+                await MainActor.run {
+                    showingDeleteAlert = false
+                    isDeleting = false
+                    // Optionally, you might want to refresh your view here
+                }
+            } catch {
+                await MainActor.run {
+                    isDeleting = false
+                    // Show an error alert to the user
+                    alertTitle = "Error"
+                    alertMessage = "Failed to delete category: \(error.localizedDescription)"
+                    showAlert = true
+                }
+            }
         }
     }
-    
-    
     
     struct SubcategoryView: View {
         let category: String
@@ -320,7 +358,7 @@ struct PDFCategoryListView: View {
         @State private var refreshToggle = false // Add this line
         @State private var isEditingExistingQuiz = false
         @State private var existingQuiz: Quiz?
-        
+        @State private var createQuizViewModel: CreateQuizViewModel?
         var filteredPDFs: [PDFCategory] {
             let pdfs = viewModel.pdfCategories.filter { $0.nameOfCategory == category && $0.SOPForStaffTittle == subcategory }
             print("Filtered PDFs for \(category) - \(subcategory): \(pdfs.count)")
@@ -369,63 +407,96 @@ struct PDFCategoryListView: View {
             }
             .sheet(isPresented: $showingCreateQuizView) {
                 Group {
-                    if isEditingExistingQuiz, let quiz = existingQuiz {
-                        EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
-                    }
-                    
-                    else {
-                        CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
-                    }
-                }
-                .onAppear {
-                    print("Quiz view presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory), editing: \(isEditingExistingQuiz)")
-                }
-                .onDisappear {
-                    print("Quiz view dismissed")
-                    self.selectedPDFName = nil
-                    self.isEditingExistingQuiz = false
-                    self.existingQuiz = nil
-                    self.refreshToggle.toggle()
-                }
+                      if isEditingExistingQuiz, let quiz = existingQuiz {
+                          EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+                      } else {
+                          CreateQuizView(viewModel: CreateQuizViewModel(category: subcategory, quizTitle: selectedPDFName ?? subcategory))
+                      }
+                  }
+                  .onAppear {
+                      print("Quiz view presented for category: \(subcategory), title: \(selectedPDFName ?? subcategory), editing: \(isEditingExistingQuiz)")
+                  }
+                  .onDisappear {
+                      print("Quiz view dismissed")
+                      self.selectedPDFName = nil
+                      self.isEditingExistingQuiz = false
+                      self.existingQuiz = nil
+                      self.refreshToggle.toggle()
+                  }
             }
             //.id(refreshToggle) // Add this line
         }
         
+//        private func createQuiz() {
+//            print("Create Quiz button tapped")
+//            quizCreationCount += 1
+//            
+//            let quizTitle: String
+//            if quizCreationCount == 1, let firstPDF = filteredPDFs.first {
+//                quizTitle = firstPDF.pdfName
+//                print("Selected PDF: \(firstPDF.pdfName)")
+//            } else {
+//                quizTitle = subcategory
+//                print("Using subcategory as quiz title: \(subcategory)")
+//            }
+//            
+//            selectedPDFName = quizTitle
+//            
+//            Task {
+//                do {
+//                    if let quiz = try await QuizManager.shared.getQuizForCategory(category: quizTitle) {
+//                        existingQuiz = quiz
+//                        isEditingExistingQuiz = true
+//                        print("Existing quiz found: \(quiz.id)")
+//                    } else {
+//                        existingQuiz = nil
+//                        isEditingExistingQuiz = false
+//                        print("No existing quiz found")
+//                    }
+//                    showingCreateQuizView = true
+//                } catch {
+//                    print("Error checking for existing quiz: \(error)")
+//                    // Handle the error appropriately
+//                }
+//            }
+//        }
+        
         private func createQuiz() {
             print("Create Quiz button tapped")
-            quizCreationCount += 1
             
-            let quizTitle: String
-            if quizCreationCount == 1, let firstPDF = filteredPDFs.first {
-                quizTitle = firstPDF.pdfName
-                print("Selected PDF: \(firstPDF.pdfName)")
-            } else {
-                quizTitle = subcategory
-                print("Using subcategory as quiz title: \(subcategory)")
-            }
-            
-            selectedPDFName = quizTitle
+            let quizTitle = selectedPDFName ?? subcategory
+            print("Selected quiz title: \(quizTitle)")
             
             Task {
                 do {
                     if let quiz = try await QuizManager.shared.getQuizForCategory(category: quizTitle) {
-                        existingQuiz = quiz
-                        isEditingExistingQuiz = true
-                        print("Existing quiz found: \(quiz.id)")
+                        await MainActor.run {
+                            existingQuiz = quiz
+                            isEditingExistingQuiz = true
+                            selectedPDFName = quiz.info.title
+                            print("Existing quiz found: \(quiz.id)")
+                        }
                     } else {
-                        existingQuiz = nil
-                        isEditingExistingQuiz = false
-                        print("No existing quiz found")
+                        await MainActor.run {
+                            existingQuiz = nil
+                            isEditingExistingQuiz = false
+                            selectedPDFName = quizTitle
+                            print("No existing quiz found for title: \(quizTitle)")
+                        }
                     }
-                    showingCreateQuizView = true
+                    
+                    await MainActor.run {
+                        showingCreateQuizView = true
+                    }
                 } catch {
                     print("Error checking for existing quiz: \(error)")
-                    // Handle the error appropriately
+                    await MainActor.run {
+                        errorMessage = "Failed to load quiz information: \(error.localizedDescription)"
+                        showingErrorAlert = true
+                    }
                 }
             }
         }
-        
-        
         private var deleteAlert: some View {
             Group {
                 if showingDeleteAlert, let pdf = pdfToDelete {
