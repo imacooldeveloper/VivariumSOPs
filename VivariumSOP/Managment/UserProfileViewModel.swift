@@ -138,14 +138,14 @@ final class UserProfileViewModel: ObservableObject {
                 }
                 return true // Quiz is uncompleted if there's no score entry
             }
-            print("Uncompleted quizzes: \(uncompletedQuizzes.count)")
+            print("Incompleted quizzes: \(uncompletedQuizzes.count)")
             
             // Print details of uncompleted quizzes
             for quiz in uncompletedQuizzes {
                 if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
-                    print("Uncompleted Quiz: \(quiz.id), Highest Score: \(quizScore.scores.max() ?? 0)")
+                    print("Incompleted Quiz: \(quiz.id), Highest Score: \(quizScore.scores.max() ?? 0)")
                 } else {
-                    print("Uncompleted Quiz: \(quiz.id), Not Attempted")
+                    print("Incompleted Quiz: \(quiz.id), Not Attempted")
                 }
             }
             
@@ -190,7 +190,7 @@ final class UserProfileViewModel: ObservableObject {
                 self.uncompletedQuizzes = allQuizzes.filter { !completedQuizIds.contains($0.id) }
                 
                 print("Completed quiz IDs for user \(user.username): \(completedQuizIds)")
-                print("Uncompleted quizzes for user \(user.username): \(uncompletedQuizzes.count)")
+                print("Incompleted quizzes for user \(user.username): \(uncompletedQuizzes.count)")
             }
         } catch {
             print("Error: \(error.localizedDescription)")

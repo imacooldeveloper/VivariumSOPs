@@ -97,16 +97,16 @@ struct HusbandryUserProfileContentView: View {
                 
                 // Uncompleted Quizzes
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Uncompleted Quizzes")
+                    Text("Incompleted Quizzes")
                         .font(.headline)
                         .padding(.horizontal)
                     
                     if viewModel.uncompletedQuizzes.isEmpty {
-                        Text("No uncompleted quizzes.")
+                        Text("No Incompleted quizzes.")
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                     } else {
-                        Text("Total Uncompleted: \(viewModel.uncompletedQuizzes.count)")
+                        Text("Total Incompleted: \(viewModel.uncompletedQuizzes.count)")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)

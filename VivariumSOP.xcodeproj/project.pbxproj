@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B1E27842CB6B838007EA84A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */; };
+		1439D37E2CBFFA02008D53F5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1439D37D2CBFFA02008D53F5 /* GoogleService-Info.plist */; };
 		5B21FCBA2CA8A14E00F63805 /* SopCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */; };
 		5B21FCBD2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */; };
 		5B21FCBF2CA8A2F400F63805 /* CategoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */; };
@@ -89,7 +89,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../../Users/martin/Desktop/VivaSOPFacility/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1439D37D2CBFFA02008D53F5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5B21FCB92CA8A14E00F63805 /* SopCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SopCategoryView.swift; sourceTree = "<group>"; };
 		5B21FCBC2CA8A22000F63805 /* SOpCategoryHUsbandryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOpCategoryHUsbandryViewModel.swift; sourceTree = "<group>"; };
 		5B21FCBE2CA8A2F400F63805 /* CategoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManager.swift; sourceTree = "<group>"; };
@@ -299,6 +299,7 @@
 				5B5B22002C8695FE0043C3B4 /* Login */,
 				5B5B21E82C8694DE0043C3B4 /* Model */,
 				5B5B21AC2C8691F50043C3B4 /* VivariumSOPApp.swift */,
+				1439D37D2CBFFA02008D53F5 /* GoogleService-Info.plist */,
 				5B5B21AE2C8691F50043C3B4 /* ContentView.swift */,
 				5B5B21B02C8691F60043C3B4 /* Assets.xcassets */,
 				5B5B21B22C8691F60043C3B4 /* VivariumSOP.entitlements */,
@@ -342,7 +343,6 @@
 				5B5B223D2C86A1130043C3B4 /* Info.swift */,
 				5B5B223F2C86A1290043C3B4 /* Category.swift */,
 				5B5B224F2C86BEC00043C3B4 /* PDFDocument.swift */,
-				5B1E27832CB6B838007EA84A /* GoogleService-Info.plist */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -617,7 +617,7 @@
 			files = (
 				5B5B21B52C8691F60043C3B4 /* Preview Assets.xcassets in Resources */,
 				5B5B21B12C8691F60043C3B4 /* Assets.xcassets in Resources */,
-				5B1E27842CB6B838007EA84A /* GoogleService-Info.plist in Resources */,
+				1439D37E2CBFFA02008D53F5 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
