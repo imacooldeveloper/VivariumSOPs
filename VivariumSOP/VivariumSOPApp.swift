@@ -75,6 +75,7 @@ struct VivariumSOPApp: App {
     @StateObject var sharedViewModel = PDFCategoryViewModel()
       init() {
           FirebaseApp.configure()
+         // FirebaseApp.configure()
       }
     
     var body: some Scene {

@@ -10,7 +10,6 @@ import Foundation
 import FirebaseStorage
 import Combine
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import FirebaseAuth
 class PDFViewModel: ObservableObject {
     @Published var pdfDocuments: [PDFDocuments] = []

@@ -168,6 +168,18 @@ struct MainTabBarView: View {
                     Label("Users", systemImage: "person.3.fill")
                 }
                 .tag(2)
+                
+                
+                NavigationStack(path: $navigationHandler.path) {
+                    ExportAllUsersView()
+                        .navigationTitle("Export Quiz Data")
+                       
+                }
+                .tabItem {
+                    Label("Export", systemImage: "square.and.arrow.up")
+                }
+                .tag(3)
+                
             }
             .onChange(of: selectedTab) { _ in
                 navigationHandler.path.removeLast(navigationHandler.path.count)

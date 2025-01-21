@@ -9,7 +9,6 @@
 
 import SwiftUI
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import FirebaseAuth
 import PDFKit
 struct PDFDetailsView: View {

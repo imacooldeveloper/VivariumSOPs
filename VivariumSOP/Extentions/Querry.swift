@@ -7,7 +7,6 @@
 
 
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 extension Query {
     
 //    func getDocumentss<T: Codable>(as type: T.Type) async throws -> [T] {

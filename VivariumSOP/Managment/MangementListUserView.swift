@@ -75,7 +75,11 @@ import SwiftUI
 
 import SwiftUI
 import Firebase
-import FirebaseFirestoreSwift
+import FirebaseFirestore
+
+import UniformTypeIdentifiers
+//import XLSX
+
 
 struct ManagementUserViewListView: View {
     var user: User
@@ -248,3 +252,248 @@ final class ManagementUserViewModel: ObservableObject {
     }
 }
 
+
+
+
+//struct ManagementUserViewListView: View {
+//    var user: User
+//       var allQuizzes: [Quiz]
+//       
+//    @State private var showingExportDialog = false
+//    var userQuizzes: [Quiz] {
+//            allQuizzes.filter { quiz in
+//                (user.quizScores?.contains(where: { $0.quizID == quiz.id }) ?? false) ||
+//                (quiz.accountTypes.contains(user.accountType ?? ""))
+//            }
+//        }
+//    var body: some View {
+//        VStack(spacing: 20) {
+//            UserHeader(user: user)
+//            QuizListCard(quizzes: userQuizzes, user: user)
+//        }
+//        .padding()
+//        .background(Color(.systemGroupedBackground))
+//        .navigationTitle("User Progress")
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                Button(action: { showingExportDialog = true }) {
+//                    Image(systemName: "square.and.arrow.up")
+//                }
+//            }
+//        }
+//        .fileExporter(
+//            isPresented: $showingExportDialog,
+//            document: UserProgressDocument(user: user, quizzes: userQuizzes),
+//            contentType: UTType.xlsx,
+//            defaultFilename: "\(user.username)_progress.xlsx"
+//        ) { result in
+//            if case .failure(let error) = result {
+//                print("Export failed: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+//}
+//struct UserProgressDocument: FileDocument {
+//    let user: User
+//    let quizzes: [Quiz]
+//    
+//    static var readableContentTypes: [UTType] { [.xlsx] }
+//    
+//    init(user: User, quizzes: [Quiz]) {
+//        self.user = user
+//        self.quizzes = quizzes
+//    }
+//    
+//    init(configuration: ReadConfiguration) throws {
+//        user = User(firstName: "", lastName: "", facilityName: "", username: "", userUID: "", userEmail: "", accountType: "", NHPAvalible: false)
+//        quizzes = []
+//    }
+//    
+//    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+//        let data = createExcelData()
+//        return FileWrapper(regularFileWithContents: data)
+//    }
+//    
+//    private func createExcelData() -> Data {
+//        let workbook = Workbook()
+//        let sheet = workbook.addWorksheet(name: "User Progress")
+//        
+//        // Add headers
+//        let headers = ["Quiz Title", "Account Type", "Score", "Status", "Completion Date", "Due Date"]
+//        for (col, header) in headers.enumerated() {
+//            sheet.cell(row: 0, column: col).value = header
+//        }
+//        
+//        // Add user info
+//        for (index, quiz) in quizzes.enumerated() {
+//            let row = index + 1
+//            let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id })
+//            
+//            sheet.cell(row: row, column: 0).value = quiz.info.title
+//            sheet.cell(row: row, column: 1).value = quiz.accountTypes.joined(separator: ", ")
+//            sheet.cell(row: row, column: 2).value = quizScore?.scores.max() ?? 0
+//            sheet.cell(row: row, column: 3).value = (quizScore?.scores.max() ?? 0) >= 80 ? "Passed" : "Not Passed"
+//            sheet.cell(row: row, column: 4).value = quizScore?.completionDates.last?.description ?? "Not Attempted"
+//            sheet.cell(row: row, column: 5).value = quiz.dueDate?.description ?? "No Due Date"
+//        }
+//        
+//        return try! workbook.serialize()
+//    }
+//}
+
+
+import PDFKit
+import UniformTypeIdentifiers
+
+//struct ManagementUserViewListView: View {
+//    var user: User
+//    var allQuizzes: [Quiz]
+//    @StateObject private var viewModel = ManagementUserViewModel()
+//    
+//    var userQuizzes: [Quiz] {
+//        allQuizzes.filter { quiz in
+//            (user.quizScores?.contains(where: { $0.quizID == quiz.id }) ?? false) ||
+//            (quiz.accountTypes.contains(user.accountType ?? ""))
+//        }
+//    }
+//    
+//    var body: some View {
+//        VStack(spacing: 20) {
+//            UserHeader(user: user)
+//            QuizListCard(quizzes: userQuizzes, user: user)
+//        }
+//        .padding()
+//        .background(Color(.systemGroupedBackground))
+//        .navigationTitle("User Progress")
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                Button(action: exportData) {
+//                    Image(systemName: "square.and.arrow.up")
+//                }
+//            }
+//        }
+//    }
+//
+//    func exportData() {
+//        var csv = "User,Account Type,Quiz Title,Score,Status,Completion Date,Due Date\n"
+//        
+//        for quiz in userQuizzes {
+//            if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+//                let score = quizScore.scores.max() ?? 0
+//                let status = score >= 80 ? "Passed" : "Not Passed"
+//                let completionDate = quizScore.completionDates.last?.description ?? "Not Attempted"
+//                let dueDate = quiz.dueDate?.description ?? "No Due Date"
+//                
+//                csv += "\(user.username),\(user.accountType ?? ""),\(quiz.info.title),\(score),\(status),\(completionDate),\(dueDate)\n"
+//            }
+//        }
+//        
+//        if let data = csv.data(using: .utf8) {
+//            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(user.username)_progress.csv")
+//            do {
+//                try data.write(to: tempURL)
+//                let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+//                
+//                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                   let window = windowScene.windows.first,
+//                   let rootVC = window.rootViewController {
+//                    activityVC.popoverPresentationController?.sourceView = window
+//                    rootVC.present(activityVC, animated: true)
+//                }
+//            } catch {
+//                print("Export failed: \(error)")
+//            }
+//        }
+//    }
+//}
+
+
+
+struct ExportAllUsersView: View {
+   @StateObject private var viewModel = ManagementUserViewModel()
+   @State private var isLoading = false
+   
+   var body: some View {
+       VStack(spacing: 20) {
+           Image(systemName: "square.and.arrow.up.circle.fill")
+               .resizable()
+               .frame(width: 60, height: 60)
+               .foregroundColor(.blue)
+           
+           Text("Export All Users Data")
+               .font(.title2)
+               .fontWeight(.semibold)
+           
+           Button(action: {
+               Task {
+                   isLoading = true
+                   exportAllUsersData()
+                   isLoading = false // Reset loading state after export
+               }
+           }) {
+               HStack {
+                   if isLoading {
+                       ProgressView()
+                           .padding(.trailing, 5)
+                   }
+                   Text("Export to CSV")
+               }
+               .frame(minWidth: 200)
+               .padding()
+               .background(Color.blue)
+               .foregroundColor(.white)
+               .cornerRadius(10)
+               .shadow(radius: 5)
+           }
+           .disabled(isLoading)
+       }
+       .padding()
+       .frame(maxWidth: .infinity, maxHeight: .infinity)
+       .background(Color(.systemGroupedBackground))
+       .task {
+           await viewModel.fetchAllUsersAndQuizzes()
+       }
+   }
+   
+    func exportAllUsersData() {
+       var csv = "User,Account Type,Quiz Title,Score,Status,Completion Date,Due Date\n"
+       
+       // Create timestamp for filename
+       let dateFormatter = DateFormatter()
+       dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+       let timestamp = dateFormatter.string(from: Date())
+       
+       // Generate CSV content
+       for user in viewModel.users {
+           for quiz in viewModel.quizzes {
+               if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+                   let score = quizScore.scores.max() ?? 0
+                   let status = score >= 80 ? "Passed" : "Not Passed"
+                   let completionDate = quizScore.completionDates.last?.description ?? "Not Attempted"
+                   let dueDate = quiz.dueDate?.description ?? "No Due Date"
+                   
+                   csv += "\(user.username),\(user.accountType ?? ""),\(quiz.info.title),\(score),\(status),\(completionDate),\(dueDate)\n"
+               }
+           }
+       }
+       
+       if let data = csv.data(using: .utf8) {
+           let filename = "users_progress_\(timestamp).csv"
+           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+           
+           do {
+               try data.write(to: tempURL)
+               let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+               
+               if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first,
+                  let rootVC = window.rootViewController {
+                   activityVC.popoverPresentationController?.sourceView = window
+                   rootVC.present(activityVC, animated: true)
+               }
+           } catch {
+               print("Export failed: \(error)")
+           }
+       }
+    }
+}

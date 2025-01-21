@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FirebaseFirestoreSwift
+import FirebaseFirestore
 import Firebase
 struct User: Hashable, Codable, Identifiable {
     @DocumentID var id: String?

@@ -8,7 +8,6 @@
 import Foundation
 import Foundation
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 
 class QuizManager {
     static let shared = QuizManager()

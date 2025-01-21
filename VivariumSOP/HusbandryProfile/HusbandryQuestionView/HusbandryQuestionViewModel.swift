@@ -9,7 +9,6 @@ import Foundation
 import FirebaseStorage
 import Combine
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import FirebaseAuth
 
 final class HusbandryQuestionViewModel: ObservableObject {

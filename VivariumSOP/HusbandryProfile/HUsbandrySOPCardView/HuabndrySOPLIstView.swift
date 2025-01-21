@@ -11,114 +11,120 @@ import PDFKit
 import FirebaseAuth
 struct HusbandryPDFListView: View {
     @State var vm = HusbandrySOPListViewModel()
-    var SOPForStaffTittle: String
-    var nameOfCategory: String
-    @State private var showQuizView = false
-    @Environment(\.dismiss) var dismiss
-    @State private var isRotationEnabled: Bool = true
-    @State private var showsIndicator: Bool = true
+     var SOPForStaffTittle: String
+     var nameOfCategory: String
+     @State private var showQuizView = false
+     @Environment(\.dismiss) var dismiss
+     @State private var isRotationEnabled: Bool = true
+     @State private var showsIndicator: Bool = true
+     @Environment(\.horizontalSizeClass) var sizeClass
 
-    let colorScheme: [Color] = [.blue, .green, .orange, .purple, .pink]
+     let colorScheme: [Color] = [.blue, .green, .orange, .purple, .pink]
 
-    var body: some View {
-        VStack {
-            GeometryReader { geometry in
-                let size = geometry.size
+     var body: some View {
+         VStack {
+             GeometryReader { geometry in
+                 let size = geometry.size
+                 let cardWidth = size.width - (sizeClass == .regular ? 20 : 40)
 
-                ScrollView(.horizontal) {
-                    HStack(spacing: 0) {
-                        ForEach(vm.pdfList.indices, id: \.self) { index in
-                            let pdf = vm.pdfList[index]
-                            CardView(pdf: pdf, isCompleted: vm.isPDFCompleted(pdfId: pdf.id), color: colorScheme[index % colorScheme.count])
-                                .padding(.horizontal, 65)
-                                .frame(width: size.width)
-                                .visualEffect { content, geometryProxy in
-                                    content
-                                        .scaleEffect(scale(geometryProxy, scale: 0.1), anchor: .trailing)
-                                        .rotationEffect(rotation(geometryProxy, rotation: isRotationEnabled ? 5 : 0))
-                                        .offset(x: minX(geometryProxy))
-                                        .offset(x: excessMinX(geometryProxy, offset: isRotationEnabled ? 6 : 10))
-                                }
-                                .zIndex(Double(vm.pdfList.count - index))
-                        }
-                    }
-                    .padding(.vertical, 15)
-                }
-                .scrollTargetBehavior(.paging)
-                .scrollIndicators(showsIndicator ? .visible : .hidden)
-                .scrollIndicatorsFlash(trigger: showsIndicator)
-            }
-            .frame(height: 710)
-            .animation(.snappy, value: isRotationEnabled)
+                 ScrollView(.horizontal) {
+                     HStack(spacing: 0) {
+                         ForEach(vm.pdfList.indices, id: \.self) { index in
+                             let pdf = vm.pdfList[index]
+                             CardView(pdf: pdf, isCompleted: vm.isPDFCompleted(pdfId: pdf.id), color: colorScheme[index % colorScheme.count])
+                                 .padding(.horizontal, 65)
+                                 .frame(width: size.width)
+                                 .visualEffect { content, geometryProxy in
+                                     content
+                                         .scaleEffect(scale(geometryProxy, scale: 0.1), anchor: .trailing)
+                                         .rotationEffect(rotation(geometryProxy, rotation: isRotationEnabled ? 5 : 0))
+                                         .offset(x: minX(geometryProxy))
+                                         .offset(x: excessMinX(geometryProxy, offset: isRotationEnabled ? 6 : 10))
+                                 }
+                                 .zIndex(Double(vm.pdfList.count - index))
+                         }
+                     }
+                     .padding(.vertical, 15)
+                 }
+                 .scrollTargetBehavior(.paging)
+                 .scrollIndicators(showsIndicator ? .visible : .hidden)
+                 .scrollIndicatorsFlash(trigger: showsIndicator)
+             }
+             .frame(height: sizeClass == .regular ? 710 : 550)
+             .animation(.snappy, value: isRotationEnabled)
 
-            Button("Take Quiz") {
-                if vm.areAllPDFsCompleted() {
-                    showQuizView = true
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.blue)
-            .disabled(!vm.areAllPDFsCompleted())
-            .opacity(vm.areAllPDFsCompleted() ? 1 : 0.5)
-        }
-        .navigationTitle("PDF List")
-        .onAppear {
-            Task {
-                await vm.fetchPDFList(title: SOPForStaffTittle, nameOfPdf: nameOfCategory)
-                if let currentUserUID = Auth.auth().currentUser?.uid {
-                    await vm.fetchUserProgress(userUID: currentUserUID)
-                }
-                await vm.fetchQuizFor(category: SOPForStaffTittle)
-            }
-        }
-        .sheet(isPresented: $showQuizView) {
-            if let quiz = vm.quiz {
-                HusbandryQuestionView(quizId: quiz.id, quizTitle: quiz.info.title) {
-                    dismiss()
-                }
-            } else {
-                Text("No quiz available")
-            }
-        }
-    }
+             Button("Take Quiz") {
+                 if vm.areAllPDFsCompleted() {
+                     showQuizView = true
+                 }
+             }
+             .buttonStyle(.borderedProminent)
+             .tint(.blue)
+             .disabled(!vm.areAllPDFsCompleted())
+             .opacity(vm.areAllPDFsCompleted() ? 1 : 0.5)
+             .padding(.bottom, sizeClass == .regular ? 0 : 16)
+         }
+         .navigationTitle("PDF List")
+         .onAppear {
+             Task {
+                 await vm.fetchPDFList(title: SOPForStaffTittle, nameOfPdf: nameOfCategory)
+                 if let currentUserUID = Auth.auth().currentUser?.uid {
+                     await vm.fetchUserProgress(userUID: currentUserUID)
+                 }
+                 await vm.fetchQuizFor(category: SOPForStaffTittle)
+             }
+         }
+         .sheet(isPresented: $showQuizView) {
+             if let quiz = vm.quiz {
+                 HusbandryQuestionView(quizId: quiz.id, quizTitle: quiz.info.title) {
+                     dismiss()
+                 }
+             } else {
+                 Text("No quiz available")
+             }
+         }
+     }
 
-    @ViewBuilder
-    func CardView(pdf: PDFCategory, isCompleted: Bool, color: Color) -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Text(pdf.pdfName)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.bottom, 20)
-                Spacer()
-            }
-            if isCompleted {
-                Image(systemName: "checkmark.circle.fill")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(.white)
-                    .padding(.top, -30)
-            }
-            Spacer()
-            NavigationLink(value: pdf) {
-                Text("Open PDF")
-                    .foregroundColor(color)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
-            }
-            .padding()
-        }
-        .frame(width: 480)
-        .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(color)
-                .shadow(color: color.opacity(0.3), radius: 10, x: 0, y: 5)
-        )
-    }
+     @ViewBuilder
+     func CardView(pdf: PDFCategory, isCompleted: Bool, color: Color) -> some View {
+         VStack {
+             Spacer()
+             HStack {
+                 Spacer()
+                 Text(pdf.pdfName)
+                     .font(.title2)
+                     .fontWeight(.bold)
+                     .foregroundColor(.white)
+                     .padding(.bottom, 20)
+                     .multilineTextAlignment(.center)
+                     .padding(.horizontal, 8)
+                 Spacer()
+             }
+             if isCompleted {
+                 Image(systemName: "checkmark.circle.fill")
+                     .resizable()
+                     .frame(width: 30, height: 30)
+                     .foregroundColor(.white)
+                     .padding(.top, -30)
+             }
+             Spacer()
+             NavigationLink(value: pdf) {
+                 Text("Open PDF")
+                     .foregroundColor(color)
+                     .padding()
+                     .frame(maxWidth: 200)
+                     .background(Color.white)
+                     .cornerRadius(8)
+             }
+             .padding()
+         }
+         .frame(width: sizeClass == .regular ? 480 : 300)
+         .background(
+             RoundedRectangle(cornerRadius: 15)
+                 .fill(color)
+                 .shadow(color: color.opacity(0.3), radius: 10, x: 0, y: 5)
+         )
+     }
 //    func randomColor() -> Color {
 //        let colors: [Color] = [.red, .blue, .green, .yellow, .pink, .purple, .orange, .teal]
 //        return colors.randomElement() ?? .gray
