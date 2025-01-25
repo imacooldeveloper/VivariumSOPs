@@ -196,11 +196,11 @@ struct AnimatedRegistrationView: View {
             .background(.blue.gradient, in: .rect(cornerRadius: 32))
             .background {
                 RoundedRectangle(cornerRadius: 35)
-                  //  .fill(.background)
-                   
-                    .shadow(color: .primary.opacity(0.2), radius: 1)
-                    .padding(-3)
-                    .opacity(isSelected ? 1 : 0)
+//                    .fill(.background)
+//                   
+//                    .shadow(color: .primary.opacity(0.2), radius: 1)
+//                    .padding(-3)
+//                    .opacity(isSelected ? 1 : 0)
             }
             .rotationEffect(.init(degrees: -item.rotation))
             .scaleEffect(isSelected ? 1.1 : item.scale, anchor: item.anchor)

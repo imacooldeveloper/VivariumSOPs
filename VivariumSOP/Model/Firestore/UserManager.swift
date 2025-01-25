@@ -354,7 +354,7 @@ class UserManager {
                               userEmail: userEmail,
                               accountType: accountType,
                               NHPAvalible: NHPAvalible,
-                              floor: floor)
+                              floor: floor, assignedFloors: [floor])
            
            let userRef = db.collection("Users").document(userUID)
            try await userRef.setData(from: newUser)
@@ -410,6 +410,74 @@ class UserManager {
            return users
        }
     
+    func migrateUserFloors(userID: String) async throws {
+           let userRef = userDocuments(id: userID)
+           let snapshot = try await userRef.getDocument()
+           var user = try snapshot.data(as: User.self)
+           
+           user.migrateFloor()
+           try await uploadUser(user: user)
+       }
+       
+       func updateUserFloors(userID: String, floors: [String]) async throws {
+           let userRef = userDocuments(id: userID)
+           try await userRef.updateData([
+               User.CodingKeys.assignedFloors.rawValue: floors,
+               User.CodingKeys.floor.rawValue: FieldValue.delete()  // Remove old field
+           ])
+       }
+    
+    func updateUserAccreditations(userID: String, accreditation: Accreditation) async throws {
+           let userRef = userDocuments(id: userID)
+           let snapshot = try await userRef.getDocument()
+           var user = try snapshot.data(as: User.self)
+           
+           // Initialize accreditations array if nil
+           if user.accreditations == nil {
+               user.accreditations = []
+           }
+           
+           // Add new accreditation
+           user.accreditations?.append(accreditation)
+           
+           // Update the user document
+           try await uploadUser(user: user)
+       }
+       
+       func removeAccreditation(userID: String, accreditationName: String) async throws {
+           let userRef = userDocuments(id: userID)
+           let snapshot = try await userRef.getDocument()
+           var user = try snapshot.data(as: User.self)
+           
+           // Remove accreditation with matching name
+           user.accreditations?.removeAll(where: { $0.name == accreditationName })
+           
+           // Update the user document
+           try await uploadUser(user: user)
+       }
+       
+       func updateUserProfile(userID: String,
+                            firstName: String? = nil,
+                            lastName: String? = nil,
+                            assignedFloors: [String]? = nil) async throws {
+           let userRef = userDocuments(id: userID)
+           
+           var updateData: [String: Any] = [:]
+           
+           if let firstName = firstName {
+               updateData[User.CodingKeys.firstName.rawValue] = firstName
+           }
+           if let lastName = lastName {
+               updateData[User.CodingKeys.lastName.rawValue] = lastName
+           }
+           if let assignedFloors = assignedFloors {
+               updateData[User.CodingKeys.assignedFloors.rawValue] = assignedFloors
+           }
+           
+           try await userRef.updateData(updateData)
+       }
+    
+   
 }
 
 struct QuizWithScore: Hashable {

@@ -180,14 +180,7 @@ struct MainTabBarView: View {
                 }
                 .tag(3)
                 
-                NavigationStack{
-                    TemplateSOPUploadView()
-                }
-                                    .tabItem {
-                                        Image(systemName: "square.and.arrow.up.fill")
-                                        Text("Templates")
-                                    }
-                                    .tag(4)
+             
                 
             }
             .onChange(of: selectedTab) { _ in
@@ -239,6 +232,9 @@ struct MainTabBarView: View {
                 .navigationDestination(for: User.self) { user in
                     HusbandryUserProfileView(userSelected: user)
                 }
+                .navigationDestination(for: HusbandryPDFListView.self) { view in
+                          view
+                      }
                 .navigationBarItems(trailing: signOutButton)
             }
         }

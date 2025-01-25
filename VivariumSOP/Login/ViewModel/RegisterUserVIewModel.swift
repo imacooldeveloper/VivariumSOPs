@@ -304,7 +304,7 @@ final class RegisterUserViewModel: ObservableObject {
                     NHPAvalible: true,
                     assignedCategoryIDs: Array(selectedCategoryIDs),
                     quizScores: initialQuizScores,
-                    floor: "1st"
+                    floor: "1st", assignedFloors: ["1st"]
                 )
                 
                 // Step 5: Save user to Firestore

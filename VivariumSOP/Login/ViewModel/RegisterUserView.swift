@@ -259,3 +259,65 @@ struct CustomTextFields: View {
         }
     }
 }
+
+
+
+//struct NameInputView: View {
+//    @Binding var firstName: String
+//    @Binding var lastName: String
+//    var nextEnabled: Bool
+//    var onNext: () -> Void
+//    
+//    var body: some View {
+//        VStack(spacing: 30) {
+//            Text("Tell us about yourself")
+//                .font(.title2.bold())
+//            
+//            VStack(spacing: 15) {
+//                CustomTextField(
+//                    placeholder: "First Name",
+//                    text: $firstName
+//                )
+//                
+//                CustomTextField(
+//                    placeholder: "Last Name",
+//                    text: $lastName
+//                )
+//            }
+//            .padding(.horizontal)
+//            
+//            NextButton(enabled: nextEnabled, isLastStep: false, action: onNext)
+//        }
+//    }
+//}
+//
+//struct AccountSetupView: View {
+//    @Binding var email: String
+//    @Binding var password: String
+//    var nextEnabled: Bool
+//    var onNext: () -> Void
+//    
+//    var body: some View {
+//        VStack(spacing: 30) {
+//            Text("Set up your account")
+//                .font(.title2.bold())
+//            
+//            VStack(spacing: 15) {
+//                CustomTextField(
+//                    placeholder: "Email",
+//                    text: $email,
+//                    keyboardType: .emailAddress
+//                )
+//                
+//                CustomTextField(
+//                    placeholder: "Password",
+//                    text: $password,
+//                    isSecure: true
+//                )
+//            }
+//            .padding(.horizontal)
+//            
+//            NextButton(enabled: nextEnabled, isLastStep: false, action: onNext)
+//        }
+//    }
+//}

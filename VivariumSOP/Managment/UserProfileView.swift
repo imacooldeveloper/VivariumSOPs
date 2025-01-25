@@ -176,12 +176,25 @@ struct UserProfileContentView: View {
     @State private var selectedDates: [String: Date] = [:]
     @State private var quizToRetake: Quiz?
     @State private var isRefreshing = false
-
+    @State var showingEditSheet = false
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Profile Header
+                // Profile Header
                 VStack(spacing: 10) {
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showingEditSheet = true
+                        }) {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
                     Image(systemName: "person.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -191,6 +204,53 @@ struct UserProfileContentView: View {
                     Text(viewModel.user?.username ?? "")
                         .font(.title)
                         .fontWeight(.bold)
+                    
+                    // Role and floor info
+                    if let user = viewModel.user {
+                        Text(user.accountType)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        // Show all assigned floors
+                        if let assignedFloors = user.assignedFloors, !assignedFloors.isEmpty {
+                            Text("Assigned Floors: \(assignedFloors.joined(separator: ", "))")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        } else if let floor = user.floor {
+                            Text("Floor: \(floor)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        // Add Accreditations Section
+                        if let accreditations = user.accreditations, !accreditations.isEmpty {
+                            VStack(alignment: .leading) {
+                                Text("Accreditations")
+                                    .font(.headline)
+                                    .padding(.horizontal)
+                                
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 12) {
+                                        ForEach(accreditations, id: \.name) { accreditation in
+                                            VStack(alignment: .leading) {
+                                                Text(accreditation.name)
+                                                    .font(.subheadline)
+                                                    .bold()
+                                            }
+                                            .padding(.vertical, 8)
+                                            .padding(.horizontal, 12)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.blue.opacity(0.1))
+                                            )
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
                 }
                 .padding()
                 
@@ -251,6 +311,9 @@ struct UserProfileContentView: View {
             }
             .padding()
         }
+        .sheet(isPresented: $showingEditSheet) {
+            UserProfileEditView(viewModel: viewModel)
+        }
         .navigationTitle("User Profile")
         .refreshable {
             await refreshData()
@@ -272,7 +335,286 @@ struct UserProfileContentView: View {
 }
 
 
+struct UserProfileEditView: View {
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var viewModel: UserProfileViewModel
+    @State private var firstName: String = ""
+    @State private var lastName: String = ""
+    @State private var selectedFloors: Set<String> = []
+    @State private var showingAccreditationSheet = false
+    @State private var showingSaveAlert = false
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                PersonalInfoSection(firstName: $firstName, lastName: $lastName)
+                FloorAssignmentSection(selectedFloors: $selectedFloors)
+                AccreditationsSection(
+                    viewModel: viewModel,
+                    showingAccreditationSheet: $showingAccreditationSheet
+                )
+            }
+            .navigationTitle("Edit Profile")
+            .navigationBarItems(
+                leading: Button("Cancel") { dismiss() },
+                trailing: Button("Save") {
+                    Task { await saveChanges() }
+                }
+            )
+            .sheet(isPresented: $showingAccreditationSheet) {
+                AddAccreditationView(viewModel: viewModel)
+            }
+            .alert("Profile Updated", isPresented: $showingSaveAlert) {
+                Button("OK") { dismiss() }
+            }
+            .onAppear { loadUserData() }
+        }
+    }
+    
+    private func loadUserData() {
+        if let user = viewModel.user {
+            firstName = user.firstName
+            lastName = user.lastName
+            if let floor = user.floor {
+                selectedFloors.insert(floor)
+            }
+            if let assignedFloors = user.assignedFloors {
+                selectedFloors = Set(assignedFloors)
+            }
+        }
+    }
+    
+    private func saveChanges() async {
+        guard let user = viewModel.user else { return }
+        
+        var updatedUser = user
+        updatedUser.firstName = firstName
+        updatedUser.lastName = lastName
+        updatedUser.assignedFloors = Array(selectedFloors)
+        
+        do {
+            try await UserManager.shared.updateUser(updatedUser)
+            await MainActor.run {
+                viewModel.user = updatedUser
+                showingSaveAlert = true
+            }
+        } catch {
+            print("Error updating user: \(error)")
+        }
+    }
+}
 
+// MARK: - Subviews
+struct PersonalInfoSection: View {
+    @Binding var firstName: String
+    @Binding var lastName: String
+    
+    var body: some View {
+        Section(header: Text("Personal Information")) {
+            TextField("First Name", text: $firstName)
+            TextField("Last Name", text: $lastName)
+        }
+    }
+}
+
+struct FloorAssignmentSection: View {
+    @Binding var selectedFloors: Set<String>
+    
+    private let availableFloors = [
+        "1st", "2nd", "3rd", "3rd Annex Satellites",
+        "4th SPF", "4th Core", "5th"
+    ]
+    
+    var body: some View {
+        Section(header: Text("Floor Assignments")) {
+            ForEach(availableFloors, id: \.self) { floor in
+                FloorRow(floor: floor, selectedFloors: $selectedFloors)
+            }
+        }
+    }
+}
+
+struct FloorRow: View {
+    let floor: String
+    @Binding var selectedFloors: Set<String>
+    
+    var body: some View {
+        HStack {
+            Text(floor)
+            Spacer()
+            if selectedFloors.contains(floor) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.blue)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if selectedFloors.contains(floor) {
+                selectedFloors.remove(floor)
+            } else {
+                selectedFloors.insert(floor)
+            }
+        }
+    }
+}
+
+struct AccreditationsSection: View {
+    @ObservedObject var viewModel: UserProfileViewModel
+    @Binding var showingAccreditationSheet: Bool
+    @State private var showingDeleteAlert = false
+    @State private var accreditationToDelete: Accreditation?
+    
+    var body: some View {
+        Section(header: Text("Accreditations")) {
+            if let accreditations = viewModel.user?.accreditations {
+                ForEach(accreditations, id: \.name) { accreditation in
+                    AccreditationRow(accreditation: accreditation)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                accreditationToDelete = accreditation
+                                showingDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                }
+            }
+            
+            Button(action: {
+                showingAccreditationSheet = true
+            }) {
+                Label("Add Accreditation", systemImage: "plus.circle.fill")
+            }
+        }
+        .alert("Delete Accreditation", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                if let accreditation = accreditationToDelete {
+                    deleteAccreditation(accreditation)
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this accreditation? This action cannot be undone.")
+        }
+    }
+    
+    private func deleteAccreditation(_ accreditation: Accreditation) {
+        Task {
+            if let userID = viewModel.user?.userUID,
+               var user = viewModel.user { // Safely unwrap user
+                do {
+                    // Remove from Firebase
+                    try await UserManager.shared.removeAccreditation(
+                        userID: userID,
+                        accreditationName: accreditation.name
+                    )
+                    
+                    // Update local user object
+                    user.accreditations?.removeAll { $0.name == accreditation.name }
+                    
+                    await MainActor.run {
+                        viewModel.user = user
+                    }
+                } catch {
+                    print("Error deleting accreditation: \(error)")
+                }
+            }
+        }
+    }
+}
+
+// Update AccreditationRow to show more details
+struct AccreditationRow: View {
+    let accreditation: Accreditation
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(accreditation.name)
+                .font(.headline)
+            Text("Issuing Authority: \(accreditation.issuingAuthority)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text("Received: \(accreditation.dateReceived.formatted(date: .abbreviated, time: .omitted))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            if let expDate = accreditation.expirationDate {
+                Text("Expires: \(expDate.formatted(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+// Add Accreditation View
+struct AddAccreditationView: View {
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var viewModel: UserProfileViewModel
+    @State private var name = ""
+    @State private var dateReceived = Date()
+    @State private var expirationDate = Date()
+    @State private var hasExpiration = false
+    @State private var issuingAuthority = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Accreditation Name", text: $name)
+                TextField("Issuing Authority", text: $issuingAuthority)
+                
+                DatePicker("Date Received",
+                          selection: $dateReceived,
+                          displayedComponents: .date)
+                
+                Toggle("Has Expiration Date", isOn: $hasExpiration)
+                
+                if hasExpiration {
+                    DatePicker("Expiration Date",
+                              selection: $expirationDate,
+                              displayedComponents: .date)
+                }
+            }
+            .navigationTitle("Add Accreditation")
+            .navigationBarItems(
+                leading: Button("Cancel") {
+                    dismiss()
+                },
+                trailing: Button("Save") {
+                    Task {
+                        await saveAccreditation()
+                    }
+                }
+                .disabled(name.isEmpty || issuingAuthority.isEmpty)
+            )
+        }
+    }
+    
+    private func saveAccreditation() async {
+        let newAccreditation = Accreditation(
+            name: name,
+            dateReceived: dateReceived,
+            expirationDate: hasExpiration ? expirationDate : nil,
+            issuingAuthority: issuingAuthority
+        )
+        
+        do {
+            try await UserManager.shared.updateUserAccreditations(
+                userID: viewModel.user?.userUID ?? "",
+                accreditation: newAccreditation
+            )
+            // Refresh user data in view model
+            if let userUID = viewModel.user?.userUID {
+                let updatedUser = try await UserManager.shared.fetchUser(by: userUID)
+                await MainActor.run {
+                    viewModel.user = updatedUser
+                }
+            }
+            dismiss()
+        } catch {
+            print("Error adding accreditation: \(error)")
+        }
+    }
+}
 
 
 struct CompletedQuizCard: View {

@@ -440,6 +440,9 @@ class PDFCategoryViewModel: ObservableObject {
             await fetchCategoriesonHome()
         }
     }
+    
+    
+    
     func uploadSOPCategory(sopCategory: SOPCategory) async throws {
         print("Uploading SOP Category: \(sopCategory.SOPForStaffTittle)")
         try await CategoryManager.shared.uploadSOPCategory(room: sopCategory)

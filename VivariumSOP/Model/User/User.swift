@@ -109,25 +109,127 @@ import Firebase
 //    
 //}
 
+//struct User: Hashable, Codable, Identifiable {
+//    @DocumentID var id: String?
+//    var firstName: String
+//    var lastName: String
+//    var facilityName: String
+//    var username: String
+//    var userUID: String
+//    var userEmail: String
+//    var accountType: String
+//    var userPDFProgress: UserPDFProgress?
+//    var NHPAvalible: Bool
+//    var assignedCategoryIDs: [String]?
+//    var quizScores: [UserQuizScore]?
+//    var floor: String?
+//    // Add these new properties
+//    var organizationId: String?
+//    var lastActivityDate: Date?
+//
+//    enum CodingKeys: String, CodingKey {
+//        case id
+//        case firstName
+//        case lastName
+//        case facilityName
+//        case username
+//        case userUID
+//        case userEmail
+//        case accountType
+//        case userPDFProgress
+//        case NHPAvalible
+//        case assignedCategoryIDs
+//        case quizScores
+//        case floor
+//        // Add these new coding keys
+//        case organizationId
+//        case lastActivityDate
+//    }
+//    
+//    // Update the initializer to include the new fields
+//    init(id: String? = nil,
+//         firstName: String,
+//         lastName: String,
+//         facilityName: String,
+//         username: String,
+//         userUID: String,
+//         userEmail: String,
+//         accountType: String,
+//         userPDFProgress: UserPDFProgress? = nil,
+//         NHPAvalible: Bool,
+//         assignedCategoryIDs: [String]? = nil,
+//         quizScores: [UserQuizScore]? = nil,
+//         floor: String? = nil,
+//         organizationId: String? = nil,
+//         lastActivityDate: Date? = nil) {
+//        
+//        self.id = id
+//        self.firstName = firstName
+//        self.lastName = lastName
+//        self.facilityName = facilityName
+//        self.username = username
+//        self.userUID = userUID
+//        self.userEmail = userEmail
+//        self.accountType = accountType
+//        self.userPDFProgress = userPDFProgress
+//        self.NHPAvalible = NHPAvalible
+//        self.assignedCategoryIDs = assignedCategoryIDs
+//        self.quizScores = quizScores
+//        self.floor = floor
+//        self.organizationId = organizationId
+//        self.lastActivityDate = lastActivityDate
+//    }
+//}
+
 struct User: Hashable, Codable, Identifiable {
     @DocumentID var id: String?
-    var firstName: String
-    var lastName: String
-    var facilityName: String
-    var username: String
-    var userUID: String
-    var userEmail: String
-    var accountType: String
-    var userPDFProgress: UserPDFProgress?
-    var NHPAvalible: Bool
-    var assignedCategoryIDs: [String]?
-    var quizScores: [UserQuizScore]?
-    var floor: String?
-    // Add these new properties
-    var organizationId: String?
-    var lastActivityDate: Date?
+     var firstName: String
+     var lastName: String
+     var facilityName: String
+     var username: String
+     var userUID: String
+     var userEmail: String
+     var accountType: String
+     var userPDFProgress: UserPDFProgress?
+     var NHPAvalible: Bool
+     var assignedCategoryIDs: [String]?
+     var quizScores: [UserQuizScore]?
+     // Keep existing floor for backward compatibility during migration
+     var floor: String?
+     // New fields
+     var assignedFloors: [String]?  // New array of floors
+     var accreditations: [Accreditation]?
+     var organizationId: String?
+     var lastActivityDate: Date?
 
-    enum CodingKeys: String, CodingKey {
+     // Helper enum for floor options
+     static let availableFloors = ["1st", "2nd", "3rd", "4th", "5th"]
+
+     // Helper method to migrate old floor to new format
+    mutating func migrateFloor() {
+        // Initialize assignedFloors if nil
+        if assignedFloors == nil {
+            assignedFloors = []
+        }
+        
+        // Check if there's an old floor to migrate
+        if let oldFloor = floor {
+            // Force unwrap is safe here because we just initialized it if nil
+            if !(assignedFloors!.contains(oldFloor)) {
+                assignedFloors!.append(oldFloor)
+                floor = nil  // Clear old floor after migration
+            }
+        }
+    }
+    // Helper method to get all floors (combines old and new format)
+      var allFloors: [String] {
+          var floors = assignedFloors ?? []
+          if let oldFloor = floor, !floors.contains(oldFloor) {
+              floors.append(oldFloor)
+          }
+          return floors
+      }
+    enum CodingKeys: String,CodingKey {
         case id
         case firstName
         case lastName
@@ -141,28 +243,12 @@ struct User: Hashable, Codable, Identifiable {
         case assignedCategoryIDs
         case quizScores
         case floor
-        // Add these new coding keys
+        case assignedFloors
+        case accreditations
         case organizationId
         case lastActivityDate
     }
-    
-    // Update the initializer to include the new fields
-    init(id: String? = nil,
-         firstName: String,
-         lastName: String,
-         facilityName: String,
-         username: String,
-         userUID: String,
-         userEmail: String,
-         accountType: String,
-         userPDFProgress: UserPDFProgress? = nil,
-         NHPAvalible: Bool,
-         assignedCategoryIDs: [String]? = nil,
-         quizScores: [UserQuizScore]? = nil,
-         floor: String? = nil,
-         organizationId: String? = nil,
-         lastActivityDate: Date? = nil) {
-        
+    init(id: String? = nil, firstName: String, lastName: String, facilityName: String, username: String, userUID: String, userEmail: String, accountType: String, userPDFProgress: UserPDFProgress? = nil, NHPAvalible: Bool, assignedCategoryIDs: [String]? = nil, quizScores: [UserQuizScore]? = nil, floor: String? = nil, assignedFloors: [String]? = nil, accreditations: [Accreditation]? = nil, organizationId: String? = nil, lastActivityDate: Date? = nil) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
@@ -176,12 +262,31 @@ struct User: Hashable, Codable, Identifiable {
         self.assignedCategoryIDs = assignedCategoryIDs
         self.quizScores = quizScores
         self.floor = floor
+        self.assignedFloors = assignedFloors
+        self.accreditations = accreditations
         self.organizationId = organizationId
         self.lastActivityDate = lastActivityDate
     }
 }
 
+// New struct to represent accreditations
+struct Accreditation: Hashable, Codable {
+    var name: String
+    var dateReceived: Date
+    var expirationDate: Date?
+    var issuingAuthority: String
+    var description: String?
+    var documentURL: String? // Optional URL for certificate/documentation
+}
 
+// Enum for available floors
+enum Floor: String, CaseIterable, Codable {
+    case first = "1st Floor"
+    case second = "2nd Floor"
+    case third = "3rd Floor"
+    case fourth = "4th Floor"
+    case fifth = "5th Floor"
+}
 //struct UserQuizScore: Hashable, Codable {
 //    var quizID: String
 //       var scores: [CGFloat]

@@ -9,7 +9,7 @@ import SwiftUI
 import WebKit
 import PDFKit
 import FirebaseAuth
-struct HusbandryPDFListView: View {
+struct HusbandryPDFListView: View,Hashable {
     @StateObject var vm = HusbandrySOPListViewModel()
      var SOPForStaffTittle: String
      var nameOfCategory: String
@@ -20,7 +20,16 @@ struct HusbandryPDFListView: View {
      @Environment(\.horizontalSizeClass) var sizeClass
 
      let colorScheme: [Color] = [.blue, .green, .orange, .purple, .pink]
-
+    static func == (lhs: HusbandryPDFListView, rhs: HusbandryPDFListView) -> Bool {
+            lhs.SOPForStaffTittle == rhs.SOPForStaffTittle &&
+            lhs.nameOfCategory == rhs.nameOfCategory
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(SOPForStaffTittle)
+            hasher.combine(nameOfCategory)
+        }
+        
      var body: some View {
          VStack {
              GeometryReader { geometry in

@@ -396,18 +396,58 @@ struct Home: View {
         ManagementUserViewListView(user: user, allQuizzes: viewModel.quizzes)
     }
 
+//    private func searchResults<T: Identifiable>(_ items: [T]) -> [T] {
+//        let filteredItems: [T] = {
+//            if let users = items as? [User] {
+//                // First filter by organization
+//                let orgUsers = users.filter { user in
+//                    user.organizationId == viewModel.organizationId
+//                }
+//                
+//                // Then filter by floor if needed
+//                if selectedFloor == "All Floors" {
+//                    return orgUsers as! [T]
+//                } else {
+//                    return orgUsers.filter { user in
+//                        user.floor == selectedFloor
+//                    } as! [T]
+//                }
+//            }
+//            return items
+//        }()
+//        
+//        // Then apply search text filter
+//        if searchText.isEmpty {
+//            return filteredItems
+//        } else {
+//            return filteredItems.filter { item in
+//                if let user = item as? User {
+//                    return user.username.localizedCaseInsensitiveContains(searchText)
+//                }
+//                return false
+//            }
+//        }
+//    }
     private func searchResults<T: Identifiable>(_ items: [T]) -> [T] {
         let filteredItems: [T] = {
-            if selectedFloor == "All Floors" {
-                return items
-            } else {
-                return items.filter { item in
-                    if let user = item as? User {
-                        return user.floor == selectedFloor
-                    }
-                    return false
+            if let users = items as? [User] {
+                // First filter by organization
+                let orgUsers = users.filter { user in
+                    user.organizationId == viewModel.organizationId
+                }
+                
+                // Then filter by floor if needed
+                if selectedFloor == "All Floors" {
+                    return orgUsers as! [T]
+                } else {
+                    return orgUsers.filter { user in
+                        // Check both old floor field and new assignedFloors array
+                        return user.floor == selectedFloor ||
+                               (user.assignedFloors?.contains(selectedFloor) ?? false)
+                    } as! [T]
                 }
             }
+            return items
         }()
         
         if searchText.isEmpty {
@@ -421,7 +461,7 @@ struct Home: View {
             }
         }
     }
-
+    
     @ViewBuilder
     func ExpandableNavigationBar(_ title: String = "Messages") -> some View {
         GeometryReader { proxy in

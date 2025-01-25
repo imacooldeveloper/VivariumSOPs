@@ -1118,7 +1118,27 @@ struct LazyView<Content: View>: View {
                     }
                 }
             }
-        
+        private func handlePDFSelection(_ result: Result<[URL], Error>) {
+               switch result {
+               case .success(let urls):
+                   if let url = urls.first {
+                       // Just store the URL and mark changes
+                       pendingPDFURL = url
+                       hasPendingPDFChange = true
+                       hasChanges = true
+                       
+                       // Update PDF preview only
+                       DispatchQueue.global(qos: .userInitiated).async {
+                           let document = PDFKit.PDFDocument(url: url)
+                           DispatchQueue.main.async {
+                               self.pdfDocument = document
+                           }
+                       }
+                   }
+               case .failure(let error):
+                   errorMessage = "Error selecting PDF: \(error.localizedDescription)"
+               }
+           }
 //        private func updatePDF(url: URL) {
 //            isUploading = true
 //            errorMessage = nil
@@ -1179,27 +1199,7 @@ struct LazyView<Content: View>: View {
                 }
             }
         }
-        private func handlePDFSelection(_ result: Result<[URL], Error>) {
-               switch result {
-               case .success(let urls):
-                   if let url = urls.first {
-                       // Just store the URL and mark changes
-                       pendingPDFURL = url
-                       hasPendingPDFChange = true
-                       hasChanges = true
-                       
-                       // Update PDF preview only
-                       DispatchQueue.global(qos: .userInitiated).async {
-                           let document = PDFKit.PDFDocument(url: url)
-                           DispatchQueue.main.async {
-                               self.pdfDocument = document
-                           }
-                       }
-                   }
-               case .failure(let error):
-                   errorMessage = "Error selecting PDF: \(error.localizedDescription)"
-               }
-           }
+        
         private func showSuccessAlert(message: String) {
             alertTitle = "Success"
             alertMessage = message

@@ -35,15 +35,18 @@ class LoginViewModel: ObservableObject {
     @AppStorage("organizationId") var organizationId: String = ""
     @MainActor
     func fetchOrganizations() async {
-        do {
-            organizations = try await OrganizationManager.shared.getAllOrganizations()
-            if organizations.isEmpty {
-                await uploadSampleOrganizations()
+        if logStatus{
+            do {
                 organizations = try await OrganizationManager.shared.getAllOrganizations()
+                if organizations.isEmpty {
+                    await uploadSampleOrganizations()
+                    organizations = try await OrganizationManager.shared.getAllOrganizations()
+                }
+            } catch {
+                await setError(error)
             }
-        } catch {
-            await setError(error)
-        }
+        } 
+       
     }
     
     
