@@ -21,7 +21,138 @@ final class UserProfileViewModel: ObservableObject {
     @Published var userSelected: User?
     @Published var userss: [User] = []
     @Published private(set) var isLoading = false
+    @AppStorage("organizationId") private var organizationId: String = ""
     private var cancellables = Set<AnyCancellable>()
+    // Alternative method using UserManager if you prefer
+       func updateUserFloorWithManager(_ newFloor: String) async {
+           guard let user = user else { return }
+           
+           do {
+               var updatedUser = user
+               updatedUser.floor = newFloor
+               
+               try await UserManager.shared.updateUser(updatedUser)
+               
+               await MainActor.run {
+                   self.user = updatedUser
+               }
+               
+               print("Successfully updated user floor to: \(newFloor)")
+           } catch {
+               print("Error updating user floor: \(error.localizedDescription)")
+           }
+       }
+       
+       // Helper method to check if current user is admin
+       var isAdmin: Bool {
+           guard let user = user else { return false }
+           return user.accountType.lowercased() == "admin"
+       }
+    func loadUser(_ selectedUser: User) {
+           self.user = selectedUser
+           print("Loaded user: \(selectedUser.username) from organization: \(selectedUser.organizationId ?? "none")")
+       }
+       
+       @MainActor
+       func fetchCurrentUser() async {
+           if let currentUser = Auth.auth().currentUser {
+               do {
+                   let user = try await UserManager.shared.fetchUser(by: currentUser.uid)
+                   self.user = user
+                   print("Fetched current user: \(user.username) from organization: \(user.organizationId ?? "none")")
+               } catch {
+                   print("Error fetching current user: \(error)")
+               }
+           }
+       }
+       
+       @MainActor
+       func fetchUserQuizzes() async {
+           guard let user = self.user else {
+               print("No user available to fetch quizzes")
+               return
+           }
+           
+           print("Fetching quizzes for user: \(user.username) in organization: \(user.organizationId ?? "none")")
+           
+           do {
+               // Fetch quizzes for the user's organization and account type
+               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+                   [user.accountType],
+                   organizationId: user.organizationId ?? organizationId
+               )
+               
+               // Process completed quizzes
+               var completedQuizzes: [QuizWithScore] = []
+               var incompleteQuizzes: [Quiz] = []
+               
+               for quiz in organizationQuizzes {
+                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+                      let highestScore = quizScore.scores.max() {
+                       completedQuizzes.append(QuizWithScore(quiz: quiz, score: highestScore))
+                   } else {
+                       incompleteQuizzes.append(quiz)
+                   }
+               }
+               
+               await MainActor.run {
+                   self.quizzesWithScores = completedQuizzes
+                   self.uncompletedQuizzes = incompleteQuizzes
+                   print("Found \(completedQuizzes.count) completed and \(incompleteQuizzes.count) incomplete quizzes")
+               }
+           } catch {
+               print("Error fetching user quizzes: \(error)")
+           }
+       }
+       
+       @MainActor
+       func fetchCompletedQuizzesAndScoresofUser(user: User) async {
+           self.user = user
+           await fetchUserQuizzes()
+       }
+       
+       func setDueDateForFailedQuiz(user: User, quizID: String, newDueDate: Date, newRenewalDate: Date) async {
+           do {
+               var updatedUser = user
+               if updatedUser.quizScores == nil {
+                   updatedUser.quizScores = []
+               }
+               
+               if let index = updatedUser.quizScores?.firstIndex(where: { $0.quizID == quizID }) {
+                   updatedUser.quizScores?[index].dueDates = [quizID: newDueDate]
+                   updatedUser.quizScores?[index].nextRenewalDates = [quizID: newRenewalDate]
+               } else {
+                   let newQuizScore = UserQuizScore(
+                       quizID: quizID,
+                       scores: [],
+                       completionDates: [],
+                       dueDates: [quizID: newDueDate],
+                       nextRenewalDates: [quizID: newRenewalDate]
+                   )
+                   updatedUser.quizScores?.append(newQuizScore)
+               }
+               
+               try await UserManager.shared.updateUser(updatedUser)
+               await MainActor.run {
+                   self.user = updatedUser
+               }
+               print("Updated due date for quiz \(quizID) to \(newDueDate)")
+           } catch {
+               print("Error updating due date: \(error)")
+           }
+       }
+       
+       func updateUserQuizDueDate(for user: User?, quizID: String, newDate: Date) async {
+           do {
+               try await QuizManager.shared.updateQuizDueDate(quizId: quizID, newDate: newDate)
+               await fetchUserQuizzes()
+               print("Updated quiz due date in QuizManager")
+           } catch {
+               print("Error updating quiz due date: \(error)")
+           }
+       }
+    ///
+    
     
     @MainActor
     func fetchCompletedQuizzes() async {
@@ -438,33 +569,33 @@ final class UserProfileViewModel: ObservableObject {
 //            print("Error: \(error.localizedDescription)")
 //        }
 //    }
-    @MainActor
-    func setDueDateForFailedQuiz(user: User, quizID: String, newDueDate: Date, newRenewalDate: Date) async {
-        guard var updatedUser = self.user else { return }
-        
-        if var quizScore = updatedUser.quizScores?.first(where: { $0.quizID == quizID }) {
-            quizScore.dueDates = [quizID: newDueDate]
-            quizScore.nextRenewalDates = [quizID: newRenewalDate]
-            if let index = updatedUser.quizScores?.firstIndex(where: { $0.quizID == quizID }) {
-                updatedUser.quizScores?[index] = quizScore
-            }
-        } else {
-            let newQuizScore = UserQuizScore(quizID: quizID, scores: [], completionDates: [], dueDates: [quizID: newDueDate], nextRenewalDates: [quizID: newRenewalDate])
-            updatedUser.quizScores?.append(newQuizScore)
-        }
-        
-        do {
-            try await Firestore.firestore().collection("Users").document(updatedUser.userUID).updateData([
-                "quizScores": updatedUser.quizScores?.map { $0.toDictionary() } ?? []
-            ])
-            await MainActor.run {
-                self.user = updatedUser
-            }
-        } catch {
-            print("Error updating due date and renewal date: \(error.localizedDescription)")
-        }
-    }
-    @MainActor
+//    @MainActor
+//    func setDueDateForFailedQuiz(user: User, quizID: String, newDueDate: Date, newRenewalDate: Date) async {
+//        guard var updatedUser = self.user else { return }
+//        
+//        if var quizScore = updatedUser.quizScores?.first(where: { $0.quizID == quizID }) {
+//            quizScore.dueDates = [quizID: newDueDate]
+//            quizScore.nextRenewalDates = [quizID: newRenewalDate]
+//            if let index = updatedUser.quizScores?.firstIndex(where: { $0.quizID == quizID }) {
+//                updatedUser.quizScores?[index] = quizScore
+//            }
+//        } else {
+//            let newQuizScore = UserQuizScore(quizID: quizID, scores: [], completionDates: [], dueDates: [quizID: newDueDate], nextRenewalDates: [quizID: newRenewalDate])
+//            updatedUser.quizScores?.append(newQuizScore)
+//        }
+//        
+//        do {
+//            try await Firestore.firestore().collection("Users").document(updatedUser.userUID).updateData([
+//                "quizScores": updatedUser.quizScores?.map { $0.toDictionary() } ?? []
+//            ])
+//            await MainActor.run {
+//                self.user = updatedUser
+//            }
+//        } catch {
+//            print("Error updating due date and renewal date: \(error.localizedDescription)")
+//        }
+//    }
+//    @MainActor
 
 //    func fetchCompletedQuizzesAndScoresofUser(user: User) async {
 //        do {
@@ -541,108 +672,108 @@ final class UserProfileViewModel: ObservableObject {
 //    }
 //    
 //    
-    func fetchCompletedQuizzesAndScoresofUser(user: User) async {
-            do {
-                // Fetch all quizzes
-                let allQuizzes = try await QuizManager.shared.getAllQuiz()
-                
-                // Filter quizzes based on direct assignment, user's account type, assigned categories, and quizScores
-                let assignedQuizzes = allQuizzes.filter { quiz in
-                    // Check if the quiz is directly assigned to the user
-                    let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
-                    
-                    // Check if the quiz is assigned to the user's account type
-                    let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
-                    
-                    // Check if the quiz category matches any of the user's assigned category IDs
-                    let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
-                    
-                    // Check if the quiz is in the user's quizScores
-                    let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
-                    
-                    // The quiz is considered assigned if any of these conditions are true
-                    return isDirectlyAssigned || isAccountTypeAssigned || isCategoryAssigned || isInQuizScores
-                }
-                
-                var tempQuizzesWithScores: [QuizWithScore] = []
-                var tempUncompletedQuizzes: [Quiz] = []
-                
-                for quiz in assignedQuizzes {
-                    if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
-                        let highestScore = quizScore.scores.max() ?? 0
-                        let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
-                        
-                        if highestScore >= 80.0 {
-                            tempQuizzesWithScores.append(quizWithScore)
-                        } else {
-                            tempUncompletedQuizzes.append(quiz)
-                        }
-                    } else {
-                        tempUncompletedQuizzes.append(quiz)
-                    }
-                }
-                
-                // Update the @Published properties
-                self.user = user
-                self.quizzesWithScores = tempQuizzesWithScores
-                self.uncompletedQuizzes = tempUncompletedQuizzes
-                
-                // Print debug information
-                print("User: \(user.username)")
-                print("User ID: \(user.id ?? "No ID")")
-                print("Account Type: \(user.accountType)")
-                print("Assigned Categories/Quizzes: \(user.assignedCategoryIDs ?? [])")
-                print("Quiz Scores Count: \(user.quizScores?.count ?? 0)")
-                print("Total Quizzes: \(allQuizzes.count)")
-                print("Assigned Quizzes: \(assignedQuizzes.count)")
-                print("Completed Quizzes: \(quizzesWithScores.count)")
-                print("Uncompleted Quizzes: \(uncompletedQuizzes.count)")
-                
-                // Print more details for debugging
-                for quiz in assignedQuizzes {
-                    let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
-                    let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
-                    let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
-                    let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
-                    
-                    if let score = user.quizScores?.first(where: { $0.quizID == quiz.id })?.scores.max() {
-                        print("Quiz: \(quiz.info.title), Category: \(quiz.quizCategory), ID: \(quiz.id), Highest Score: \(score)")
-                    } else {
-                        print("Quiz: \(quiz.info.title), Category: \(quiz.quizCategory), ID: \(quiz.id), Not attempted")
-                    }
-                    print("  Directly Assigned: \(isDirectlyAssigned), Account Type Assigned: \(isAccountTypeAssigned), Category Assigned: \(isCategoryAssigned), In Quiz Scores: \(isInQuizScores)")
-                }
-                
-            } catch {
-                print("Error fetching quizzes: \(error.localizedDescription)")
-            }
-        }
-    @MainActor
-     func fetchAssignedQuizzesForUser(_ user: User) async {
-         do {
-             let allQuizzes = try await QuizManager.shared.getAllQuiz()
-             let assignedQuizzes = allQuizzes.filter { quiz in
-                 user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
-             }
-
-             self.quizzesWithScores = assignedQuizzes.compactMap { quiz in
-                 if let score = user.quizScores?.first(where: { $0.quizID == quiz.id })?.scores.max() {
-                     return QuizWithScore(quiz: quiz, score: score)
-                 }
-                 return nil
-             }
-
-             self.uncompletedQuizzes = assignedQuizzes.filter { quiz in
-                 !self.quizzesWithScores.contains(where: { $0.quiz.id == quiz.id })
-             }
-
-             print("Assigned Quizzes: \(assignedQuizzes.count)")
-             print("Completed Quizzes: \(self.quizzesWithScores.count)")
-             print("Uncompleted Quizzes: \(self.uncompletedQuizzes.count)")
-         } catch {
-             print("Error fetching assigned quizzes: \(error.localizedDescription)")
-         }
-     }
+//    func fetchCompletedQuizzesAndScoresofUser(user: User) async {
+//            do {
+//                // Fetch all quizzes
+//                let allQuizzes = try await QuizManager.shared.getAllQuiz()
+//                
+//                // Filter quizzes based on direct assignment, user's account type, assigned categories, and quizScores
+//                let assignedQuizzes = allQuizzes.filter { quiz in
+//                    // Check if the quiz is directly assigned to the user
+//                    let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
+//                    
+//                    // Check if the quiz is assigned to the user's account type
+//                    let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
+//                    
+//                    // Check if the quiz category matches any of the user's assigned category IDs
+//                    let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
+//                    
+//                    // Check if the quiz is in the user's quizScores
+//                    let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
+//                    
+//                    // The quiz is considered assigned if any of these conditions are true
+//                    return isDirectlyAssigned || isAccountTypeAssigned || isCategoryAssigned || isInQuizScores
+//                }
+//                
+//                var tempQuizzesWithScores: [QuizWithScore] = []
+//                var tempUncompletedQuizzes: [Quiz] = []
+//                
+//                for quiz in assignedQuizzes {
+//                    if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+//                        let highestScore = quizScore.scores.max() ?? 0
+//                        let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
+//                        
+//                        if highestScore >= 80.0 {
+//                            tempQuizzesWithScores.append(quizWithScore)
+//                        } else {
+//                            tempUncompletedQuizzes.append(quiz)
+//                        }
+//                    } else {
+//                        tempUncompletedQuizzes.append(quiz)
+//                    }
+//                }
+//                
+//                // Update the @Published properties
+//                self.user = user
+//                self.quizzesWithScores = tempQuizzesWithScores
+//                self.uncompletedQuizzes = tempUncompletedQuizzes
+//                
+//                // Print debug information
+//                print("User: \(user.username)")
+//                print("User ID: \(user.id ?? "No ID")")
+//                print("Account Type: \(user.accountType)")
+//                print("Assigned Categories/Quizzes: \(user.assignedCategoryIDs ?? [])")
+//                print("Quiz Scores Count: \(user.quizScores?.count ?? 0)")
+//                print("Total Quizzes: \(allQuizzes.count)")
+//                print("Assigned Quizzes: \(assignedQuizzes.count)")
+//                print("Completed Quizzes: \(quizzesWithScores.count)")
+//                print("Uncompleted Quizzes: \(uncompletedQuizzes.count)")
+//                
+//                // Print more details for debugging
+//                for quiz in assignedQuizzes {
+//                    let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) == true
+//                    let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
+//                    let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
+//                    let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) == true
+//                    
+//                    if let score = user.quizScores?.first(where: { $0.quizID == quiz.id })?.scores.max() {
+//                        print("Quiz: \(quiz.info.title), Category: \(quiz.quizCategory), ID: \(quiz.id), Highest Score: \(score)")
+//                    } else {
+//                        print("Quiz: \(quiz.info.title), Category: \(quiz.quizCategory), ID: \(quiz.id), Not attempted")
+//                    }
+//                    print("  Directly Assigned: \(isDirectlyAssigned), Account Type Assigned: \(isAccountTypeAssigned), Category Assigned: \(isCategoryAssigned), In Quiz Scores: \(isInQuizScores)")
+//                }
+//                
+//            } catch {
+//                print("Error fetching quizzes: \(error.localizedDescription)")
+//            }
+//        }
+//    @MainActor
+//     func fetchAssignedQuizzesForUser(_ user: User) async {
+//         do {
+//             let allQuizzes = try await QuizManager.shared.getAllQuiz()
+//             let assignedQuizzes = allQuizzes.filter { quiz in
+//                 user.assignedCategoryIDs?.contains(quiz.quizCategoryID) == true
+//             }
+//
+//             self.quizzesWithScores = assignedQuizzes.compactMap { quiz in
+//                 if let score = user.quizScores?.first(where: { $0.quizID == quiz.id })?.scores.max() {
+//                     return QuizWithScore(quiz: quiz, score: score)
+//                 }
+//                 return nil
+//             }
+//
+//             self.uncompletedQuizzes = assignedQuizzes.filter { quiz in
+//                 !self.quizzesWithScores.contains(where: { $0.quiz.id == quiz.id })
+//             }
+//
+//             print("Assigned Quizzes: \(assignedQuizzes.count)")
+//             print("Completed Quizzes: \(self.quizzesWithScores.count)")
+//             print("Uncompleted Quizzes: \(self.uncompletedQuizzes.count)")
+//         } catch {
+//             print("Error fetching assigned quizzes: \(error.localizedDescription)")
+//         }
+//     }
     @MainActor
     func setDueDateForFailedQuiz(user: User, quizID: String, newDueDate: Date) async {
         do {
@@ -816,39 +947,39 @@ final class UserProfileViewModel: ObservableObject {
            self.user = user
        }
 
-       @MainActor
-       func fetchCurrentUser() async {
-           guard !isLoading else { return }
-           isLoading = true
-           defer { isLoading = false }
-
-           guard let userUID = Auth.auth().currentUser?.uid else {
-               print("No user UID found")
-               return
-           }
-
-           do {
-               let user = try await UserManager.shared.fetchUser(by: userUID)
-               self.user = user
-               print("Current user fetched: \(user.username)")
-           } catch {
-               print("Error fetching current user: \(error.localizedDescription)")
-           }
-       }
-
-       @MainActor
-       func fetchUserQuizzes() async {
-           guard !isLoading else { return }
-           isLoading = true
-           defer { isLoading = false }
-
-           guard let user = user else {
-               print("User not available")
-               return
-           }
-
-           await fetchCompletedQuizzesAndScoresofUser(user: user)
-       }
+//       @MainActor
+//       func fetchCurrentUser() async {
+//           guard !isLoading else { return }
+//           isLoading = true
+//           defer { isLoading = false }
+//
+//           guard let userUID = Auth.auth().currentUser?.uid else {
+//               print("No user UID found")
+//               return
+//           }
+//
+//           do {
+//               let user = try await UserManager.shared.fetchUser(by: userUID)
+//               self.user = user
+//               print("Current user fetched: \(user.username)")
+//           } catch {
+//               print("Error fetching current user: \(error.localizedDescription)")
+//           }
+//       }
+//
+//       @MainActor
+//       func fetchUserQuizzes() async {
+//           guard !isLoading else { return }
+//           isLoading = true
+//           defer { isLoading = false }
+//
+//           guard let user = user else {
+//               print("User not available")
+//               return
+//           }
+//
+//           await fetchCompletedQuizzesAndScoresofUser(user: user)
+//       }
 }
 final class HusbandryUserProfileViewModel: ObservableObject {
     
@@ -860,7 +991,7 @@ final class HusbandryUserProfileViewModel: ObservableObject {
     @Published var userss: [User] = []
     @Published private(set) var isLoading = false
     private var cancellables = Set<AnyCancellable>()
-    
+    @AppStorage("organizationId") private var organizationId: String = ""
     @MainActor
     func fetchCompletedQuizzes() async {
         guard let userUID = Auth.auth().currentUser?.uid else {return} // make sure we have a user ID
@@ -1716,17 +1847,59 @@ final class HusbandryUserProfileViewModel: ObservableObject {
            }
        }
 
-       @MainActor
+//       @MainActor
+//       func fetchUserQuizzes() async {
+//           guard !isLoading else { return }
+//           isLoading = true
+//           defer { isLoading = false }
+//
+//           guard let user = user else {
+//               print("User not available")
+//               return
+//           }
+//
+//           await fetchCompletedQuizzesAndScoresofUser(user: user)
+//       }
+    
+    @MainActor
        func fetchUserQuizzes() async {
-           guard !isLoading else { return }
-           isLoading = true
-           defer { isLoading = false }
-
-           guard let user = user else {
-               print("User not available")
-               return
+           guard let user = self.user else { return }
+           
+           do {
+               // Only fetch quizzes for the user's organization
+               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+                   [user.accountType],
+                   organizationId: user.organizationId ?? organizationId
+               )
+               
+               // Process completed and uncompleted quizzes
+               var completedQuizzes: [QuizWithScore] = []
+               var incompleteQuizzes: [Quiz] = []
+               
+               for quiz in organizationQuizzes {
+                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+                      let highestScore = quizScore.scores.max() {
+                       let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
+                       if highestScore >= 80.0 {
+                           completedQuizzes.append(quizWithScore)
+                       } else {
+                           incompleteQuizzes.append(quiz)
+                       }
+                   } else {
+                       incompleteQuizzes.append(quiz)
+                   }
+               }
+               
+               await MainActor.run {
+                   self.quizzesWithScores = completedQuizzes
+                   self.uncompletedQuizzes = incompleteQuizzes
+               }
+               
+               print("Completed Quizzes: \(completedQuizzes.count)")
+               print("Uncompleted Quizzes: \(incompleteQuizzes.count)")
+               
+           } catch {
+               print("Error fetching quizzes: \(error)")
            }
-
-           await fetchCompletedQuizzesAndScoresofUser(user: user)
        }
 }

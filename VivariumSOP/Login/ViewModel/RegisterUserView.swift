@@ -25,8 +25,8 @@ struct RegisterUserView: View {
                     .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.lastName, placeholder: "Enter your last name", label: "Last Name", isSecure: false, icon: "person")
                     .autocorrectionDisabled(true)
-                CustomTextField(text: $viewModel.username, placeholder: "Enter your username", label: "Username", isSecure: false, icon: "person.circle")
-                    .autocorrectionDisabled(true)
+//                CustomTextField(text: $viewModel.username, placeholder: "Enter your username", label: "Username", isSecure: false, icon: "person.circle")
+                   // .autocorrectionDisabled(true)
                 CustomTextField(text: $viewModel.facilityName, placeholder: "Enter your facility name", label: "Facility Name", isSecure: false, icon: "building.2")
                     .autocorrectionDisabled(true)
                 CustomDropdown(selection: $viewModel.accountType, label: "Account Type", options: [ "Husbandry", "Supervisor", "Admin", "Vet Services"])
@@ -107,15 +107,28 @@ struct CategorySelectionView: View {
 //#Preview {
 //    RegisterUserView()
 //}
-struct Categorys: Identifiable, Codable, Hashable {
-    let id: String
+//struct Categorys: Identifiable, Codable, Hashable {
+//    let id: String
+//    let categoryTitle: String
+//    
+//    init(id: String = UUID().uuidString, categoryTitle: String) {
+//        self.id = id
+//        self.categoryTitle = categoryTitle
+//    }
+//}
+
+struct Categorys: Identifiable, Hashable, Codable {
+    var id = UUID().uuidString
     let categoryTitle: String
+    let organizationId: String // Add organization ID
     
-    init(id: String = UUID().uuidString, categoryTitle: String) {
+    init(id: String = UUID().uuidString, categoryTitle: String, organizationId: String) {
         self.id = id
         self.categoryTitle = categoryTitle
+        self.organizationId = organizationId
     }
 }
+
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     @State private var showRegisterView = false
@@ -151,7 +164,9 @@ struct LoginView: View {
                 .padding(.horizontal)
 
                 Button(action: {
-                    viewModel.loginUser()
+                    Task{
+                        try await viewModel.loginUser()
+                    }
                 }) {
                     Text("Log In")
                         .frame(maxWidth: .infinity)
@@ -193,14 +208,26 @@ struct LoginView: View {
                                Alert(title: Text("Error"), message: Text(viewModel.errorMessage), dismissButton: .default(Text("OK")))
                            }
                        }
-                       .sheet(isPresented: $showRegisterView) {
-                           RegisterUserView(showLoginView: $showLoginView)
-                       }
+        .fullScreenCover(isPresented: $showRegisterView) {
+                  AnimatedRegistrationView(showLoginView: $showLoginView)
+                      .presentationDetents([.large]) // Make it full screen on iPad
+                      .presentationDragIndicator(.visible) // Show drag indicator
+                      .interactiveDismissDisabled() // Prevent dismiss by dragging
+              }
+              .sheet(isPresented: $viewModel.showOrganizationSelection) {
+                  OrganizationSelectionView(viewModel: viewModel)
+              }
                        .onChange(of: viewModel.logStatus) { newValue in
                            if newValue {
                                showLoginView = false
                            }
                        }
+                       .onAppear {
+                                   // Ensure organizations are loaded
+                                   Task {
+                                       await viewModel.fetchOrganizations()
+                                   }
+                               }
     }
 }
 

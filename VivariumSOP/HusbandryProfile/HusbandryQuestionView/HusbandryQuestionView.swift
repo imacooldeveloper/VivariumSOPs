@@ -293,42 +293,97 @@ struct HusbandryQuestionView: View {
         guard !vm.questions.isEmpty else { return 0 }
         return CGFloat(currentIndex + 1) / CGFloat(vm.questions.count)
     }
-    
+  
     var body: some View {
-        VStack {
-            // Header
-            HStack {
-                Button(action: dismiss.callAsFunction) {
-                    Image(systemName: "xmark")
-                        .font(.title3)
+        Group {
+            if vm.questions.isEmpty  {
+                QuizAcknowledgmentView(quiz:Quiz(
+                    id: "quiz001",
+                    info: Info(
+                        title: "Vivarium Safety Protocol",
+                        description: "This quiz tests your knowledge on vivarium safety protocols.",
+                        peopleAttended: 50,
+                        rules: ["Answer all questions correctly to pass", "Review the SOP before starting the quiz"]
+                    ),
+                    quizCategory: "Vivarium Safety",
+                    quizCategoryID: "safety123",
+                    accountTypes: ["admin", "staff"],
+                    dateCreated: Date(),
+                    dueDate: Calendar.current.date(byAdding: .day, value: 30, to: Date()),
+                    renewalFrequency: .yearly,
+                    nextRenewalDates: Calendar.current.date(byAdding: .year, value: 1, to: Date()),
+                    customRenewalDate: nil,
+                    organizationId: "org001",
+                    verificationType: .quiz,
+                    acknowledgmentText: "Please acknowledge that you have read the safety SOP before starting.",
+                    questions: [
+                        Question(
+                            id: "q1",
+                            questionText: "What is the first thing you should do when entering a vivarium?",
+                            options: ["Wash hands", "Check animal records", "Wear protective gear"],
+                            answer: "Wear protective gear"
+                        ),
+                        Question(
+                            id: "q2",
+                            questionText: "How often should safety equipment be inspected?",
+                            options: ["Once a year", "Once every 6 months", "Once a month"],
+                            answer: "Once every 6 months"
+                        ),
+                        Question(
+                            id: "q3",
+                            questionText: "Which of the following is a biohazard risk in a vivarium?",
+                            options: ["Excessive noise", "Animal waste", "Poor lighting"],
+                            answer: "Animal waste"
+                        )
+                    ],
+                    acknowledgmentMetadata: Quiz.AcknowledgmentMetadata(
+                        requiredReadingTime: 600, // 10 minutes
+                        acknowledgmentStatement: "I have read and understood the vivarium safety SOP.",
+                        additionalNotes: "Make sure to wear gloves when handling animals.",
+                        requireSignature: true
+                    )
+                )) {
+                    
+                }
+//                if let quiz = vm.quiz {
+//                    QuizAcknowledgmentView(quiz: quiz, onFinish: onFinish)
+//                }
+            } else { VStack {
+                // Header
+                HStack {
+                    Button(action: dismiss.callAsFunction) {
+                        Image(systemName: "xmark")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                    }
+                    Spacer()
+                    Text(quizTitle)
+                        .font(.title)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                    Spacer()
                 }
-                Spacer()
-                Text(quizTitle)
-                    .font(.title)
-                    .fontWeight(.semibold)
-                Spacer()
-            }
-            .padding()
-            
-            // Progress bar
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    Rectangle().fill(Color.gray.opacity(0.2))
-                    Rectangle().fill(Color.blue).frame(width: progress * geometry.size.width)
+                .padding()
+                
+                // Progress bar
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        Rectangle().fill(Color.gray.opacity(0.2))
+                        Rectangle().fill(Color.blue).frame(width: progress * geometry.size.width)
+                    }
+                    .clipShape(Capsule())
                 }
-                .clipShape(Capsule())
+                .frame(height: 20)
+                .padding(.horizontal)
+                
+                // Question content
+                if currentIndex < vm.questions.count {
+                    questionContent(vm.questions[currentIndex])
+                }
+                
+                Spacer()
             }
-            .frame(height: 20)
-            .padding(.horizontal)
-            
-            // Question content
-            if currentIndex < vm.questions.count {
-                questionContent(vm.questions[currentIndex])
             }
-            
-            Spacer()
         }
         .onAppear {
             Task {

@@ -229,54 +229,152 @@ struct HusbandryCompletedQuizCard: View {
 }
 
 
+//struct HusbandryUncompletedQuizCard: View {
+//    let quiz: Quiz
+//    let user: User?
+//    @ObservedObject var viewModel: HusbandryUserProfileViewModel
+//    @Binding var selectedDate: Date?
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 10) {
+//            HStack {
+//                Image(systemName: "flag.fill")
+//                    .foregroundColor(.red)
+//                
+//                Text(quiz.info.title)
+//                    .font(.headline)
+//                
+//                Spacer()
+//                
+//                Text(quizStatus)
+//                    .font(.subheadline)
+//                    .foregroundColor(.secondary)
+//            }
+//            
+//            if user?.accountType == "admin" {
+//                DatePicker("Set Due Date", selection: Binding(
+//                    get: { selectedDate ?? Date() },
+//                    set: { selectedDate = $0 }
+//                ), displayedComponents: .date)
+//                .datePickerStyle(.compact)
+//                
+//                Button(action: updateDueDate) {
+//                    Text("Update")
+//                        .foregroundColor(.white)
+//                        .padding(.horizontal, 20)
+//                        .padding(.vertical, 10)
+//                        .background(Color.blue)
+//                        .cornerRadius(8)
+//                }
+//            } else {
+//                Text("Due Date: \(formattedDueDate)")
+//                    .font(.subheadline)
+//                    .foregroundColor(.secondary)
+//            }
+//        }
+//        .padding()
+//        .background(Color.green.opacity(0.1))
+//        .cornerRadius(10)
+//    }
+//    
+//    var quizStatus: String {
+//        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
+//           let highestScore = quizScore.scores.max(), highestScore > 0 {
+//            return "\(Int(highestScore))%"
+//        } else {
+//            return "Not Started"
+//        }
+//    }
+//    
+//    var formattedDueDate: String {
+//        print("User: \(user?.username ?? "No user")")
+//        print("Quiz Scores: \(user?.quizScores?.count ?? 0)")
+//        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }) {
+//            print("Found quiz score for \(quiz.id)")
+//            print("Due Dates: \(quizScore.dueDates ?? [:])")
+//            if let dueDates = quizScore.dueDates,
+//               let dueDate = dueDates[quiz.id],
+//               let unwrappedDueDate = dueDate {
+//                let formatter = DateFormatter()
+//                formatter.dateStyle = .medium
+//                return formatter.string(from: unwrappedDueDate)
+//            } else {
+//                print("No due date found for \(quiz.id)")
+//                return "Not set"
+//            }
+//        } else {
+//            print("No quiz score found for \(quiz.id)")
+//            return "Not set"
+//        }
+//    }
+//    
+//    func updateDueDate() {
+//        if let newDate = selectedDate {
+//            Task {
+//              
+//                await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user!)
+//                await viewModel.setDueDateForFailedQuiz(user: user!, quizID: quiz.id, newDueDate: newDate)
+//                await viewModel.updateUserQuizDueDate(for: user, quizID: quiz.id, newDate: newDate)
+//            }
+//        }
+//    }
+//}
+
 struct HusbandryUncompletedQuizCard: View {
     let quiz: Quiz
     let user: User?
     @ObservedObject var viewModel: HusbandryUserProfileViewModel
-    @Binding var selectedDate: Date?
+    @Binding var selectedDate: Date
+    @State private var showingPDFList = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: "flag.fill")
-                    .foregroundColor(.red)
-                
-                Text(quiz.info.title)
-                    .font(.headline)
-                
-                Spacer()
-                
-                Text(quizStatus)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            if user?.accountType == "admin" {
-                DatePicker("Set Due Date", selection: Binding(
-                    get: { selectedDate ?? Date() },
-                    set: { selectedDate = $0 }
-                ), displayedComponents: .date)
-                .datePickerStyle(.compact)
-                
-                Button(action: updateDueDate) {
-                    Text("Update")
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.blue)
-                        .cornerRadius(8)
+        NavigationLink(destination: HusbandryPDFListView(
+            SOPForStaffTittle: quiz.quizCategory,
+            nameOfCategory: quiz.quizCategory
+        )) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "flag.fill")
+                        .foregroundColor(.red)
+                    
+                    Text(quiz.info.title)
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Text(quizStatus)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-            } else {
-                Text("Due Date: \(formattedDueDate)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                
+                if user?.accountType == "admin" {
+                    DatePicker("Set Due Date", selection: Binding(
+                        get: { selectedDate ?? Date() },
+                        set: { selectedDate = $0 }
+                    ), displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    
+                    Button(action: updateDueDate) {
+                        Text("Update")
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
+                } else {
+                    Text("Due Date: \(formattedDueDate)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
+            .padding()
+            .background(Color.green.opacity(0.1))
+            .cornerRadius(10)
         }
-        .padding()
-        .background(Color.green.opacity(0.1))
-        .cornerRadius(10)
     }
-    
+
+    // Keep existing helper methods
     var quizStatus: String {
         if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
            let highestScore = quizScore.scores.max(), highestScore > 0 {
@@ -287,35 +385,24 @@ struct HusbandryUncompletedQuizCard: View {
     }
     
     var formattedDueDate: String {
-        print("User: \(user?.username ?? "No user")")
-        print("Quiz Scores: \(user?.quizScores?.count ?? 0)")
-        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }) {
-            print("Found quiz score for \(quiz.id)")
-            print("Due Dates: \(quizScore.dueDates ?? [:])")
-            if let dueDates = quizScore.dueDates,
-               let dueDate = dueDates[quiz.id],
-               let unwrappedDueDate = dueDate {
-                let formatter = DateFormatter()
-                formatter.dateStyle = .medium
-                return formatter.string(from: unwrappedDueDate)
-            } else {
-                print("No due date found for \(quiz.id)")
-                return "Not set"
-            }
-        } else {
-            print("No quiz score found for \(quiz.id)")
-            return "Not set"
+        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
+           let dueDates = quizScore.dueDates,
+           let dueDate = dueDates[quiz.id],
+           let unwrappedDueDate = dueDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            return formatter.string(from: unwrappedDueDate)
         }
+        return "Not set"
     }
     
     func updateDueDate() {
-        if let newDate = selectedDate {
+      
             Task {
-              
                 await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user!)
-                await viewModel.setDueDateForFailedQuiz(user: user!, quizID: quiz.id, newDueDate: newDate)
-                await viewModel.updateUserQuizDueDate(for: user, quizID: quiz.id, newDate: newDate)
+                      await viewModel.setDueDateForFailedQuiz(user: user!, quizID: quiz.id, newDueDate: selectedDate)
+                      await viewModel.updateUserQuizDueDate(for: user, quizID: quiz.id, newDate: selectedDate)
             }
-        }
+        
     }
 }

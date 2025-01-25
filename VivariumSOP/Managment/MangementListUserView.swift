@@ -217,7 +217,7 @@ import Combine
 final class ManagementUserViewModel: ObservableObject {
     @Published var users: [User] = []
     @Published var quizzes: [Quiz] = []
-    
+    @AppStorage("organizationId") private var organizationId: String = ""
 //    func fetchAllUsersAndQuizzes() async {
 //        do {
 //               // Fetch users and quizzes concurrently
@@ -234,22 +234,77 @@ final class ManagementUserViewModel: ObservableObject {
 //           }
 //    }
     
-    func fetchAllUsersAndQuizzes() async {
-        do {
-            // Fetch users
-            self.users = try await UserProfileViewModel().fecthAllUserReturn()
-            
-            // Fetch all unique account types from users
-            let accountTypes = Set(users.compactMap { $0.accountType })
-            
-            // Fetch quizzes for these account types
-            self.quizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(Array(accountTypes))
-            
-            print("Fetched \(users.count) users and \(quizzes.count) quizzes")
-        } catch {
-            print("Failed to fetch data: \(error)")
-        }
-    }
+//    func fetchAllUsersAndQuizzes() async {
+//        do {
+//            // Fetch users
+//            self.users = try await UserProfileViewModel().fecthAllUserReturn()
+//            
+//            // Fetch all unique account types from users
+//            let accountTypes = Set(users.compactMap { $0.accountType })
+//            
+//            // Fetch quizzes for these account types
+//            self.quizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(Array(accountTypes), organizationId: organizationId)
+//            
+//            print("Fetched \(users.count) users and \(quizzes.count) quizzes")
+//        } catch {
+//            print("Failed to fetch data: \(error)")
+//        }
+//    }
+//    
+    
+//    @MainActor
+//    func fetchAllUsersAndQuizzes() async {
+//        do {
+//            // Fetch and filter users by organization
+//            let allUsers = try await UserProfileViewModel().fecthAllUserReturn()
+//            self.users = allUsers.filter { $0.organizationId == organizationId }
+//            
+//            // Get account types from organization's users
+//            let accountTypes = Set(self.users.map { $0.accountType })
+//            
+//            // Fetch quizzes for the organization and these account types
+//            self.quizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+//                Array(accountTypes),
+//                organizationId: organizationId
+//            )
+//            
+//            print("Fetched \(self.users.count) users and \(self.quizzes.count) quizzes for organization \(organizationId)")
+//        } catch {
+//            print("Failed to fetch data: \(error.localizedDescription)")
+//        }
+//    }
+    
+    @MainActor
+       func fetchAllUsersAndQuizzes() async {
+           do {
+               // Validate organizationId
+               guard !organizationId.isEmpty else {
+                   print("Error: Organization ID is empty")
+                   return
+               }
+               
+               // Fetch and filter users by organization
+               let allUsers = try await UserProfileViewModel().fecthAllUserReturn()
+               self.users = allUsers.filter { $0.organizationId == organizationId }
+               
+               // Get unique account types from organization's users
+               let accountTypes = Set(self.users.map { $0.accountType })
+               print("Found account types: \(accountTypes)")
+               
+               // Convert to array, handling empty case
+               let accountTypesArray = Array(accountTypes)
+               
+               // Fetch quizzes for the organization
+               self.quizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+                   accountTypesArray,
+                   organizationId: organizationId
+               )
+               
+               print("Fetched \(self.users.count) users and \(self.quizzes.count) quizzes for organization \(organizationId)")
+           } catch {
+               print("Failed to fetch data: \(error.localizedDescription)")
+           }
+       }
 }
 
 

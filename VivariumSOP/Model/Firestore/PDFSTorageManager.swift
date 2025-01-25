@@ -184,44 +184,79 @@ import FirebaseFirestore
 class PDFStorageManager: ObservableObject {
     static let shared = PDFStorageManager()
     private let storage = Storage.storage()
-    
+    private let db = Firestore.firestore() // Add Firestore reference
     
     @Published var isUploading = false
         @Published var uploadProgress: Double = 0
         
-        func uploadPDF(data: Data, category: PDFCategory) async throws -> String {
-            let folderPath = "pdfs/\(category.nameOfCategory)/\(category.SOPForStaffTittle)"
-            let filename = "\(category.pdfName).pdf"
-            let fullPath = "\(folderPath)/\(filename)"
-            
-            let storageRef = storage.reference().child(fullPath)
-            
-            await MainActor.run {
-                self.isUploading = true
-                self.uploadProgress = 0
-            }
-            
-            // Upload the file
-            let _ = try await storageRef.putDataAsync(data) { progress in
-                if let progress = progress {
-                    let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
-                    Task { @MainActor in
-                        self.uploadProgress = percentComplete
-                    }
-                }
-            }
-            
-            // Get the download URL
-            let downloadURL = try await storageRef.downloadURL()
-            
-            await MainActor.run {
-                self.isUploading = false
-                self.uploadProgress = 1.0
-            }
-            
-            return downloadURL.absoluteString
-        }
-        
+//        func uploadPDF(data: Data, category: PDFCategory) async throws -> String {
+//            let folderPath = "pdfs/\(category.nameOfCategory)/\(category.SOPForStaffTittle)"
+//            let filename = "\(category.pdfName).pdf"
+//            let fullPath = "\(folderPath)/\(filename)"
+//            
+//            let storageRef = storage.reference().child(fullPath)
+//            
+//            await MainActor.run {
+//                self.isUploading = true
+//                self.uploadProgress = 0
+//            }
+//            
+//            // Upload the file
+//            let _ = try await storageRef.putDataAsync(data) { progress in
+//                if let progress = progress {
+//                    let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
+//                    Task { @MainActor in
+//                        self.uploadProgress = percentComplete
+//                    }
+//                }
+//            }
+//            
+//            // Get the download URL
+//            let downloadURL = try await storageRef.downloadURL()
+//            
+//            await MainActor.run {
+//                self.isUploading = false
+//                self.uploadProgress = 1.0
+//            }
+//            
+//            return downloadURL.absoluteString
+//        }
+    @MainActor
+       func uploadPDF(data: Data, category: PDFCategory) async throws -> String {
+           let folderPath = "pdfs/\(category.nameOfCategory)/\(category.SOPForStaffTittle)"
+           let filename = "\(category.pdfName).pdf"
+           let fullPath = "\(folderPath)/\(filename)"
+           
+           let storageRef = storage.reference().child(fullPath)
+           
+           // Upload to Storage
+           let _ = try await storageRef.putDataAsync(data)
+           
+           // Get the download URL
+           let downloadURL = try await storageRef.downloadURL()
+           
+           // Create a new PDFCategory with the download URL
+           var updatedCategory = category
+           updatedCategory.pdfURL = downloadURL.absoluteString
+           
+           // Save to Firestore
+           try await db.collection("PDFCategory")
+               .document(category.id)
+               .setData([
+                   "id": category.id,
+                   "nameOfCategory": category.nameOfCategory,
+                   "SOPForStaffTittle": category.SOPForStaffTittle,
+                   "pdfName": category.pdfName,
+                   "pdfURL": downloadURL.absoluteString,
+                   "organizationId": category.organizationId
+               ])
+           
+           print("Successfully uploaded PDF to Storage and saved to Firestore")
+           print("Document ID: \(category.id)")
+           print("Download URL: \(downloadURL.absoluteString)")
+           
+           return downloadURL.absoluteString
+       }
         func movePDF(from oldCategory: PDFCategory, to newCategory: PDFCategory) async throws -> String {
             guard let oldURL = URL(string: oldCategory.pdfURL ?? "") else {
                 throw NSError(domain: "PDFStorageManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid old URL"])

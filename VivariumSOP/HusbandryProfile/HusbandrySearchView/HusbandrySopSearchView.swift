@@ -24,23 +24,31 @@ final class SopSearchViewModel: ObservableObject {
     }
     @Published var currentUserProgress: UserPDFProgress?
     @Published var completionStatus: [String: Bool] = [:]
-    
+    @AppStorage("organizationId") private var organizationId: String = ""
     func fetchAllPDFs() async {
-        do {
-            PDFList = try await CategoryManager.shared.getAllCategoryPDF()
-            filterPDFList()
-        } catch {
-            print("Failed to fetch PDFs: \(error)")
+            do {
+                // Get all PDFs and filter by organization
+                let allPDFs = try await CategoryManager.shared.getAllCategoryPDF()
+                PDFList = allPDFs.filter { $0.organizationId == organizationId }
+                
+                filterPDFList()
+            } catch {
+                print("Failed to fetch PDFs: \(error)")
+            }
         }
-    }
-    
-    private func filterPDFList() {
-        if searchQuery.isEmpty {
-            filteredPDFList = PDFList.sorted {$0.pdfName < $1.pdfName}
-        } else {
-            filteredPDFList = PDFList.filter { $0.pdfName.localizedCaseInsensitiveContains(searchQuery) }.sorted {$0.pdfName < $1.pdfName}
+        
+        private func filterPDFList() {
+            if searchQuery.isEmpty {
+                filteredPDFList = PDFList.sorted { $0.pdfName < $1.pdfName }
+            } else {
+                filteredPDFList = PDFList.filter {
+                    $0.pdfName.localizedCaseInsensitiveContains(searchQuery) ||
+                    $0.nameOfCategory.localizedCaseInsensitiveContains(searchQuery) ||
+                    $0.SOPForStaffTittle.localizedCaseInsensitiveContains(searchQuery)
+                }.sorted { $0.pdfName < $1.pdfName }
+            }
+            print("DEBUG - Filter: Filtered to \(filteredPDFList.count) PDFs")
         }
-    }
 
     func isPDFCompleted(pdfId: String) -> Bool {
         return completionStatus[pdfId] ?? false
@@ -423,6 +431,8 @@ struct SopSearchView: View {
             .padding(.vertical, 8)
             
             ScrollView {
+                let groupedCount = groupedPDFs.keys.count
+
                 ForEach(groupedPDFs.keys.sorted(), id: \.self) { category in
                     SectionCard(
                         category: category,
@@ -474,14 +484,23 @@ struct SopSearchView: View {
     }
     
     private func refreshData() {
+        print("DEBUG: Starting refresh data")
         Task {
+            print("DEBUG: Fetching PDFs")
             await viewModel.fetchAllPDFs()
+            print("DEBUG: PDFs fetched, count: \(viewModel.PDFList.count)")
+            print("DEBUG: Filtered PDFs count: \(viewModel.filteredPDFList.count)")
+            print("DEBUG: Grouped PDFs count: \(groupedPDFs.count)")
+            
             if let currentUserUID = Auth.auth().currentUser?.uid {
+                print("DEBUG: Fetching user progress for \(currentUserUID)")
                 await viewModel.fetchUserProgress(userUID: currentUserUID)
             }
         }
     }
 }
+
+
 
 struct SectionCard: View {
     let category: String

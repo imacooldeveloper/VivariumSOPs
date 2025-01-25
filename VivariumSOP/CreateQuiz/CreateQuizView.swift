@@ -270,7 +270,7 @@ struct CreateQuizView: View {
                                 ))
                             }
                         }
-
+                        
                         Section(header: Text("Assign to Users")) {
                             if viewModel.availableUsers.isEmpty {
                                 Text("No users available")
@@ -285,23 +285,38 @@ struct CreateQuizView: View {
                                 }
                             }
                         }
-                        
-                        Section(header: Text("Questions")) {
-                            ForEach(viewModel.questions.indices, id: \.self) { index in
-                                NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
-                                    Text("Question \(index + 1)")
-                                }
-                            }
-                            .onDelete(perform: deleteQuestion)
-                            
-                            Button(action: { showingAddQuestion = true }) {
-                                Label("Add Question", systemImage: "plus")
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
+                        Section(header: Text("VERIFICATION TYPE")) {
+                                                  Picker("Verification Type", selection: $viewModel.verificationType) {
+                                                      ForEach(Quiz.VerificationType.allCases, id: \.self) { type in
+                                                          Text(type.displayTitle).tag(type)
+                                                      }
+                                                  }
+                                                  .pickerStyle(.menu)
+                                                  
+                                                  if viewModel.verificationType != .quiz {
+                                                      TextField("Acknowledgment Text", text: $viewModel.acknowledgmentText, axis: .vertical)
+                                                          .lineLimit(3...6)
+                                                  }
+                                              }
+
+                                              if viewModel.verificationType != .acknowledgment {
+                                                  Section(header: Text("Questions")) {
+                                                      ForEach(viewModel.questions.indices, id: \.self) { index in
+                                                          NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+                                                              Text("Question \(index + 1)")
+                                                          }
+                                                      }
+                                                      .onDelete(perform: deleteQuestion)
+                                                      
+                                                      Button(action: { showingAddQuestion = true }) {
+                                                          Label("Add Question", systemImage: "plus")
+                                                      }
+                                                  }
+                                              }
+                                          }
+                                      }
+                                  }
+                                  .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
                        .navigationBarItems(
                            leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
                            trailing: Button("Save") { saveQuiz() }

@@ -10,7 +10,7 @@ import WebKit
 import PDFKit
 import FirebaseAuth
 struct HusbandryPDFListView: View {
-    @State var vm = HusbandrySOPListViewModel()
+    @StateObject var vm = HusbandrySOPListViewModel()
      var SOPForStaffTittle: String
      var nameOfCategory: String
      @State private var showQuizView = false
@@ -66,14 +66,20 @@ struct HusbandryPDFListView: View {
          }
          .navigationTitle("PDF List")
          .onAppear {
-             Task {
-                 await vm.fetchPDFList(title: SOPForStaffTittle, nameOfPdf: nameOfCategory)
-                 if let currentUserUID = Auth.auth().currentUser?.uid {
-                     await vm.fetchUserProgress(userUID: currentUserUID)
-                 }
-                 await vm.fetchQuizFor(category: SOPForStaffTittle)
-             }
-         }
+               
+                    Task {
+                       
+                        await vm.fetchPDFList(title: SOPForStaffTittle, nameOfPdf: nameOfCategory)
+                      
+                        if let currentUserUID = Auth.auth().currentUser?.uid {
+                         
+                            await vm.fetchUserProgress(userUID: currentUserUID)
+                        }
+                        await vm.fetchQuizFor(category: SOPForStaffTittle)
+                      
+                    }
+                }
+               
          .sheet(isPresented: $showQuizView) {
              if let quiz = vm.quiz {
                  HusbandryQuestionView(quizId: quiz.id, quizTitle: quiz.info.title) {

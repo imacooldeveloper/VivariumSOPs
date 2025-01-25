@@ -68,32 +68,33 @@ import UserNotifications
 struct VivariumSOPApp: App {
     
     //@UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-      @AppStorage("log_status") var logStatus: Bool = false
-      @AppStorage("account_Type") var userAccountType: String = ""
-      @StateObject var service = SOPService()
-      @StateObject var navigationHandler = NavigationHandler()
+    @AppStorage("log_status") var logStatus: Bool = false
+    @AppStorage("account_Type") var userAccountType: String = ""
+    @AppStorage("organizationId") var organizationId: String = ""
+    @StateObject var service = SOPService()
+    @StateObject var navigationHandler = NavigationHandler()
     @StateObject var sharedViewModel = PDFCategoryViewModel()
-      init() {
-          FirebaseApp.configure()
-         // FirebaseApp.configure()
-      }
+    init() {
+        FirebaseApp.configure()
+        // FirebaseApp.configure()
+    }
     
     var body: some Scene {
-          WindowGroup {
-              if logStatus {
-                  MainTabBarView()
-                      .environmentObject(navigationHandler)
-                      .environmentObject(service)
-                      .environmentObject(sharedViewModel)
-                      .onAppear {
-                          Task {
-                             // await NotificationsManager.shared.requestPermission()
-                              //try await service.checkAndScheduleNotifications()
-                          }
-                      }
-              } else {
-                  LoginView()
-              }
-          }
-      }
+        WindowGroup {
+                 if logStatus {
+                     if organizationId.isEmpty {
+                         OrganizationSelectionView(viewModel: LoginViewModel())
+                     } else {
+                         MainTabBarView()
+                             .environmentObject(navigationHandler)
+                             .environmentObject(service)
+                             .environmentObject(sharedViewModel)
+                     }
+                 } else {
+                     LoginView()
+                 }
+             }
+    }
+    
+    
 }

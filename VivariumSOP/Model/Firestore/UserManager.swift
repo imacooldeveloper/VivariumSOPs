@@ -93,16 +93,23 @@ class UserManager {
     }
     
     func fetchUser(by userId: String) async throws -> User {
-        let documentReference = userCollection.document(userId)
+        let documentReference = Firestore.firestore().collection("Users").document(userId)
         let documentSnapshot = try await documentReference.getDocument()
-
-        guard let user = try? documentSnapshot.data(as: User.self) else {
-            throw NSError(domain: "UserManager", code: 404, userInfo: [NSLocalizedDescriptionKey: "User not found."])
+        
+        guard documentSnapshot.exists else {
+            throw NSError(domain: "UserManager",
+                         code: 404,
+                         userInfo: [NSLocalizedDescriptionKey: "No user found with ID: \(userId)"])
         }
-
+        
+        guard let user = try? documentSnapshot.data(as: User.self) else {
+            throw NSError(domain: "UserManager",
+                         code: 400,
+                         userInfo: [NSLocalizedDescriptionKey: "Failed to decode user data"])
+        }
+        
         return user
     }
-    
     func fetchUsers(by userId: String) async throws -> User? {
         let userRef = userDocuments(id: userId)
         let snapshot = try await userRef.getDocument()

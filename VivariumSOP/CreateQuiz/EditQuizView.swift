@@ -259,7 +259,7 @@ class EditQuizViewModel: ObservableObject {
     @Published var renewalFrequency: Quiz.RenewalFrequency?
     @Published var nextRenewalDate: Date?
     @Published var customRenewalDate: Date = Date()
-   
+    @AppStorage("organizationId") private var organizationId: String = ""
     var availableAccountTypes: [AccountType] {
         AccountType.allCases
     }
@@ -581,47 +581,92 @@ class EditQuizViewModel: ObservableObject {
             }
         }
     
-    func updateQuiz() async throws {
-            let nextRenewalDate = calculateNextRenewalDate()
-            let updatedQuiz = Quiz(
-                id: quizId,
-                info: Info(
-                    title: quizTitle,
-                    description: quizDescription,
-                    peopleAttended: 0,
-                    rules: [""]
-                ),
-                quizCategory: quizCategory,
-                quizCategoryID: quizCategoryID,
-                accountTypes: Array(selectedAccountTypes),
-                dateCreated: nil,
-                dueDate: quizDueDate,
-                renewalFrequency: renewalFrequency,
-                nextRenewalDates: nextRenewalDate,
-                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil
-            )
-            
-            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-            
-            // Assign quiz to selected users
-//            for userID in selectedUserIDs {
-//                if let user = try await userManager.fetchUsers(by: userID) {
-//                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//    func updateQuiz() async throws {
+//            let nextRenewalDate = calculateNextRenewalDate()
+//            let updatedQuiz = Quiz(
+//                id: quizId,
+//                info: Info(
+//                    title: quizTitle,
+//                    description: quizDescription,
+//                    peopleAttended: 0,
+//                    rules: [""]
+//                ),
+//                quizCategory: quizCategory,
+//                quizCategoryID: quizCategoryID,
+//                accountTypes: Array(selectedAccountTypes),
+//                dateCreated: nil,
+//                dueDate: quizDueDate,
+//                renewalFrequency: renewalFrequency,
+//                nextRenewalDates: nextRenewalDate,
+//                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil, organizationId: organizationId
+//            )
+//            
+//            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+//            
+//            // Assign quiz to selected users
+////            for userID in selectedUserIDs {
+////                if let user = try await userManager.fetchUsers(by: userID) {
+////                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+////                }
+////            }
+//        for userID in selectedUserIDs {
+//                   if let user = try await userManager.fetchUsers(by: userID) {
+//                       try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//                   }
+//               }
+//        
+//        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+//                for userID in unselectedUsers {
+//                    try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
 //                }
-//            }
-        for userID in selectedUserIDs {
-                   if let user = try await userManager.fetchUsers(by: userID) {
-                       try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
-                   }
-               }
+//        }
+//    
+    func updateQuiz() async throws {
+        let nextRenewalDate = calculateNextRenewalDate()
         
-        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
-                for userID in unselectedUsers {
-                    try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
-                }
+        // Create Info struct
+        let info = Info(
+            title: quizTitle,
+            description: quizDescription,
+            peopleAttended: 0,
+            rules: [""]
+        )
+        
+        // Create Quiz with all required parameters
+        let updatedQuiz = Quiz(
+            id: quizId,
+            info: info,
+            quizCategory: quizCategory,
+            quizCategoryID: quizCategoryID,
+            accountTypes: Array(selectedAccountTypes),
+            dateCreated: nil,  // Maintain existing dateCreated if needed
+            dueDate: quizDueDate,
+            renewalFrequency: renewalFrequency,
+            nextRenewalDates: nextRenewalDate,
+            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil,
+            organizationId: organizationId,
+            verificationType: .quiz,  // Add property to ViewModel if this needs to be configurable
+            acknowledgmentText: nil,  // Add to ViewModel if needed
+            questions: questions,
+            acknowledgmentMetadata: nil  // Add to ViewModel if needed
+        )
+        
+        // Update quiz and questions
+        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+        
+        // Handle user assignments
+        for userID in selectedUserIDs {
+            if let user = try await userManager.fetchUsers(by: userID) {
+                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+            }
         }
-    
-    
+        
+        // Remove quiz from unselected users
+        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+        for userID in unselectedUsers {
+            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+        }
+    }
 }
 
 

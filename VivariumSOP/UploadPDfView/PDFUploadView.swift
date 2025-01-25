@@ -321,7 +321,8 @@ struct PDFUploadView: View {
        @State private var isSuccess = false
        @State private var currentUploadingPDF = ""
        @State private var uploadProgress: Double = 0
-       
+    @State private var showingTemplateSOPs = false // Add this state variable
+    @AppStorage("organizationId") private var organizationId: String = ""
        var body: some View {
            NavigationView {
                Form {
@@ -343,6 +344,17 @@ struct PDFUploadView: View {
                            .font(.caption)
                            .foregroundColor(.red)
                    }
+                   Section(header: Text("Template SOPs")) {
+                                       Button(action: {
+                                           showingTemplateSOPs = true
+                                       }) {
+                                           HStack {
+                                               Image(systemName: "doc.fill.badge.plus")
+                                               Text("Browse Template SOPs")
+                                           }
+                                       }
+                                   }
+                                   
                    
                    Section(header: Text("Selected PDFs")) {
                        ForEach(selectedPDFs, id: \.self) { url in
@@ -364,6 +376,7 @@ struct PDFUploadView: View {
                .navigationBarItems(trailing: Button("Done") {
                    presentationMode.wrappedValue.dismiss()
                })
+               
                .fileImporter(
                    isPresented: $showFileImporter,
                    allowedContentTypes: [.pdf],
@@ -381,6 +394,7 @@ struct PDFUploadView: View {
                          })
                }
                .overlay(uploadProgressView)
+               
                .onAppear {
                    if viewModel.uniqueCategories.isEmpty {
                        Task {
@@ -391,8 +405,13 @@ struct PDFUploadView: View {
                        selectedFolder = viewModel.uniqueCategories[0]
                    }
                }
+               
            }
+//           .sheet(isPresented: $showingTemplateSOPs) {
+//                          TempSOPListView()
+//                      }
        }
+    
        
        @ViewBuilder
        private var uploadProgressView: some View {
@@ -545,12 +564,124 @@ struct PDFUploadView: View {
 //    }
 //    
     
+//    private func uploadPDFs() {
+//        Task {
+//            do {
+//                isUploading = true
+//                uploadProgress = 0
+//                
+//                for (index, url) in selectedPDFs.enumerated() {
+//                    guard url.startAccessingSecurityScopedResource() else {
+//                        print("Failed to access the resource.")
+//                        continue
+//                    }
+//                    defer { url.stopAccessingSecurityScopedResource() }
+//                    
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName, organizationId: <#String#>
+//                    )
+//                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                    
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//  
+//    private func uploadPDFs() {
+//        Task {
+//            do {
+//                isUploading = true
+//                uploadProgress = 0
+//                
+//                for (index, url) in selectedPDFs.enumerated() {
+//                    guard url.startAccessingSecurityScopedResource() else {
+//                        print("Failed to access the resource.")
+//                        continue
+//                    }
+//                    defer { url.stopAccessingSecurityScopedResource() }
+//                    
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName,
+//                        organizationId: organizationId
+//                    )
+//                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                    
+//                    print("Uploading PDF: \(pdfName)")
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    print("Successfully uploaded PDF: \(pdfName)")
+//                    
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                print("Error during PDF upload: \(error.localizedDescription)")
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    
+    
     private func uploadPDFs() {
         Task {
             do {
                 isUploading = true
                 uploadProgress = 0
                 
+                // Create SOPCategory first
+                let sopCategory = SOPCategory(
+                    id: UUID().uuidString,
+                    nameOfCategory: selectedFolder,
+                    SOPForStaffTittle: sopForStaffTitle,
+                    sopPages: String(selectedPDFs.count), // Set number of PDFs as sopPages
+                    organizationId: organizationId
+                )
+                
+                // Upload SOPCategory
+                try await viewModel.uploadSOPCategory(sopCategory: sopCategory)
+                
+                // Now upload each PDF
                 for (index, url) in selectedPDFs.enumerated() {
                     guard url.startAccessingSecurityScopedResource() else {
                         print("Failed to access the resource.")
@@ -565,14 +696,17 @@ struct PDFUploadView: View {
                         id: UUID().uuidString,
                         nameOfCategory: selectedFolder,
                         SOPForStaffTittle: sopForStaffTitle,
-                        pdfName: pdfName
+                        pdfName: pdfName,
+                        organizationId: organizationId
                     )
                     
                     await MainActor.run {
                         currentUploadingPDF = pdfName
                     }
                     
+                    print("Uploading PDF: \(pdfName)")
                     try await viewModel.uploadPDF(data: data, category: pdfCategory)
+                    print("Successfully uploaded PDF: \(pdfName)")
                     
                     await MainActor.run {
                         uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
@@ -581,12 +715,13 @@ struct PDFUploadView: View {
                 
                 await MainActor.run {
                     isUploading = false
-                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+                    showAlert(title: "Success", message: "All PDFs and categories uploaded successfully", isSuccess: true)
                 }
             } catch {
+                print("Error during upload: \(error.localizedDescription)")
                 await MainActor.run {
                     isUploading = false
-                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+                    showAlert(title: "Error", message: "Error uploading: \(error.localizedDescription)", isSuccess: false)
                 }
             }
         }
@@ -757,7 +892,9 @@ struct EditCategoryView: View {
     @State private var alertMessage = ""
     @State private var isSuccess = false
     @State private var showingSaveConfirmation = false
-    
+   
+        @State private var selectedCategoryName: String
+        @State private var selectedSubcategory: String
     
     @State private var customSOPTitle: String = ""
       @State private var isCustomSOP: Bool = false
@@ -765,14 +902,26 @@ struct EditCategoryView: View {
     init(viewModel: PDFCategoryViewModel, category: PDFCategory) {
         self.viewModel = viewModel
         _editedCategory = State(initialValue: category)
+        _selectedCategoryName = State(initialValue: category.nameOfCategory)
+        _selectedSubcategory = State(initialValue: category.SOPForStaffTittle)
         _pdfDocument = State(initialValue: PDFKit.PDFDocument(url: URL(string: category.pdfURL ?? "")!))
     }
 
     var body: some View {
         Form {
             Section(header: Text("Category Details")) {
-                TextField("Name of Category", text: $editedCategory.nameOfCategory)
-                TextField("SOP For Staff Title", text: $editedCategory.SOPForStaffTittle)
+                Picker("Category", selection: $selectedCategoryName) {
+                                  ForEach(viewModel.uniqueCategories, id: \.self) { category in
+                                      Text(category).tag(category)
+                                  }
+                              }
+                              
+                              // Subcategory Picker (updates based on selected category)
+                              Picker("SOP Title", selection: $selectedSubcategory) {
+                                  ForEach(viewModel.getSubcategories(for: selectedCategoryName), id: \.self) { subcategory in
+                                      Text(subcategory).tag(subcategory)
+                                  }
+                              }
                 TextField("PDF Name", text: $editedCategory.pdfName)
             }
 
@@ -802,6 +951,24 @@ struct EditCategoryView: View {
         ) { result in
             handlePDFSelection(result)
         }
+        .onChange(of: selectedCategoryName) { newCategory in
+                  // Update edited category when selection changes
+                  editedCategory.nameOfCategory = newCategory
+                  // Reset subcategory if needed
+                  if !viewModel.getSubcategories(for: newCategory).contains(selectedSubcategory) {
+                      selectedSubcategory = viewModel.getSubcategories(for: newCategory).first ?? ""
+                  }
+              }
+              .onChange(of: selectedSubcategory) { newSubcategory in
+                  // Update edited category when subcategory changes
+                  editedCategory.SOPForStaffTittle = newSubcategory
+              }
+              .onAppear {
+                  // Make sure categories are loaded
+                  Task {
+                      await viewModel.fetchCategoriesIfNeeded()
+                  }
+              }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")) {
                 if isSuccess {

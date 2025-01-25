@@ -130,7 +130,7 @@ struct MainTabBarView: View {
     @AppStorage("account_Type") var userAccountType: String = ""
     var body: some View {
         
-        if userAccountType != "Husbandry"  {
+        if userAccountType.lowercased() != "husbandry"  {
             
             TabView(selection: $selectedTab) {
                 NavigationStack(path: $navigationHandler.path) {
@@ -179,6 +179,15 @@ struct MainTabBarView: View {
                     Label("Export", systemImage: "square.and.arrow.up")
                 }
                 .tag(3)
+                
+                NavigationStack{
+                    TemplateSOPUploadView()
+                }
+                                    .tabItem {
+                                        Image(systemName: "square.and.arrow.up.fill")
+                                        Text("Templates")
+                                    }
+                                    .tag(4)
                 
             }
             .onChange(of: selectedTab) { _ in

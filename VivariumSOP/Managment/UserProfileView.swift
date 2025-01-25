@@ -270,6 +270,11 @@ struct UserProfileContentView: View {
         }
     }
 }
+
+
+
+
+
 struct CompletedQuizCard: View {
     let quizWithScore: QuizWithScore
     let onRetakeQuiz: () -> Void

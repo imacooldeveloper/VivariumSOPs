@@ -19,7 +19,7 @@ final class RegisterUserViewModel: ObservableObject {
     @AppStorage("account_Type") var userAccountType: String = ""
 
     @Published var email: String = ""
-    @Published var username: String = ""
+    //@Published var username: String = ""
     @Published var password: String = ""
     @Published var confirmPassword: String = ""
     @Published var accountType: String = ""
@@ -34,7 +34,15 @@ final class RegisterUserViewModel: ObservableObject {
     @Published var showError: Bool = false
     @Published var errorMessage: String = ""
     
-    
+    var username: String {
+           if firstName.isEmpty && lastName.isEmpty {
+               return ""
+           }
+           // Convert to lowercase and remove spaces
+           let firstPart = firstName.lowercased().trimmingCharacters(in: .whitespaces)
+           let lastPart = lastName.lowercased().trimmingCharacters(in: .whitespaces)
+           return "\(firstPart) \(lastPart)"
+       }
   
         func validateForm() -> Bool {
             if email.isEmpty {

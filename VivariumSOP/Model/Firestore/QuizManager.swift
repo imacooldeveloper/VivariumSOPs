@@ -15,7 +15,146 @@ class QuizManager {
     private func quizDocuments(id: String) -> DocumentReference {
         quizCollection.document(id)
     }
-
+//    func uploadQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws -> String {
+//            // Validate organization ID
+//            guard !quiz.organizationId.isEmpty else {
+//                throw NSError(domain: "QuizManager",
+//                             code: 400,
+//                             userInfo: [NSLocalizedDescriptionKey: "Organization ID is required"])
+//            }
+//            
+//            let quizRef = quizCollection.document(quiz.id)
+//            
+//            let quizData: [String: Any] = [
+//                "id": quiz.id,
+//                "info": [
+//                    "title": quiz.info.title,
+//                    "description": quiz.info.description,
+//                    "peopleAttended": quiz.info.peopleAttended ?? 0,
+//                    "rules": quiz.info.rules ?? []
+//                ],
+//                "quizCategory": quiz.quizCategory,
+//                "quizCategoryID": quiz.quizCategoryID,
+//                "accountTypes": quiz.accountTypes,
+//                "dateCreated": quiz.dateCreated ?? Date(),
+//                "dueDate": quiz.dueDate ?? Date(),
+//                "organizationId": quiz.organizationId, // Ensure this is included
+//                "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
+//                "nextRenewalDates": quiz.nextRenewalDates ?? NSNull(),
+//                "customRenewalDate": quiz.customRenewalDate ?? NSNull()
+//            ]
+//            
+//            print("Uploading quiz with organizationId: \(quiz.organizationId)")
+//            
+//            try await quizRef.setData(quizData)
+//            
+//            let questionsCollection = quizRef.collection("Questions")
+//            for question in questions {
+//                try await questionsCollection.addDocument(data: [
+//                    "questionText": question.questionText,
+//                    "options": question.options,
+//                    "answer": question.answer
+//                ])
+//            }
+//            
+//            return quiz.id
+//        }
+    func uploadQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws -> String {
+        // Validate organization ID
+        guard !quiz.organizationId.isEmpty else {
+            throw NSError(domain: "QuizManager",
+                         code: 400,
+                         userInfo: [NSLocalizedDescriptionKey: "Organization ID is required"])
+        }
+        
+        let quizRef = quizCollection.document(quiz.id)
+        
+        let quizData: [String: Any] = [
+            "id": quiz.id,
+            "info": [
+                "title": quiz.info.title,
+                "description": quiz.info.description,
+                "peopleAttended": quiz.info.peopleAttended ?? 0,
+                "rules": quiz.info.rules ?? []
+            ],
+            "quizCategory": quiz.quizCategory,
+            "quizCategoryID": quiz.quizCategoryID,
+            "accountTypes": quiz.accountTypes,
+            "dateCreated": quiz.dateCreated ?? Date(),
+            "dueDate": quiz.dueDate ?? Date(),
+            "organizationId": quiz.organizationId,
+            "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
+            "nextRenewalDates": quiz.nextRenewalDates ?? NSNull(),
+            "customRenewalDate": quiz.customRenewalDate ?? NSNull(),
+            "verificationType": quiz.verificationType.rawValue,  // Add this line
+            "acknowledgmentText": quiz.acknowledgmentText ?? NSNull()  // Add this line
+        ]
+        
+        print("DEBUG - Firebase Data:")
+        print(quizData)
+        
+        try await quizRef.setData(quizData)
+        
+        let questionsCollection = quizRef.collection("Questions")
+        for question in questions {
+            try await questionsCollection.addDocument(data: [
+                "questionText": question.questionText,
+                "options": question.options,
+                "answer": question.answer
+            ])
+        }
+        
+        return quiz.id
+    }
+        func updateQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws {
+            // Validate organization ID
+            guard !quiz.organizationId.isEmpty else {
+                throw NSError(domain: "QuizManager",
+                             code: 400,
+                             userInfo: [NSLocalizedDescriptionKey: "Organization ID is required"])
+            }
+            
+            let quizRef = quizCollection.document(quiz.id)
+            
+            var quizData: [String: Any] = [
+                "info": [
+                    "title": quiz.info.title,
+                    "description": quiz.info.description,
+                    "peopleAttended": quiz.info.peopleAttended ?? 0,
+                    "rules": quiz.info.rules ?? []
+                ],
+                "quizCategory": quiz.quizCategory,
+                "quizCategoryID": quiz.quizCategoryID,
+                "accountTypes": quiz.accountTypes,
+                "dateCreated": quiz.dateCreated ?? FieldValue.serverTimestamp(),
+                "dueDate": quiz.dueDate ?? FieldValue.serverTimestamp(),
+                "organizationId": quiz.organizationId, // Ensure this is included
+                "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
+                "nextRenewalDates": quiz.nextRenewalDates ?? NSNull(),
+                "customRenewalDate": quiz.customRenewalDate ?? NSNull()
+            ]
+            
+            print("Updating quiz with organizationId: \(quiz.organizationId)")
+            
+            try await quizRef.setData(quizData, merge: true)
+            
+            // Update questions
+            let existingQuestions = try await quizRef.collection("Questions").getDocuments()
+            for document in existingQuestions.documents {
+                try await document.reference.delete()
+            }
+            
+            let questionsCollection = quizRef.collection("Questions")
+            for question in questions {
+                try await questionsCollection.addDocument(data: [
+                    "questionText": question.questionText,
+                    "options": question.options,
+                    "answer": question.answer
+                ])
+            }
+        }
+    
+///
     func uploadquiz(quiz: Quiz) async throws {
         try quizDocuments(id: quiz.id ).setData(from: quiz)
     }
@@ -31,6 +170,59 @@ class QuizManager {
         return room
     }
     
+    // Updated to fetch quizzes for a specific organization
+        func getAllQuizzes(for organizationId: String) async throws -> [Quiz] {
+            let snapshot = try await quizCollection
+                .whereField("organizationId", isEqualTo: organizationId)
+                .getDocuments()
+            return snapshot.documents.compactMap { document in
+                try? document.data(as: Quiz.self)
+            }
+        }
+    // Updated to fetch quizzes for specific account types within an organization
+    func fetchQuizzesForAccountTypes(_ accountTypes: [String], organizationId: String) async throws -> [Quiz] {
+           // Validate inputs
+           guard !organizationId.isEmpty else {
+               throw NSError(domain: "QuizManager",
+                            code: 400,
+                            userInfo: [NSLocalizedDescriptionKey: "Organization ID is required"])
+           }
+           
+           let snapshot: QuerySnapshot
+           
+           if accountTypes.isEmpty {
+               // If no account types, just filter by organization
+               print("No account types provided, fetching all quizzes for organization: \(organizationId)")
+               snapshot = try await quizCollection
+                   .whereField("organizationId", isEqualTo: organizationId)
+                   .getDocuments()
+           } else {
+               // If we have account types, use both filters
+               print("Fetching quizzes for account types: \(accountTypes) in organization: \(organizationId)")
+               snapshot = try await quizCollection
+                   .whereField("accountTypes", arrayContainsAny: accountTypes)
+                   .whereField("organizationId", isEqualTo: organizationId)
+                   .getDocuments()
+           }
+           
+           let quizzes = snapshot.documents.compactMap { document in
+               try? document.data(as: Quiz.self)
+           }
+           
+           print("Found \(quizzes.count) quizzes")
+           return quizzes
+       }
+    
+    // Updated to get quiz by title within an organization
+        func getQuizByTitle(_ title: String, organizationId: String) async throws -> Quiz? {
+            let snapshot = try await quizCollection
+                .whereField("info.title", isEqualTo: title)
+                .whereField("organizationId", isEqualTo: organizationId)
+                .getDocuments()
+            return try snapshot.documents.first?.data(as: Quiz.self)
+        }
+        
+      
     private func getQuizQuery()  -> Query {
         quizCollection
 
@@ -43,17 +235,17 @@ class QuizManager {
              
      }
     
-    func fetchQuizzesForAccountTypes(_ accountTypes: [String]) async throws -> [Quiz] {
-          let db = Firestore.firestore()
-          let quizSnapshot = try await db.collection("Quiz")
-              .whereField("accountTypes", arrayContainsAny: accountTypes)
-              .getDocuments()
-          
-          return quizSnapshot.documents.compactMap { document in
-              try? document.data(as: Quiz.self)
-          }
-      }
-    
+//    func fetchQuizzesForAccountTypes(_ accountTypes: [String]) async throws -> [Quiz] {
+//          let db = Firestore.firestore()
+//          let quizSnapshot = try await db.collection("Quiz")
+//              .whereField("accountTypes", arrayContainsAny: accountTypes)
+//              .getDocuments()
+//          
+//          return quizSnapshot.documents.compactMap { document in
+//              try? document.data(as: Quiz.self)
+//          }
+//      }
+//    
 //    func getQuizByTitle(_ title: String) async throws -> Quiz? {
 //        let snapshot = try await db.collection("Quizzes").whereField("info.title", isEqualTo: title).getDocuments()
 //        return try snapshot.documents.first?.data(as: Quiz.self)
@@ -71,10 +263,10 @@ class QuizManager {
 //            .getDocumentsWithSnapshot(as: Quiz.self)
 //    }
     
-    func fetchAllQuizzes() async throws -> [Quiz] {
-          let snapshot = try await db.collection("Quiz").getDocuments()
-          return snapshot.documents.compactMap { try? $0.data(as: Quiz.self) }
-      }
+//    func fetchAllQuizzes() async throws -> [Quiz] {
+//          let snapshot = try await db.collection("Quiz").getDocuments()
+//          return snapshot.documents.compactMap { try? $0.data(as: Quiz.self) }
+//      }
     func getQuizList(category: String) async throws -> [Quiz] {
         var quizzes: [Quiz] = []
         let querySnapshot = try await quizCollection.whereField("quizCategory", isEqualTo: category).getDocuments()
@@ -252,84 +444,84 @@ class QuizManager {
         return try snapshot.documents.first?.data(as: Quiz.self)
     }
         
-        func updateQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws {
-            let db = Firestore.firestore()
-            let quizRef = db.collection("Quiz").document(quiz.id)
-            
-            var quizData: [String: Any] = [
-                "info": [
-                    "title": quiz.info.title,
-                    "description": quiz.info.description,
-                    "peopleAttended": quiz.info.peopleAttended,
-                    "rules": quiz.info.rules
-                ],
-                "quizCategory": quiz.quizCategory,
-                "quizCategoryID": quiz.quizCategoryID,
-                "accountTypes": quiz.accountTypes,
-                "dateCreated": quiz.dateCreated ?? FieldValue.serverTimestamp(),
-                "dueDate": quiz.dueDate ?? FieldValue.serverTimestamp(),
-                "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
-                "nextRenewalDate": quiz.nextRenewalDates ?? NSNull()
-            ]
-            try await quizRef.setData(quizData, merge: true)
-            //try await quizRef.updateData(quizData)
-            
-            // Delete existing questions
-            let existingQuestions = try await quizRef.collection("Questions").getDocuments()
-            for document in existingQuestions.documents {
-                try await document.reference.delete()
-            }
-            
-            // Add updated questions
-            let questionsCollection = quizRef.collection("Questions")
-            for question in questions {
-                let _ = try await questionsCollection.addDocument(data: [
-                    "questionText": question.questionText,
-                    "options": question.options,
-                    "answer": question.answer
-                ])
-            }
-        }
-    
+//        func updateQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws {
+//            let db = Firestore.firestore()
+//            let quizRef = db.collection("Quiz").document(quiz.id)
+//            
+//            var quizData: [String: Any] = [
+//                "info": [
+//                    "title": quiz.info.title,
+//                    "description": quiz.info.description,
+//                    "peopleAttended": quiz.info.peopleAttended,
+//                    "rules": quiz.info.rules
+//                ],
+//                "quizCategory": quiz.quizCategory,
+//                "quizCategoryID": quiz.quizCategoryID,
+//                "accountTypes": quiz.accountTypes,
+//                "dateCreated": quiz.dateCreated ?? FieldValue.serverTimestamp(),
+//                "dueDate": quiz.dueDate ?? FieldValue.serverTimestamp(),
+//                "renewalFrequency": quiz.renewalFrequency?.rawValue ?? NSNull(),
+//                "nextRenewalDate": quiz.nextRenewalDates ?? NSNull()
+//            ]
+//            try await quizRef.setData(quizData, merge: true)
+//            //try await quizRef.updateData(quizData)
+//            
+//            // Delete existing questions
+//            let existingQuestions = try await quizRef.collection("Questions").getDocuments()
+//            for document in existingQuestions.documents {
+//                try await document.reference.delete()
+//            }
+//            
+//            // Add updated questions
+//            let questionsCollection = quizRef.collection("Questions")
+//            for question in questions {
+//                let _ = try await questionsCollection.addDocument(data: [
+//                    "questionText": question.questionText,
+//                    "options": question.options,
+//                    "answer": question.answer
+//                ])
+//            }
+//        }
+//    
     
     func deleteQuiz(_ quiz: Quiz) async throws {
         let quizRef = db.collection("Quiz").document(quiz.id)
         try await quizRef.delete()
     }
     
-    func uploadQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws -> String {
-        // ... existing upload logic ...
-        let db = Firestore.firestore()
-        
-        let quizRef = db.collection("Quiz").document(quiz.id)
-        
-        let quizData: [String: Any] = [
-            "id": quiz.id,
-            "info": [
-                "title": quiz.info.title,
-                "description": quiz.info.description,
-                "peopleAttended": quiz.info.peopleAttended,
-                "rules": quiz.info.rules
-            ],
-            "quizCategory": quiz.quizCategory,
-            "quizCategoryID": quiz.quizCategoryID,
-            "accountTypes": quiz.accountTypes, // Make sure this line is included
-            "dateCreated": quiz.dateCreated ?? Date(),
-            "dueDate": quiz.dueDate ?? Date()
-        ]
-        
-        try await quizRef.setData(quizData)
-        
-        let questionsCollection = quizRef.collection("Questions")
-        for question in questions {
-            let _ = try await questionsCollection.addDocument(data: [
-                "questionText": question.questionText,
-                "options": question.options,
-                "answer": question.answer
-            ])
-        }
-        return quiz.id
-    }
+//    func uploadQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws -> String {
+//        // ... existing upload logic ...
+//        let db = Firestore.firestore()
+//        
+//        let quizRef = db.collection("Quiz").document(quiz.id)
+//        
+//        let quizData: [String: Any] = [
+//            "id": quiz.id,
+//            "info": [
+//                "title": quiz.info.title,
+//                "description": quiz.info.description,
+//                "peopleAttended": quiz.info.peopleAttended,
+//                "rules": quiz.info.rules
+//            ],
+//            "quizCategory": quiz.quizCategory,
+//            "quizCategoryID": quiz.quizCategoryID,
+//            "accountTypes": quiz.accountTypes, // Make sure this line is included
+//            "dateCreated": quiz.dateCreated ?? Date(),
+//            "dueDate": quiz.dueDate ?? Date()
+//        ]
+//        
+//        try await quizRef.setData(quizData)
+//        
+//        let questionsCollection = quizRef.collection("Questions")
+//        for question in questions {
+//            let _ = try await questionsCollection.addDocument(data: [
+//                "questionText": question.questionText,
+//                "options": question.options,
+//                "answer": question.answer
+//            ])
+//        }
+//        return quiz.id
+//    }
 
 //    func updateQuizWithQuestions(quiz: Quiz, questions: [Question]) async throws {
 //        // ... existing update logic ...

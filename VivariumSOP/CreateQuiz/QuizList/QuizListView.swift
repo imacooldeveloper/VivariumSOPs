@@ -219,41 +219,34 @@ struct QuizRowView: View {
     }
 }
 class QuizListViewModel: ObservableObject {
+    
     @Published var quizzes: [Quiz] = []
-    
-    private let quizManager = QuizManager.shared
-    
-    init() {
-        fetchQuizzes()
-    }
-    func fetchQuizzes() {
+        private let quizManager = QuizManager.shared
+        @AppStorage("organizationId") private var organizationId: String = ""
+        
+        init() {
+            fetchQuizzes()
+        }
+        
+        func fetchQuizzes() {
             Task {
                 await fetchQuizzesAsync()
             }
         }
+        
+        @MainActor
+        func fetchQuizzesAsync() async {
+            do {
+                self.quizzes = try await quizManager.getAllQuizzes(for: organizationId)
+            } catch {
+                print("Error fetching quizzes: \(error)")
+            }
+        }
+        
+        func deleteQuiz(_ quiz: Quiz) async throws {
+            try await quizManager.deleteQuiz(quiz)
+            await fetchQuizzesAsync()
+        }
     
-    func deleteQuiz(_ quiz: Quiz) async throws {
-          try await quizManager.deleteQuiz(quiz)
-      }
     
-//    func fetchQuizzes() {
-//        Task {
-//            do {
-//                let fetchedQuizzes = try await quizManager.getAllQuizzes()
-//                await MainActor.run {
-//                    self.quizzes = fetchedQuizzes
-//                }
-//            } catch {
-//                print("Error fetching quizzes: \(error)")
-//            }
-//        }
-//    }
-    @MainActor
-       func fetchQuizzesAsync() async {
-           do {
-               self.quizzes = try await quizManager.getAllQuizzes()
-           } catch {
-               print("Error fetching quizzes: \(error)")
-           }
-       }
 }
