@@ -306,317 +306,382 @@ import PDFKit
 //}
 
 
-
-struct PDFUploadView: View {
-    @ObservedObject var viewModel: PDFCategoryViewModel
-       @Environment(\.presentationMode) var presentationMode
-       @State private var selectedPDFs: [URL] = []
-       @State private var showFileImporter = false
-       @State private var selectedFolder = ""
-       @State private var sopForStaffTitle = ""
-       @State private var isUploading = false
-       @State private var showAlert = false
-       @State private var alertTitle = ""
-       @State private var alertMessage = ""
-       @State private var isSuccess = false
-       @State private var currentUploadingPDF = ""
-       @State private var uploadProgress: Double = 0
-    @State private var showingTemplateSOPs = false // Add this state variable
-    @AppStorage("organizationId") private var organizationId: String = ""
-       var body: some View {
-           NavigationView {
-               Form {
-                   Picker("Select Folder", selection: $selectedFolder) {
-                       ForEach(viewModel.uniqueCategories, id: \.self) { folder in
-                           Text(folder).tag(folder)
-                       }
-                   }
-                   
-                   TextField("SOP Title", text: $sopForStaffTitle)
-                       .padding()
-                       .overlay(
-                           RoundedRectangle(cornerRadius: 5)
-                               .stroke(sopForStaffTitle.isEmpty ? Color.red : Color.clear, lineWidth: 1)
-                       )
-                   
-                   if sopForStaffTitle.isEmpty {
-                       Text("SOP Title is required")
-                           .font(.caption)
-                           .foregroundColor(.red)
-                   }
-                   Section(header: Text("Template SOPs")) {
-                                       Button(action: {
-                                           showingTemplateSOPs = true
-                                       }) {
-                                           HStack {
-                                               Image(systemName: "doc.fill.badge.plus")
-                                               Text("Browse Template SOPs")
-                                           }
-                                       }
-                                   }
-                                   
-                   
-                   Section(header: Text("Selected PDFs")) {
-                       ForEach(selectedPDFs, id: \.self) { url in
-                           Text(url.lastPathComponent)
-                       }
-                       .onDelete(perform: deletePDFs)
-                   }
-                   
-                   Button("Select PDFs") {
-                       showFileImporter = true
-                   }
-                   
-                   Button("Upload PDFs") {
-                       uploadPDFs()
-                   }
-                   .disabled(selectedPDFs.isEmpty || selectedFolder.isEmpty || sopForStaffTitle.isEmpty)
-               }
-               .navigationTitle("Add New PDFs")
-               .navigationBarItems(trailing: Button("Done") {
-                   presentationMode.wrappedValue.dismiss()
-               })
-               
-               .fileImporter(
-                   isPresented: $showFileImporter,
-                   allowedContentTypes: [.pdf],
-                   allowsMultipleSelection: true
-               ) { result in
-                   handleFileImport(result)
-               }
-               .alert(isPresented: $showAlert) {
-                   Alert(title: Text(alertTitle),
-                         message: Text(alertMessage),
-                         dismissButton: .default(Text("OK")) {
-                             if isSuccess {
-                                 presentationMode.wrappedValue.dismiss()
-                             }
-                         })
-               }
-               .overlay(uploadProgressView)
-               
-               .onAppear {
-                   if viewModel.uniqueCategories.isEmpty {
-                       Task {
-                           await viewModel.fetchCategories()
-                       }
-                   }
-                   if !viewModel.uniqueCategories.isEmpty {
-                       selectedFolder = viewModel.uniqueCategories[0]
-                   }
-               }
-               
-           }
-//           .sheet(isPresented: $showingTemplateSOPs) {
-//                          TempSOPListView()
-//                      }
-       }
-    
-       
-       @ViewBuilder
-       private var uploadProgressView: some View {
-           if isUploading {
-               VStack {
-                   Text(currentUploadingPDF)
-                       .font(.headline)
-                       .lineLimit(1)
-                       .truncationMode(.middle)
-                   GeometryReader { geometry in
-                       ZStack(alignment: .leading) {
-                           Rectangle()
-                               .fill(Color.gray.opacity(0.3))
-                               .frame(height: 20)
-                           Rectangle()
-                               .fill(Color.blue)
-                               .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
-                       }
-                       .cornerRadius(10)
-                   }
-                   .frame(height: 20)
-                   Text("\(Int(uploadProgress * 100))%")
-                       .font(.headline)
-               }
-               .padding()
-               .frame(width: 300, height: 150)
-               .background(Color.white)
-               .cornerRadius(20)
-               .shadow(radius: 10)
-           }
-       }
-    
+///
+//struct PDFUploadView: View {
+//    @ObservedObject var viewModel: PDFCategoryViewModel
+//       @Environment(\.presentationMode) var presentationMode
+//       @State private var selectedPDFs: [URL] = []
+//       @State private var showFileImporter = false
+//       @State private var selectedFolder = ""
+//       @State private var sopForStaffTitle = ""
+//       @State private var isUploading = false
+//       @State private var showAlert = false
+//       @State private var alertTitle = ""
+//       @State private var alertMessage = ""
+//       @State private var isSuccess = false
+//       @State private var currentUploadingPDF = ""
+//       @State private var uploadProgress: Double = 0
+//    @State private var showingTemplateSOPs = false // Add this state variable
+//    @AppStorage("organizationId") private var organizationId: String = ""
+//       var body: some View {
+//           NavigationView {
+//               Form {
+//                   Picker("Select Folder", selection: $selectedFolder) {
+//                       ForEach(viewModel.uniqueCategories, id: \.self) { folder in
+//                           Text(folder).tag(folder)
+//                       }
+//                   }
+//                   
+//                   TextField("SOP Title", text: $sopForStaffTitle)
+//                       .padding()
+//                       .overlay(
+//                           RoundedRectangle(cornerRadius: 5)
+//                               .stroke(sopForStaffTitle.isEmpty ? Color.red : Color.clear, lineWidth: 1)
+//                       )
+//                   
+//                   if sopForStaffTitle.isEmpty {
+//                       Text("SOP Title is required")
+//                           .font(.caption)
+//                           .foregroundColor(.red)
+//                   }
+//                   Section(header: Text("Template SOPs")) {
+//                                       Button(action: {
+//                                           showingTemplateSOPs = true
+//                                       }) {
+//                                           HStack {
+//                                               Image(systemName: "doc.fill.badge.plus")
+//                                               Text("Browse Template SOPs")
+//                                           }
+//                                       }
+//                                   }
+//                                   
+//                   
+//                   Section(header: Text("Selected PDFs")) {
+//                       ForEach(selectedPDFs, id: \.self) { url in
+//                           Text(url.lastPathComponent)
+//                       }
+//                       .onDelete(perform: deletePDFs)
+//                   }
+//                   
+//                   Button("Select PDFs") {
+//                       showFileImporter = true
+//                   }
+//                   
+//                   Button("Upload PDFs") {
+//                       uploadPDFs()
+//                   }
+//                   .disabled(selectedPDFs.isEmpty || selectedFolder.isEmpty || sopForStaffTitle.isEmpty)
+//               }
+//               .navigationTitle("Add New PDFs")
+//               .navigationBarItems(trailing: Button("Done") {
+//                   presentationMode.wrappedValue.dismiss()
+//               })
+//               
+//               .fileImporter(
+//                   isPresented: $showFileImporter,
+//                   allowedContentTypes: [.pdf],
+//                   allowsMultipleSelection: true
+//               ) { result in
+//                   handleFileImport(result)
+//               }
+//               .alert(isPresented: $showAlert) {
+//                   Alert(title: Text(alertTitle),
+//                         message: Text(alertMessage),
+//                         dismissButton: .default(Text("OK")) {
+//                             if isSuccess {
+//                                 presentationMode.wrappedValue.dismiss()
+//                             }
+//                         })
+//               }
+//               .overlay(uploadProgressView)
+//               
+//               .onAppear {
+//                   if viewModel.uniqueCategories.isEmpty {
+//                       Task {
+//                           await viewModel.fetchCategories()
+//                       }
+//                   }
+//                   if !viewModel.uniqueCategories.isEmpty {
+//                       selectedFolder = viewModel.uniqueCategories[0]
+//                   }
+//               }
+//               
+//           }
+////           .sheet(isPresented: $showingTemplateSOPs) {
+////                          TempSOPListView()
+////                      }
+//       }
+//    
+//       
+//       @ViewBuilder
+//       private var uploadProgressView: some View {
+//           if isUploading {
+//               VStack {
+//                   Text(currentUploadingPDF)
+//                       .font(.headline)
+//                       .lineLimit(1)
+//                       .truncationMode(.middle)
+//                   GeometryReader { geometry in
+//                       ZStack(alignment: .leading) {
+//                           Rectangle()
+//                               .fill(Color.gray.opacity(0.3))
+//                               .frame(height: 20)
+//                           Rectangle()
+//                               .fill(Color.blue)
+//                               .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+//                       }
+//                       .cornerRadius(10)
+//                   }
+//                   .frame(height: 20)
+//                   Text("\(Int(uploadProgress * 100))%")
+//                       .font(.headline)
+//               }
+//               .padding()
+//               .frame(width: 300, height: 150)
+//               .background(Color.white)
+//               .cornerRadius(20)
+//               .shadow(radius: 10)
+//           }
+//       }
+//    
+////    private func handleFileImport(_ result: Result<[URL], Error>) {
+////        switch result {
+////        case .success(let urls):
+////            selectedPDFs.append(contentsOf: urls)
+////        case .failure(let error):
+////            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+////        }
+////    }
 //    private func handleFileImport(_ result: Result<[URL], Error>) {
 //        switch result {
 //        case .success(let urls):
-//            selectedPDFs.append(contentsOf: urls)
+//            for url in urls {
+//                // Start accessing a security-scoped resource.
+//                guard url.startAccessingSecurityScopedResource() else {
+//                    print("Failed to access the resource.")
+//                    continue
+//                }
+//                
+//                // Make sure you release the security-scoped resource when you finish.
+//                defer { url.stopAccessingSecurityScopedResource() }
+//                
+//                // Here, you can create a local copy of the file if needed
+//                // For now, we'll just add the URL to our selectedPDFs array
+//                selectedPDFs.append(url)
+//            }
 //        case .failure(let error):
 //            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
 //        }
 //    }
-    private func handleFileImport(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            for url in urls {
-                // Start accessing a security-scoped resource.
-                guard url.startAccessingSecurityScopedResource() else {
-                    print("Failed to access the resource.")
-                    continue
-                }
-                
-                // Make sure you release the security-scoped resource when you finish.
-                defer { url.stopAccessingSecurityScopedResource() }
-                
-                // Here, you can create a local copy of the file if needed
-                // For now, we'll just add the URL to our selectedPDFs array
-                selectedPDFs.append(url)
-            }
-        case .failure(let error):
-            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
-        }
-    }
-    private func deletePDFs(at offsets: IndexSet) {
-        selectedPDFs.remove(atOffsets: offsets)
-    }
-    ///workingg
-//    private func uploadPDFs() {
-//        isUploading = true
-//        uploadProgress = 0
-//        
-//        Task {
-//            do {
-//                for (index, url) in selectedPDFs.enumerated() {
-//                    let data = try Data(contentsOf: url)
-//                    let pdfName = url.deletingPathExtension().lastPathComponent
-//                    
-//                    let pdfCategory = PDFCategory(
-//                        id: UUID().uuidString,
-//                        nameOfCategory: selectedFolder,
-//                        SOPForStaffTittle: sopForStaffTitle,
-//                        pdfName: pdfName
-//                    )
-//                    
-//                    await MainActor.run {
-//                        currentUploadingPDF = pdfName
-//                    }
-//                    
-//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
-//                    
-//                    // Update progress after each PDF upload
-//                    await MainActor.run {
-//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
-//                    }
-//                }
-//                
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
-//                }
-//            } catch {
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
-//                }
-//            }
-//        }
+//    private func deletePDFs(at offsets: IndexSet) {
+//        selectedPDFs.remove(atOffsets: offsets)
 //    }
-    
-    
-    /// working on
-//    private func uploadPDFs() {
-//        Task {
-//            do {
-//                isUploading = true
-//                uploadProgress = 0
-//                
-//                for (index, url) in selectedPDFs.enumerated() {
-//                    let data = try Data(contentsOf: url)
-//                    let pdfName = url.deletingPathExtension().lastPathComponent
-//                    
-//                    let pdfCategory = PDFCategory(
-//                        id: UUID().uuidString,
-//                        nameOfCategory: selectedFolder,
-//                        SOPForStaffTittle: sopForStaffTitle,
-//                        pdfName: pdfName
-//                    )
-//                    
-//                    await MainActor.run {
-//                        currentUploadingPDF = pdfName
-//                    }
-//                   
-//                    
-//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
-//                    
-//                    await MainActor.run {
-//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
-//                    }
-//                }
-//                
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
-//                }
-//            } catch {
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
-//                }
-//            }
-//        }
-//    }
+//    ///workingg
+////    private func uploadPDFs() {
+////        isUploading = true
+////        uploadProgress = 0
+////        
+////        Task {
+////            do {
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////                    
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName
+////                    )
+////                    
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////                    
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////                    
+////                    // Update progress after each PDF upload
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////                
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
 //    
-    
+//    
+//    /// working on
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////                
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////                    
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName
+////                    )
+////                    
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////                   
+////                    
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////                    
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////                
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////    
+//    
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////                
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    guard url.startAccessingSecurityScopedResource() else {
+////                        print("Failed to access the resource.")
+////                        continue
+////                    }
+////                    defer { url.stopAccessingSecurityScopedResource() }
+////                    
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////                    
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName, organizationId: <#String#>
+////                    )
+////                    
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////                    
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////                    
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////                
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////  
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////                
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    guard url.startAccessingSecurityScopedResource() else {
+////                        print("Failed to access the resource.")
+////                        continue
+////                    }
+////                    defer { url.stopAccessingSecurityScopedResource() }
+////                    
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////                    
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName,
+////                        organizationId: organizationId
+////                    )
+////                    
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////                    
+////                    print("Uploading PDF: \(pdfName)")
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////                    print("Successfully uploaded PDF: \(pdfName)")
+////                    
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////                
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                print("Error during PDF upload: \(error.localizedDescription)")
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////    
+//    
 //    private func uploadPDFs() {
 //        Task {
 //            do {
 //                isUploading = true
 //                uploadProgress = 0
 //                
-//                for (index, url) in selectedPDFs.enumerated() {
-//                    guard url.startAccessingSecurityScopedResource() else {
-//                        print("Failed to access the resource.")
-//                        continue
-//                    }
-//                    defer { url.stopAccessingSecurityScopedResource() }
-//                    
-//                    let data = try Data(contentsOf: url)
-//                    let pdfName = url.deletingPathExtension().lastPathComponent
-//                    
-//                    let pdfCategory = PDFCategory(
-//                        id: UUID().uuidString,
-//                        nameOfCategory: selectedFolder,
-//                        SOPForStaffTittle: sopForStaffTitle,
-//                        pdfName: pdfName, organizationId: <#String#>
-//                    )
-//                    
-//                    await MainActor.run {
-//                        currentUploadingPDF = pdfName
-//                    }
-//                    
-//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
-//                    
-//                    await MainActor.run {
-//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
-//                    }
-//                }
+//                // Create SOPCategory first
+//                let sopCategory = SOPCategory(
+//                    id: UUID().uuidString,
+//                    nameOfCategory: selectedFolder,
+//                    SOPForStaffTittle: sopForStaffTitle,
+//                    sopPages: String(selectedPDFs.count), // Set number of PDFs as sopPages
+//                    organizationId: organizationId
+//                )
 //                
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
-//                }
-//            } catch {
-//                await MainActor.run {
-//                    isUploading = false
-//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
-//                }
-//            }
-//        }
-//    }
-//  
-//    private func uploadPDFs() {
-//        Task {
-//            do {
-//                isUploading = true
-//                uploadProgress = 0
+//                // Upload SOPCategory
+//                try await viewModel.uploadSOPCategory(sopCategory: sopCategory)
 //                
+//                // Now upload each PDF
 //                for (index, url) in selectedPDFs.enumerated() {
 //                    guard url.startAccessingSecurityScopedResource() else {
 //                        print("Failed to access the resource.")
@@ -650,90 +715,734 @@ struct PDFUploadView: View {
 //                
 //                await MainActor.run {
 //                    isUploading = false
-//                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                    showAlert(title: "Success", message: "All PDFs and categories uploaded successfully", isSuccess: true)
 //                }
 //            } catch {
-//                print("Error during PDF upload: \(error.localizedDescription)")
+//                print("Error during upload: \(error.localizedDescription)")
 //                await MainActor.run {
 //                    isUploading = false
-//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                    showAlert(title: "Error", message: "Error uploading: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    private func showAlert(title: String, message: String, isSuccess: Bool) {
+//        alertTitle = title
+//        alertMessage = message
+//        self.isSuccess = isSuccess
+//        showAlert = true
+//    }
+//}
+//
+
+
+///
+//struct PDFUploadView: View {
+//    @ObservedObject var viewModel: PDFCategoryViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var selectedPDFs: [URL] = []
+//    @State private var showFileImporter = false
+//    @State private var selectedFolder = ""
+//    @State private var sopForStaffTitle = ""
+//    @State private var isUploading = false
+//    @State private var showAlert = false
+//    @State private var alertTitle = ""
+//    @State private var alertMessage = ""
+//    @State private var isSuccess = false
+//    
+//    
+//    @State private var currentUploadingPDF = ""
+//    @State private var uploadProgress: Double = 0
+//    @State private var showingTemplateSOPs = false
+//    @State private var existingSOPTitles: [String] = []
+//    @AppStorage("organizationId") private var organizationId: String = ""
+//    
+//    // Add computed property for SOP title validation
+//    private var isTitleValid: Bool {
+//        !sopForStaffTitle.isEmpty && !existingSOPTitles.contains(sopForStaffTitle)
+//    }
+//    
+//    private var titleErrorMessage: String? {
+//        if sopForStaffTitle.isEmpty {
+//            return "SOP Title is required"
+//        } else if existingSOPTitles.contains(sopForStaffTitle) {
+//            return "This SOP Title already exists"
+//        }
+//        return nil
+//    }
+//    
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Section(header: Text("Category Selection")) {
+//                    Picker("Select Folder", selection: $selectedFolder) {
+//                        ForEach(viewModel.uniqueCategories, id: \.self) { folder in
+//                            Text(folder).tag(folder)
+//                        }
+//                    }
+//                    .onChange(of: selectedFolder) { newValue in
+//                        fetchExistingSOPTitles(for: newValue)
+//                    }
+//                    
+//                    TextField("SOP Title", text: $sopForStaffTitle)
+//                        .padding()
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 5)
+//                                .stroke(!isTitleValid ? Color.red : Color.clear, lineWidth: 1)
+//                        )
+//                    
+//                    if let errorMessage = titleErrorMessage {
+//                        Text(errorMessage)
+//                            .font(.caption)
+//                            .foregroundColor(.red)
+//                    }
+//                }
+//                
+//                Section(header: Text("Template SOPs")) {
+//                    Button(action: {
+//                        showingTemplateSOPs = true
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "doc.fill.badge.plus")
+//                            Text("Browse Template SOPs")
+//                        }
+//                    }
+//                }
+//                
+//                Section(header: Text("Selected PDFs")) {
+//                    ForEach(selectedPDFs, id: \.self) { url in
+//                        Text(url.lastPathComponent)
+//                    }
+//                    .onDelete(perform: deletePDFs)
+//                }
+//                
+//                Button("Select PDFs") {
+//                    showFileImporter = true
+//                }
+//                
+//                Button("Upload PDFs") {
+//                    uploadPDFs()
+//                }
+//                .disabled(!isTitleValid || selectedPDFs.isEmpty || selectedFolder.isEmpty)
+//            }
+//            .navigationTitle("Add New PDFs")
+//            .navigationBarItems(trailing: Button("Done") {
+//                presentationMode.wrappedValue.dismiss()
+//            })
+//            .fileImporter(
+//                isPresented: $showFileImporter,
+//                allowedContentTypes: [.pdf],
+//                allowsMultipleSelection: true
+//            ) { result in
+//                handleFileImport(result)
+//            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(title: Text(alertTitle),
+//                      message: Text(alertMessage),
+//                      dismissButton: .default(Text("OK")) {
+//                    if isSuccess {
+//                        presentationMode.wrappedValue.dismiss()
+//                    }
+//                })
+//            }
+//            .overlay(uploadProgressView)
+//            .onAppear {
+//                if viewModel.uniqueCategories.isEmpty {
+//                    Task {
+//                        await viewModel.fetchCategories()
+//                    }
+//                }
+//                if !viewModel.uniqueCategories.isEmpty {
+//                    selectedFolder = viewModel.uniqueCategories[0]
+//                    fetchExistingSOPTitles(for: selectedFolder)
 //                }
 //            }
 //        }
 //    }
 //    
+//    private func fetchExistingSOPTitles(for category: String) {
+//        Task {
+//            do {
+//                let sopCategories = try await viewModel.getCategoryList(for: organizationId, title: category)
+//                await MainActor.run {
+//                    existingSOPTitles = sopCategories.map { $0.SOPForStaffTittle }
+//                }
+//            } catch {
+//                print("Error fetching SOP titles: \(error)")
+//            }
+//        }
+//    }
+//
+////           .sheet(isPresented: $showingTemplateSOPs) {
+////                          TempSOPListView()
+////                      }
+//       
+//    
+//       
+//       @ViewBuilder
+//       private var uploadProgressView: some View {
+//           if isUploading {
+//               VStack {
+//                   Text(currentUploadingPDF)
+//                       .font(.headline)
+//                       .lineLimit(1)
+//                       .truncationMode(.middle)
+//                   GeometryReader { geometry in
+//                       ZStack(alignment: .leading) {
+//                           Rectangle()
+//                               .fill(Color.gray.opacity(0.3))
+//                               .frame(height: 20)
+//                           Rectangle()
+//                               .fill(Color.blue)
+//                               .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+//                       }
+//                       .cornerRadius(10)
+//                   }
+//                   .frame(height: 20)
+//                   Text("\(Int(uploadProgress * 100))%")
+//                       .font(.headline)
+//               }
+//               .padding()
+//               .frame(width: 300, height: 150)
+//               .background(Color.white)
+//               .cornerRadius(20)
+//               .shadow(radius: 10)
+//           }
+//       }
+//
+////    private func handleFileImport(_ result: Result<[URL], Error>) {
+////        switch result {
+////        case .success(let urls):
+////            selectedPDFs.append(contentsOf: urls)
+////        case .failure(let error):
+////            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+////        }
+////    }
+//    private func handleFileImport(_ result: Result<[URL], Error>) {
+//        switch result {
+//        case .success(let urls):
+//            for url in urls {
+//                // Start accessing a security-scoped resource.
+//                guard url.startAccessingSecurityScopedResource() else {
+//                    print("Failed to access the resource.")
+//                    continue
+//                }
+//                
+//                // Make sure you release the security-scoped resource when you finish.
+//                defer { url.stopAccessingSecurityScopedResource() }
+//                
+//                // Here, you can create a local copy of the file if needed
+//                // For now, we'll just add the URL to our selectedPDFs array
+//                selectedPDFs.append(url)
+//            }
+//        case .failure(let error):
+//            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+//        }
+//    }
+//    private func deletePDFs(at offsets: IndexSet) {
+//        selectedPDFs.remove(atOffsets: offsets)
+//    }
+//    ///workingg
+////    private func uploadPDFs() {
+////        isUploading = true
+////        uploadProgress = 0
+////
+////        Task {
+////            do {
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName
+////                    )
+////
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////
+////                    // Update progress after each PDF upload
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+//    
+//    
+//    /// working on
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName
+////                    )
+////
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////
+////
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////
+//    
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    guard url.startAccessingSecurityScopedResource() else {
+////                        print("Failed to access the resource.")
+////                        continue
+////                    }
+////                    defer { url.stopAccessingSecurityScopedResource() }
+////
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName, organizationId: <#String#>
+////                    )
+////
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////
+////    private func uploadPDFs() {
+////        Task {
+////            do {
+////                isUploading = true
+////                uploadProgress = 0
+////
+////                for (index, url) in selectedPDFs.enumerated() {
+////                    guard url.startAccessingSecurityScopedResource() else {
+////                        print("Failed to access the resource.")
+////                        continue
+////                    }
+////                    defer { url.stopAccessingSecurityScopedResource() }
+////
+////                    let data = try Data(contentsOf: url)
+////                    let pdfName = url.deletingPathExtension().lastPathComponent
+////
+////                    let pdfCategory = PDFCategory(
+////                        id: UUID().uuidString,
+////                        nameOfCategory: selectedFolder,
+////                        SOPForStaffTittle: sopForStaffTitle,
+////                        pdfName: pdfName,
+////                        organizationId: organizationId
+////                    )
+////
+////                    await MainActor.run {
+////                        currentUploadingPDF = pdfName
+////                    }
+////
+////                    print("Uploading PDF: \(pdfName)")
+////                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+////                    print("Successfully uploaded PDF: \(pdfName)")
+////
+////                    await MainActor.run {
+////                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+////                    }
+////                }
+////
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+////                }
+////            } catch {
+////                print("Error during PDF upload: \(error.localizedDescription)")
+////                await MainActor.run {
+////                    isUploading = false
+////                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+////                }
+////            }
+////        }
+////    }
+////
+//    
+//    private func uploadPDFs() {
+//        Task {
+//            do {
+//                isUploading = true
+//                uploadProgress = 0
+//                
+//                // Create SOPCategory first
+//                let sopCategory = SOPCategory(
+//                    id: UUID().uuidString,
+//                    nameOfCategory: selectedFolder,
+//                    SOPForStaffTittle: sopForStaffTitle,
+//                    sopPages: String(selectedPDFs.count), // Set number of PDFs as sopPages
+//                    organizationId: organizationId
+//                )
+//                
+//                // Upload SOPCategory
+//                try await viewModel.uploadSOPCategory(sopCategory: sopCategory)
+//                
+//                // Now upload each PDF
+//                for (index, url) in selectedPDFs.enumerated() {
+//                    guard url.startAccessingSecurityScopedResource() else {
+//                        print("Failed to access the resource.")
+//                        continue
+//                    }
+//                    defer { url.stopAccessingSecurityScopedResource() }
+//                    
+//                    let data = try Data(contentsOf: url)
+//                    let pdfName = url.deletingPathExtension().lastPathComponent
+//                    
+//                    let pdfCategory = PDFCategory(
+//                        id: UUID().uuidString,
+//                        nameOfCategory: selectedFolder,
+//                        SOPForStaffTittle: sopForStaffTitle,
+//                        pdfName: pdfName,
+//                        organizationId: organizationId
+//                    )
+//                    
+//                    await MainActor.run {
+//                        currentUploadingPDF = pdfName
+//                    }
+//                    
+//                    print("Uploading PDF: \(pdfName)")
+//                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
+//                    print("Successfully uploaded PDF: \(pdfName)")
+//                    
+//                    await MainActor.run {
+//                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
+//                    }
+//                }
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Success", message: "All PDFs and categories uploaded successfully", isSuccess: true)
+//                }
+//            } catch {
+//                print("Error during upload: \(error.localizedDescription)")
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    private func showAlert(title: String, message: String, isSuccess: Bool) {
+//        alertTitle = title
+//        alertMessage = message
+//        self.isSuccess = isSuccess
+//        showAlert = true
+//    }
+//}
+//
+//import SwiftUI
+//import UniformTypeIdentifiers
+
+struct PDFUploadView: View {
+    @ObservedObject var viewModel: PDFCategoryViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @State private var selectedPDFs: [URL] = []
+    @State private var showFileImporter = false
+    @State private var selectedFolder = ""
+    @State private var sopForStaffTitle = ""
+    @State private var isUploading = false
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var isSuccess = false
+    @State private var currentUploadingPDF = ""
+    @State private var uploadProgress: Double = 0
+    @State private var showingTemplateSOPs = false
+    @State private var existingSOPTitles: [String] = []
+    @State private var isNewSOP = true // Toggle between new and existing SOP
+    @State private var selectedExistingSOP = "" // For existing SOP selection
+    @AppStorage("organizationId") private var organizationId: String = ""
+    
+    private var isTitleValid: Bool {
+        if isNewSOP {
+            return !sopForStaffTitle.isEmpty && !existingSOPTitles.contains(sopForStaffTitle)
+        } else {
+            return !selectedExistingSOP.isEmpty
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Category Selection")) {
+                    Picker("Select Folder", selection: $selectedFolder) {
+                        ForEach(viewModel.uniqueCategories, id: \.self) { folder in
+                            Text(folder).tag(folder)
+                        }
+                    }
+                    .onChange(of: selectedFolder) { newValue in
+                        fetchExistingSOPTitles(for: newValue)
+                    }
+                }
+                
+                Section(header: Text("SOP Selection")) {
+                    Picker("SOP Type", selection: $isNewSOP) {
+                        Text("New SOP").tag(true)
+                        Text("Existing SOP").tag(false)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    
+                    if isNewSOP {
+                        TextField("New SOP Title", text: $sopForStaffTitle)
+                            .padding()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(!isTitleValid ? Color.red : Color.clear, lineWidth: 1)
+                            )
+                        
+                        if !sopForStaffTitle.isEmpty && existingSOPTitles.contains(sopForStaffTitle) {
+                            Text("This SOP Title already exists")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                    } else {
+                        Picker("Select Existing SOP", selection: $selectedExistingSOP) {
+                            Text("Select an SOP").tag("")
+                            ForEach(existingSOPTitles, id: \.self) { title in
+                                Text(title).tag(title)
+                            }
+                        }
+                    }
+                }
+                
+                Section(header: Text("Template SOPs")) {
+                    Button(action: {
+                        showingTemplateSOPs = true
+                    }) {
+                        HStack {
+                            Image(systemName: "doc.fill.badge.plus")
+                            Text("Browse Template SOPs")
+                        }
+                    }
+                }
+                
+                Section(header: Text("Selected PDFs")) {
+                    if selectedPDFs.isEmpty {
+                        Text("No PDFs selected")
+                            .foregroundColor(.gray)
+                    } else {
+                        ForEach(selectedPDFs, id: \.self) { url in
+                            Text(url.lastPathComponent)
+                        }
+                        .onDelete(perform: deletePDFs)
+                    }
+                }
+                
+                Section {
+                    Button("Select PDFs") {
+                        showFileImporter = true
+                    }
+                    
+                    Button("Upload PDFs") {
+                        uploadPDFs()
+                    }
+                    .disabled(!isTitleValid || selectedPDFs.isEmpty || selectedFolder.isEmpty)
+                }
+            }
+            .navigationTitle("Add New PDFs")
+            .navigationBarItems(trailing: Button("Done") {
+                presentationMode.wrappedValue.dismiss()
+            })
+            .fileImporter(
+                isPresented: $showFileImporter,
+                allowedContentTypes: [.pdf],
+                allowsMultipleSelection: true
+            ) { result in
+                handleFileImport(result)
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text(alertTitle),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("OK")) {
+                        if isSuccess {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                )
+            }
+            .overlay(uploadProgressView)
+            .onAppear {
+                if viewModel.uniqueCategories.isEmpty {
+                    Task {
+                        await viewModel.fetchCategories()
+                    }
+                }
+                if !viewModel.uniqueCategories.isEmpty {
+                    selectedFolder = viewModel.uniqueCategories[0]
+                    fetchExistingSOPTitles(for: selectedFolder)
+                }
+            }
+        }
+    }
+    
+    private func fetchExistingSOPTitles(for category: String) {
+        Task {
+            do {
+                let sopCategories = try await viewModel.getCategoryList(for: organizationId, title: category)
+                await MainActor.run {
+                    existingSOPTitles = sopCategories.map { $0.SOPForStaffTittle }
+                }
+            } catch {
+                print("Error fetching SOP titles: \(error)")
+            }
+        }
+    }
     
     private func uploadPDFs() {
         Task {
             do {
                 isUploading = true
                 uploadProgress = 0
+                let title = isNewSOP ? sopForStaffTitle : selectedExistingSOP
                 
-                // Create SOPCategory first
-                let sopCategory = SOPCategory(
-                    id: UUID().uuidString,
-                    nameOfCategory: selectedFolder,
-                    SOPForStaffTittle: sopForStaffTitle,
-                    sopPages: String(selectedPDFs.count), // Set number of PDFs as sopPages
-                    organizationId: organizationId
+                try await viewModel.uploadAllPDFs(
+                    selectedPDFs: selectedPDFs,
+                    selectedTemplates: [],
+                    folder: selectedFolder,
+                    title: title,
+                    onProgress: { progress, currentFile in
+                        Task { @MainActor in
+                            uploadProgress = progress
+                            currentUploadingPDF = currentFile
+                        }
+                    }
                 )
                 
-                // Upload SOPCategory
-                try await viewModel.uploadSOPCategory(sopCategory: sopCategory)
-                
-                // Now upload each PDF
-                for (index, url) in selectedPDFs.enumerated() {
-                    guard url.startAccessingSecurityScopedResource() else {
-                        print("Failed to access the resource.")
-                        continue
-                    }
-                    defer { url.stopAccessingSecurityScopedResource() }
-                    
-                    let data = try Data(contentsOf: url)
-                    let pdfName = url.deletingPathExtension().lastPathComponent
-                    
-                    let pdfCategory = PDFCategory(
-                        id: UUID().uuidString,
-                        nameOfCategory: selectedFolder,
-                        SOPForStaffTittle: sopForStaffTitle,
-                        pdfName: pdfName,
-                        organizationId: organizationId
-                    )
-                    
-                    await MainActor.run {
-                        currentUploadingPDF = pdfName
-                    }
-                    
-                    print("Uploading PDF: \(pdfName)")
-                    try await viewModel.uploadPDF(data: data, category: pdfCategory)
-                    print("Successfully uploaded PDF: \(pdfName)")
-                    
-                    await MainActor.run {
-                        uploadProgress = Double(index + 1) / Double(selectedPDFs.count)
-                    }
-                }
-                
                 await MainActor.run {
                     isUploading = false
-                    showAlert(title: "Success", message: "All PDFs and categories uploaded successfully", isSuccess: true)
+                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
                 }
             } catch {
-                print("Error during upload: \(error.localizedDescription)")
                 await MainActor.run {
                     isUploading = false
-                    showAlert(title: "Error", message: "Error uploading: \(error.localizedDescription)", isSuccess: false)
+                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
                 }
             }
         }
     }
+    
+    private func handleFileImport(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            for url in urls {
+                guard url.startAccessingSecurityScopedResource() else { continue }
+                defer { url.stopAccessingSecurityScopedResource() }
+                selectedPDFs.append(url)
+            }
+        case .failure(let error):
+            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+        }
+    }
+    
+    private func deletePDFs(at offsets: IndexSet) {
+        selectedPDFs.remove(atOffsets: offsets)
+    }
+    
     private func showAlert(title: String, message: String, isSuccess: Bool) {
         alertTitle = title
         alertMessage = message
         self.isSuccess = isSuccess
         showAlert = true
     }
+    
+    private var uploadProgressView: some View {
+        Group {
+            if isUploading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    VStack(spacing: 20) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        Text("Uploading \(currentUploadingPDF)...")
+                            .foregroundColor(.white)
+                        Text("\(Int(uploadProgress * 100))%")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                    }
+                    .padding()
+                    .background(Color(.systemBackground))
+                    .cornerRadius(10)
+                    .shadow(radius: 10)
+                }
+            }
+        }
+    }
 }
 
+//
 struct UploadProgressView: View {
     let progress: Double
     let currentPDF: String

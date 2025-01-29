@@ -10,96 +10,96 @@ import SwiftUI
 ///
 
 
-struct QuizListView: View {
-    @ObservedObject var viewModel: QuizListViewModel
-       @State private var showingEditQuizView = false
-       @State private var selectedQuiz: Quiz?
-       @State private var showingDeleteAlert = false
-       @State private var quizToDelete: Quiz?
-       @State private var loginViewModel = LoginViewModel()
-       @State private var refreshID = UUID()
-       @State private var selectedQuizID: String?
-       @State private var searchText = ""
-       
-       var body: some View {
-           
-               ZStack {
-                   Color(.systemBackground)
-                       .ignoresSafeArea()
-                   
-                   VStack(spacing: 0) {
-                       QuizSearchBar(text: $searchText)
-                           .padding()
-                       
-                       ScrollView {
-                           LazyVStack(spacing: 16) {
-                               ForEach(filteredQuizzes) { quiz in
-                                   ModernQuizCard(
-                                       quiz: quiz,
-                                       onTap: {
-                                           selectedQuiz = quiz
-                                           showingEditQuizView = true
-                                       },
-                                       onDelete: {
-                                           quizToDelete = quiz
-                                           showingDeleteAlert = true
-                                       }
-                                   )
-                                   .padding(.horizontal)
-                               }
-                           }
-                           .padding(.vertical)
-                       }
-                       .refreshable {
-                           await viewModel.fetchQuizzesAsync()
-                       }
-                   }
-               }
-               .navigationTitle("Quizzes")
-               .sheet(item: $selectedQuiz) { quiz in  // Change to sheet(item:)
-                   EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
-               }
-               .alert("Delete Quiz", isPresented: $showingDeleteAlert) {
-                   Button("Cancel", role: .cancel) {}
-                   Button("Delete", role: .destructive) {
-                       if let quiz = quizToDelete {
-                           Task {
-                               await deleteQuiz(quiz)
-                           }
-                       }
-                   }
-               }
-               .toolbar {
-                   ToolbarItem(placement: .navigationBarTrailing) {
-                       Button("Sign Out") {
-                           loginViewModel.logOutUser()
-                       }
-                   }
-               }
-           
-       }
-    
-  
-    
-    private func deleteQuiz(_ quiz: Quiz) async {
-           do {
-               try await viewModel.deleteQuiz(quiz)
-               quizToDelete = nil
-           } catch {
-               print("Error deleting quiz: \(error)")
-           }
-       }
-       
-       private var filteredQuizzes: [Quiz] {
-           if searchText.isEmpty {
-               return viewModel.quizzes
-           }
-           return viewModel.quizzes.filter { quiz in
-               quiz.info.title.localizedCaseInsensitiveContains(searchText) ||
-               quiz.quizCategory.localizedCaseInsensitiveContains(searchText)
-           }
-       }
-}
+//struct QuizListView: View {
+//    @ObservedObject var viewModel: QuizListViewModel
+//       @State private var showingEditQuizView = false
+//       @State private var selectedQuiz: Quiz?
+//       @State private var showingDeleteAlert = false
+//       @State private var quizToDelete: Quiz?
+//       @State private var loginViewModel = LoginViewModel()
+//       @State private var refreshID = UUID()
+//       @State private var selectedQuizID: String?
+//       @State private var searchText = ""
+//       
+//       var body: some View {
+//           
+//               ZStack {
+//                   Color(.systemBackground)
+//                       .ignoresSafeArea()
+//                   
+//                   VStack(spacing: 0) {
+//                       QuizSearchBar(text: $searchText)
+//                           .padding()
+//                       
+//                       ScrollView {
+//                           LazyVStack(spacing: 16) {
+//                               ForEach(filteredQuizzes) { quiz in
+//                                   ModernQuizCard(
+//                                       quiz: quiz,
+//                                       onTap: {
+//                                           selectedQuiz = quiz
+//                                           showingEditQuizView = true
+//                                       },
+//                                       onDelete: {
+//                                           quizToDelete = quiz
+//                                           showingDeleteAlert = true
+//                                       }
+//                                   )
+//                                   .padding(.horizontal)
+//                               }
+//                           }
+//                           .padding(.vertical)
+//                       }
+//                       .refreshable {
+//                           await viewModel.fetchQuizzesAsync()
+//                       }
+//                   }
+//               }
+//               .navigationTitle("Quizzes")
+//               .sheet(item: $selectedQuiz) { quiz in  // Change to sheet(item:)
+//                   EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+//               }
+//               .alert("Delete Quiz", isPresented: $showingDeleteAlert) {
+//                   Button("Cancel", role: .cancel) {}
+//                   Button("Delete", role: .destructive) {
+//                       if let quiz = quizToDelete {
+//                           Task {
+//                               await deleteQuiz(quiz)
+//                           }
+//                       }
+//                   }
+//               }
+//               .toolbar {
+//                   ToolbarItem(placement: .navigationBarTrailing) {
+//                       Button("Sign Out") {
+//                           loginViewModel.logOutUser()
+//                       }
+//                   }
+//               }
+//           
+//       }
+//    
+//  
+//    
+//    private func deleteQuiz(_ quiz: Quiz) async {
+//           do {
+//               try await viewModel.deleteQuiz(quiz)
+//               quizToDelete = nil
+//           } catch {
+//               print("Error deleting quiz: \(error)")
+//           }
+//       }
+//       
+//       private var filteredQuizzes: [Quiz] {
+//           if searchText.isEmpty {
+//               return viewModel.quizzes
+//           }
+//           return viewModel.quizzes.filter { quiz in
+//               quiz.info.title.localizedCaseInsensitiveContains(searchText) ||
+//               quiz.quizCategory.localizedCaseInsensitiveContains(searchText)
+//           }
+//       }
+//}
 
 struct ModernQuizCard: View {
     let quiz: Quiz
@@ -436,35 +436,202 @@ struct QuizRowView: View {
         }
     }
 }
+//class QuizListViewModel: ObservableObject {
+//    
+//    @Published var quizzes: [Quiz] = []
+//        private let quizManager = QuizManager.shared
+//        @AppStorage("organizationId") private var organizationId: String = ""
+//        
+//        init() {
+//            fetchQuizzes()
+//        }
+//        
+//        func fetchQuizzes() {
+//            Task {
+//                await fetchQuizzesAsync()
+//            }
+//        }
+//        
+//        @MainActor
+//        func fetchQuizzesAsync() async {
+//            do {
+//                self.quizzes = try await quizManager.getAllQuizzes(for: organizationId)
+//            } catch {
+//                print("Error fetching quizzes: \(error)")
+//            }
+//        }
+//        
+//        func deleteQuiz(_ quiz: Quiz) async throws {
+//            try await quizManager.deleteQuiz(quiz)
+//            await fetchQuizzesAsync()
+//        }
+//    
+//    
+//}
+
+
 class QuizListViewModel: ObservableObject {
-    
     @Published var quizzes: [Quiz] = []
-        private let quizManager = QuizManager.shared
-        @AppStorage("organizationId") private var organizationId: String = ""
-        
-        init() {
-            fetchQuizzes()
-        }
-        
-        func fetchQuizzes() {
-            Task {
-                await fetchQuizzesAsync()
-            }
-        }
-        
-        @MainActor
-        func fetchQuizzesAsync() async {
-            do {
-                self.quizzes = try await quizManager.getAllQuizzes(for: organizationId)
-            } catch {
-                print("Error fetching quizzes: \(error)")
-            }
-        }
-        
-        func deleteQuiz(_ quiz: Quiz) async throws {
-            try await quizManager.deleteQuiz(quiz)
+    @Published var deletionCode = ""
+    @Published var showingDeleteVerification = false
+    @Published var showingIncorrectCodeError = false
+    @Published var quizToDelete: Quiz?
+    private let correctDeletionCode = "12345"
+    private let quizManager = QuizManager.shared
+    @AppStorage("organizationId") private var organizationId: String = ""
+    
+    init() {
+        fetchQuizzes()
+    }
+    
+    func fetchQuizzes() {
+        Task {
             await fetchQuizzesAsync()
         }
+    }
     
+    @MainActor
+    func fetchQuizzesAsync() async {
+        do {
+            self.quizzes = try await quizManager.getAllQuizzes(for: organizationId)
+        } catch {
+            print("Error fetching quizzes: \(error)")
+        }
+    }
     
+    func verifyAndDelete() {
+        if deletionCode == correctDeletionCode {
+            if let quiz = quizToDelete {
+                Task {
+                    do {
+                        try await deleteQuiz(quiz)
+                    } catch {
+                        print("Error deleting quiz: \(error)")
+                    }
+                }
+            }
+        } else {
+            showingIncorrectCodeError = true
+        }
+        deletionCode = ""
+        showingDeleteVerification = false
+    }
+    
+    func deleteQuiz(_ quiz: Quiz) async throws {
+        try await quizManager.deleteQuiz(quiz)
+        await fetchQuizzesAsync()
+    }
+}
+
+struct QuizListView: View {
+    @ObservedObject var viewModel: QuizListViewModel
+    @State private var showingEditQuizView = false
+    @State private var selectedQuiz: Quiz?
+    @State private var showingDeleteAlert = false
+    @State private var quizToDelete: Quiz?
+    @State private var loginViewModel = LoginViewModel()
+    @State private var refreshID = UUID()
+    @State private var selectedQuizID: String?
+    @State private var searchText = ""
+    
+    // Add new state variables for verification
+    @State private var deletionCode = ""
+    @State private var showingDeleteVerification = false
+    @State private var showingIncorrectCodeError = false
+    
+    private let correctDeletionCode = "12345" // This should match your PDFCategoryListView code
+    
+    var body: some View {
+        ZStack {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                QuizSearchBar(text: $searchText)
+                    .padding()
+                
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(filteredQuizzes) { quiz in
+                            ModernQuizCard(
+                                quiz: quiz,
+                                onTap: {
+                                    selectedQuiz = quiz
+                                    showingEditQuizView = true
+                                },
+                                onDelete: {
+                                    quizToDelete = quiz
+                                    showingDeleteVerification = true
+                                }
+                            )
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.vertical)
+                }
+                .refreshable {
+                    await viewModel.fetchQuizzesAsync()
+                }
+            }
+        }
+        .navigationTitle("Quizzes")
+        .sheet(item: $selectedQuiz) { quiz in
+            EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+        }
+        // Add verification alert
+        .alert("Verification Required", isPresented: $showingDeleteVerification) {
+            TextField("Enter deletion code", text: $deletionCode)
+                .keyboardType(.numberPad)
+            Button("Delete", role: .destructive) {
+                verifyAndDelete()
+            }
+            Button("Cancel", role: .cancel) {
+                deletionCode = ""
+            }
+        } message: {
+            Text("Enter the deletion code to remove this quiz and all its contents.")
+        }
+        // Add incorrect code alert
+        .alert("Incorrect Code", isPresented: $showingIncorrectCodeError) {
+            Button("OK", role: .cancel) {
+                deletionCode = ""
+            }
+        } message: {
+            Text("The deletion code entered was incorrect. Please try again.")
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Sign Out") {
+                    loginViewModel.logOutUser()
+                }
+            }
+        }
+    }
+    
+    private var filteredQuizzes: [Quiz] {
+        if searchText.isEmpty {
+            return viewModel.quizzes
+        }
+        return viewModel.quizzes.filter { quiz in
+            quiz.info.title.localizedCaseInsensitiveContains(searchText) ||
+            quiz.quizCategory.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+    
+    private func verifyAndDelete() {
+        if deletionCode == correctDeletionCode {
+            if let quiz = quizToDelete {
+                Task {
+                    do {
+                        try await viewModel.deleteQuiz(quiz)
+                    } catch {
+                        print("Error deleting quiz: \(error)")
+                    }
+                }
+            }
+        } else {
+            showingIncorrectCodeError = true
+        }
+        deletionCode = ""
+    }
 }

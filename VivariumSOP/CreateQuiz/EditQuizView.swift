@@ -236,6 +236,440 @@ import FirebaseFirestore
 
 
 
+//@MainActor
+//class EditQuizViewModel: ObservableObject {
+//    @Published var quizTitle: String
+//    @Published var quizDescription: String
+//    @Published var quizCategory: String
+//    @Published var quizCategoryID: String
+//    @Published var quizDueDate: Date
+//    @Published var questions: [Question]
+//    @Published var selectedAccountTypes: Set<String>
+//    @Published var availableUsers: [User] = []
+//    @Published var selectedUserIDs: Set<String> = []
+//    @Published var isLoadingUsers = false
+//    @Published var userLoadingError: String?
+//    
+//     @Published var excludedUsers: Set<String> = []
+//     @Published var individuallyAssignedUsers: Set<String> = []
+//    
+//    private let userManager = UserManager.shared
+//    private let quizManager = QuizManager.shared
+//    private let quizId: String
+//    @Published var renewalFrequency: Quiz.RenewalFrequency?
+//    @Published var nextRenewalDate: Date?
+//    @Published var customRenewalDate: Date = Date()
+//    @AppStorage("organizationId") private var organizationId: String = ""
+//    var availableAccountTypes: [AccountType] {
+//        AccountType.allCases
+//    }
+//    func updateRenewalFrequency(_ newValue: Quiz.RenewalFrequency?) {
+//           print("Attempting to update renewal frequency to: \(String(describing: newValue))")
+//           self.renewalFrequency = newValue
+//           print("Renewal frequency is now: \(String(describing: self.renewalFrequency))")
+//       }
+//    init(quiz: Quiz) {
+////        self.quizId = quiz.id
+////        self.quizTitle = quiz.info.title
+////        self.quizDescription = quiz.info.description
+////        self.quizCategory = quiz.quizCategory
+////        self.quizCategoryID = quiz.quizCategoryID
+////        self.quizDueDate = quiz.dueDate ?? Date()
+////        self.selectedAccountTypes = Set(quiz.accountTypes)
+////        self.questions = []
+////        
+////        Task {
+////            await fetchQuestions()
+////            await fetchAssignedUsers()
+////            await fetchAvailableUsers()
+////        }
+//        
+//        
+//        self.quizId = quiz.id
+//            self.quizTitle = quiz.info.title
+//            self.quizDescription = quiz.info.description
+//            self.quizCategory = quiz.quizCategory
+//            self.quizCategoryID = quiz.quizCategoryID
+//            self.quizDueDate = quiz.dueDate ?? Date()
+//            self.selectedAccountTypes = Set(quiz.accountTypes)
+//            self.questions = []
+//           // self.renewalFrequency = quiz.renewalFrequency
+//               // self.nextRenewalDate = quiz.nextRenewalDates ?? Date()
+//        
+//        self.renewalFrequency = quiz.renewalFrequency
+//        
+//        self.nextRenewalDate = quiz.nextRenewalDates
+//        self.customRenewalDate = quiz.nextRenewalDates ?? Date()
+//          print("Initializing EditQuizViewModel with quiz: \(quiz.id)")
+//          
+//          Task {
+//              await fetchQuestions()
+//              await fetchAssignedUsers()
+//              await fetchAvailableUsers()
+//          }
+//    }
+//    
+//    func fetchQuestions() async {
+//        do {
+//            self.questions = try await quizManager.getQuestionsForQuiz(quizId: quizId)
+//        } catch {
+//            print("Error fetching questions: \(error)")
+//        }
+//    }
+//    
+//    func fetchAssignedUsers() async {
+//        do {
+//            let assignedUsers = try await userManager.getUsersWithCompletedQuizzes(quizId: quizId)
+//            self.selectedUserIDs = Set(assignedUsers.compactMap { $0.id })
+//        } catch {
+//            print("Error fetching assigned users: \(error)")
+//        }
+//    }
+//    ///workingg
+////    func fetchAvailableUsers() async {
+////        isLoadingUsers = true
+////        userLoadingError = nil
+////        do {
+////            self.availableUsers = try await userManager.getAllUserss()
+////            self.isLoadingUsers = false
+////        } catch {
+////            print("Error fetching users: \(error.localizedDescription)")
+////            self.availableUsers = []
+////            self.isLoadingUsers = false
+////            self.userLoadingError = error.localizedDescription
+////        }
+////    }
+//    
+////    func fetchAvailableUsers() async {
+////        print("Starting to fetch available users")
+////        isLoadingUsers = true
+////        userLoadingError = nil
+////        do {
+////            self.availableUsers = try await userManager.getAllUserss()
+////            print("Fetched \(self.availableUsers.count) users")
+////            await MainActor.run {
+////                self.isLoadingUsers = false
+////            }
+////        } catch {
+////            print("Error fetching users: \(error.localizedDescription)")
+////            await MainActor.run {
+////                self.availableUsers = []
+////                self.isLoadingUsers = false
+////                self.userLoadingError = error.localizedDescription
+////            }
+////        }
+////    }
+//    
+////    @MainActor
+////       func fetchAvailableUsers() async {
+////           print("Starting to fetch available users")
+////           isLoadingUsers = true
+////           userLoadingError = nil
+////           do {
+////               self.availableUsers = try await userManager.getAllUserss()
+////               print("Fetched \(self.availableUsers.count) users")
+////               self.isLoadingUsers = false
+////           } catch {
+////               print("Error fetching users: \(error.localizedDescription)")
+////               self.availableUsers = []
+////               self.isLoadingUsers = false
+////               self.userLoadingError = error.localizedDescription
+////           }
+////       }
+//    
+//    //
+//    
+////    func toggleUserSelection(_ userId: String) {
+////        if selectedUserIDs.contains(userId) {
+////            selectedUserIDs.remove(userId)
+////        } else {
+////            selectedUserIDs.insert(userId)
+////        }
+////    }
+//    /// working method 
+////    func updateQuiz() async throws {
+////        let updatedQuiz = Quiz(
+////            id: quizId,
+////            info: Info(
+////                title: quizTitle,
+////                description: quizDescription,
+////                peopleAttended: 0,
+////                rules: [""]
+////            ),
+////            quizCategory: quizCategory,
+////            quizCategoryID: quizCategoryID,
+////            accountTypes: Array(selectedAccountTypes),
+////            dateCreated: nil,
+////            dueDate: quizDueDate
+////        )
+////        
+////        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+////        
+////        // Assign quiz to selected users
+////        for userID in selectedUserIDs {
+////            try await userManager.assignQuizToUser(userID: userID, quizID: quizId, dueDate: quizDueDate)
+////        }
+////        
+////        // Remove quiz from unselected users
+////        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+////        for userID in unselectedUsers {
+////            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+////        }
+////    }
+////    func updateQuiz() async throws {
+////        let updatedQuiz = Quiz(
+////            id: quizId,
+////            info: Info(
+////                title: quizTitle,
+////                description: quizDescription,
+////                peopleAttended: 0,
+////                rules: [""]
+////            ),
+////            quizCategory: quizCategory,
+////            quizCategoryID: quizCategoryID,
+////            accountTypes: Array(selectedAccountTypes),
+////            dateCreated: nil,
+////            dueDate: quizDueDate,
+////            renewalFrequency: renewalFrequency,
+////            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil
+////        )
+////        
+////        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+////        
+////        // Assign quiz to selected users
+////        for userID in selectedUserIDs {
+////            if let user = try await userManager.fetchUsers(by: userID) {
+////                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+////            }
+////        }
+////    }
+////    func toggleUserSelection(_ userId: String) {
+////            if selectedUserIDs.contains(userId) {
+////                selectedUserIDs.remove(userId)
+////            } else {
+////                selectedUserIDs.insert(userId)
+////            }
+////            objectWillChange.send()
+////        }
+////    
+////    func toggleAccountType(_ accountType: String) {
+////           if selectedAccountTypes.contains(accountType) {
+////               selectedAccountTypes.remove(accountType)
+////               // Deselect users with this account type
+////               selectedUserIDs = selectedUserIDs.filter { userID in
+////                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
+////               }
+////           } else {
+////               selectedAccountTypes.insert(accountType)
+////               // Select users with this account type
+////               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
+////               selectedUserIDs.formUnion(usersToAdd)
+////           }
+////           objectWillChange.send()
+////       }
+//    
+//    
+//    func fetchAvailableUsers() async {
+//            print("Starting to fetch available users")
+//            isLoadingUsers = true
+//            userLoadingError = nil
+//            do {
+//                self.availableUsers = try await userManager.getAllUsers()
+//                print("Fetched \(self.availableUsers.count) users")
+//                // Update selectedUserIDs based on the fetched users and the current quiz
+//                updateSelectedUsers()
+//                self.isLoadingUsers = false
+//            } catch {
+//                print("Error fetching users: \(error.localizedDescription)")
+//                self.availableUsers = []
+//                self.isLoadingUsers = false
+//                self.userLoadingError = error.localizedDescription
+//            }
+//        }
+//    func fetchQuizDetails() async {
+//        do {
+//            let fetchedQuiz = try await quizManager.getQuiz(id: quizId)
+//            await MainActor.run {
+//                self.renewalFrequency = fetchedQuiz.renewalFrequency
+//                self.nextRenewalDate = fetchedQuiz.nextRenewalDates
+//                self.customRenewalDate = fetchedQuiz.nextRenewalDates ?? Date()
+//            }
+//        } catch {
+//            print("Error fetching quiz details: \(error)")
+//        }
+//    }
+//        private func updateSelectedUsers() {
+//            // Update selectedUserIDs based on the current quiz and fetched users
+//            selectedUserIDs = Set(availableUsers.filter { user in
+//                // Check if the user has this quiz assigned
+//                return user.quizScores?.contains(where: { $0.quizID == quizId }) ?? false
+//            }.compactMap { $0.id })
+//        }
+//    ///working
+////       func toggleUserSelection(_ userId: String) {
+////           if selectedUserIDs.contains(userId) {
+////               selectedUserIDs.remove(userId)
+////           } else {
+////               selectedUserIDs.insert(userId)
+////           }
+////           objectWillChange.send()
+////       }
+////
+////       func toggleAccountType(_ accountType: String) {
+////           if selectedAccountTypes.contains(accountType) {
+////               selectedAccountTypes.remove(accountType)
+////               // Deselect users with this account type
+////               selectedUserIDs = selectedUserIDs.filter { userID in
+////                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
+////               }
+////           } else {
+////               selectedAccountTypes.insert(accountType)
+////               // Select users with this account type
+////               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
+////               selectedUserIDs.formUnion(usersToAdd)
+////           }
+////           objectWillChange.send()
+////       }
+//    
+//    func toggleAccountType(_ accountType: String) {
+//            if selectedAccountTypes.contains(accountType) {
+//                selectedAccountTypes.remove(accountType)
+//                // Remove all users of this account type from selectedUserIDs, unless individually assigned
+//                selectedUserIDs = selectedUserIDs.filter { userID in
+//                    let user = availableUsers.first(where: { $0.id == userID })
+//                    return user?.accountType != accountType || individuallyAssignedUsers.contains(userID)
+//                }
+//            } else {
+//                selectedAccountTypes.insert(accountType)
+//                // Add all users of this account type to selectedUserIDs, unless excluded
+//                let usersToAdd = availableUsers.filter { $0.accountType == accountType && !excludedUsers.contains($0.id ?? "") }.compactMap { $0.id }
+//                selectedUserIDs.formUnion(usersToAdd)
+//            }
+//            objectWillChange.send()
+//        }
+//
+//        func toggleUserSelection(_ userId: String) {
+//            if let user = availableUsers.first(where: { $0.id == userId }) {
+//                if selectedUserIDs.contains(userId) {
+//                    selectedUserIDs.remove(userId)
+//                    if selectedAccountTypes.contains(user.accountType) {
+//                        excludedUsers.insert(userId)
+//                    }
+//                    individuallyAssignedUsers.remove(userId)
+//                } else {
+//                    selectedUserIDs.insert(userId)
+//                    excludedUsers.remove(userId)
+//                    if !selectedAccountTypes.contains(user.accountType) {
+//                        individuallyAssignedUsers.insert(userId)
+//                    }
+//                }
+//            }
+//            objectWillChange.send()
+//        }
+//    
+//    
+//    func calculateNextRenewalDate() -> Date? {
+//            guard let frequency = renewalFrequency else { return nil }
+//            let calendar = Calendar.current
+//            switch frequency {
+//            case .quarterly:
+//                return calendar.date(byAdding: .month, value: 3, to: quizDueDate)
+//            case .yearly:
+//                return calendar.date(byAdding: .year, value: 1, to: quizDueDate)
+//            case .custom:
+//                return nextRenewalDate
+//            }
+//        }
+//    
+////    func updateQuiz() async throws {
+////            let nextRenewalDate = calculateNextRenewalDate()
+////            let updatedQuiz = Quiz(
+////                id: quizId,
+////                info: Info(
+////                    title: quizTitle,
+////                    description: quizDescription,
+////                    peopleAttended: 0,
+////                    rules: [""]
+////                ),
+////                quizCategory: quizCategory,
+////                quizCategoryID: quizCategoryID,
+////                accountTypes: Array(selectedAccountTypes),
+////                dateCreated: nil,
+////                dueDate: quizDueDate,
+////                renewalFrequency: renewalFrequency,
+////                nextRenewalDates: nextRenewalDate,
+////                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil, organizationId: organizationId
+////            )
+////            
+////            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+////            
+////            // Assign quiz to selected users
+//////            for userID in selectedUserIDs {
+//////                if let user = try await userManager.fetchUsers(by: userID) {
+//////                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//////                }
+//////            }
+////        for userID in selectedUserIDs {
+////                   if let user = try await userManager.fetchUsers(by: userID) {
+////                       try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+////                   }
+////               }
+////        
+////        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+////                for userID in unselectedUsers {
+////                    try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+////                }
+////        }
+////    
+//    func updateQuiz() async throws {
+//        let nextRenewalDate = calculateNextRenewalDate()
+//        
+//        // Create Info struct
+//        let info = Info(
+//            title: quizTitle,
+//            description: quizDescription,
+//            peopleAttended: 0,
+//            rules: [""]
+//        )
+//        
+//        // Create Quiz with all required parameters
+//        let updatedQuiz = Quiz(
+//            id: quizId,
+//            info: info,
+//            quizCategory: quizCategory,
+//            quizCategoryID: quizCategoryID,
+//            accountTypes: Array(selectedAccountTypes),
+//            dateCreated: nil,  // Maintain existing dateCreated if needed
+//            dueDate: quizDueDate,
+//            renewalFrequency: renewalFrequency,
+//            nextRenewalDates: nextRenewalDate,
+//            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil,
+//            organizationId: organizationId,
+//            verificationType: .quiz,  // Add property to ViewModel if this needs to be configurable
+//            acknowledgmentText: nil,  // Add to ViewModel if needed
+//            questions: questions,
+//            acknowledgmentMetadata: nil  // Add to ViewModel if needed
+//        )
+//        
+//        // Update quiz and questions
+//        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+//        
+//        // Handle user assignments
+//        for userID in selectedUserIDs {
+//            if let user = try await userManager.fetchUsers(by: userID) {
+//                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+//            }
+//        }
+//        
+//        // Remove quiz from unselected users
+//        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
+//        for userID in unselectedUsers {
+//            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+//        }
+//    }
+//}
+
+
 @MainActor
 class EditQuizViewModel: ObservableObject {
     @Published var quizTitle: String
@@ -250,8 +684,12 @@ class EditQuizViewModel: ObservableObject {
     @Published var isLoadingUsers = false
     @Published var userLoadingError: String?
     
-     @Published var excludedUsers: Set<String> = []
-     @Published var individuallyAssignedUsers: Set<String> = []
+    
+       @Published var excludedUsers: Set<String> = []
+       @Published var individuallyAssignedUsers: Set<String> = []
+       @AppStorage("organizationId") private var organizationId: String = ""
+    
+    
     
     private let userManager = UserManager.shared
     private let quizManager = QuizManager.shared
@@ -259,7 +697,6 @@ class EditQuizViewModel: ObservableObject {
     @Published var renewalFrequency: Quiz.RenewalFrequency?
     @Published var nextRenewalDate: Date?
     @Published var customRenewalDate: Date = Date()
-    @AppStorage("organizationId") private var organizationId: String = ""
     var availableAccountTypes: [AccountType] {
         AccountType.allCases
     }
@@ -269,46 +706,164 @@ class EditQuizViewModel: ObservableObject {
            print("Renewal frequency is now: \(String(describing: self.renewalFrequency))")
        }
     init(quiz: Quiz) {
-//        self.quizId = quiz.id
-//        self.quizTitle = quiz.info.title
-//        self.quizDescription = quiz.info.description
-//        self.quizCategory = quiz.quizCategory
-//        self.quizCategoryID = quiz.quizCategoryID
-//        self.quizDueDate = quiz.dueDate ?? Date()
-//        self.selectedAccountTypes = Set(quiz.accountTypes)
-//        self.questions = []
-//        
-//        Task {
-//            await fetchQuestions()
-//            await fetchAssignedUsers()
-//            await fetchAvailableUsers()
-//        }
-        
-        
-        self.quizId = quiz.id
-            self.quizTitle = quiz.info.title
-            self.quizDescription = quiz.info.description
-            self.quizCategory = quiz.quizCategory
-            self.quizCategoryID = quiz.quizCategoryID
-            self.quizDueDate = quiz.dueDate ?? Date()
-            self.selectedAccountTypes = Set(quiz.accountTypes)
-            self.questions = []
-           // self.renewalFrequency = quiz.renewalFrequency
-               // self.nextRenewalDate = quiz.nextRenewalDates ?? Date()
-        
-        self.renewalFrequency = quiz.renewalFrequency
-        
-        self.nextRenewalDate = quiz.nextRenewalDates
-        self.customRenewalDate = quiz.nextRenewalDates ?? Date()
-          print("Initializing EditQuizViewModel with quiz: \(quiz.id)")
-          
-          Task {
-              await fetchQuestions()
-              await fetchAssignedUsers()
-              await fetchAvailableUsers()
-          }
-    }
+           self.quizId = quiz.id
+           self.quizTitle = quiz.info.title
+           self.quizDescription = quiz.info.description
+           self.quizCategory = quiz.quizCategory
+           self.quizCategoryID = quiz.quizCategoryID
+           self.quizDueDate = quiz.dueDate ?? Date()
+           self.selectedAccountTypes = Set(quiz.accountTypes)
+           self.questions = []
+           self.renewalFrequency = quiz.renewalFrequency
+           self.nextRenewalDate = quiz.nextRenewalDates
+           self.customRenewalDate = quiz.nextRenewalDates ?? Date()
+           
+           print("Initializing EditQuizViewModel with quiz: \(quiz.id) for organization: \(organizationId)")
+           
+           Task {
+               await fetchQuestions()
+               await fetchAssignedUsers()
+               await fetchAvailableUsers()
+           }
+       }
+    func fetchAvailableUsers() async {
+            print("Starting to fetch available users for organization: \(organizationId)")
+            isLoadingUsers = true
+            userLoadingError = nil
+            
+            do {
+                // Fetch all users
+                let allUsers = try await userManager.getAllUsers()
+                
+                // Filter users by organization ID
+                let organizationUsers = allUsers.filter { $0.organizationId == organizationId }
+                
+                await MainActor.run {
+                    self.availableUsers = organizationUsers
+                    print("Fetched \(organizationUsers.count) users for organization")
+                    
+                    // Update selected users
+                    updateSelectedUsers()
+                    self.isLoadingUsers = false
+                }
+            } catch {
+                await MainActor.run {
+                    print("Error fetching users: \(error.localizedDescription)")
+                    self.availableUsers = []
+                    self.isLoadingUsers = false
+                    self.userLoadingError = error.localizedDescription
+                }
+            }
+        }
+
+        private func updateSelectedUsers() {
+            // Update selectedUserIDs based on the current quiz and fetched users
+            selectedUserIDs = Set(availableUsers.filter { user in
+                // Only include users from the same organization who have this quiz assigned
+                return user.organizationId == organizationId &&
+                       (user.quizScores?.contains(where: { $0.quizID == quizId }) ?? false)
+            }.compactMap { $0.id })
+            
+            print("Selected users updated: \(selectedUserIDs.count) users selected")
+        }
+
+        func toggleUserSelection(_ userId: String) {
+            guard let user = availableUsers.first(where: { $0.id == userId }),
+                  user.organizationId == organizationId else {
+                print("User not found or from different organization")
+                return
+            }
+
+            if selectedUserIDs.contains(userId) {
+                selectedUserIDs.remove(userId)
+                if selectedAccountTypes.contains(user.accountType) {
+                    excludedUsers.insert(userId)
+                }
+                individuallyAssignedUsers.remove(userId)
+            } else {
+                selectedUserIDs.insert(userId)
+                excludedUsers.remove(userId)
+                if !selectedAccountTypes.contains(user.accountType) {
+                    individuallyAssignedUsers.insert(userId)
+                }
+            }
+            objectWillChange.send()
+        }
+
+        func toggleAccountType(_ accountType: String) {
+            if selectedAccountTypes.contains(accountType) {
+                selectedAccountTypes.remove(accountType)
+                // Remove all users of this account type from selectedUserIDs, unless individually assigned
+                selectedUserIDs = selectedUserIDs.filter { userID in
+                    let user = availableUsers.first(where: { $0.id == userID })
+                    return (user?.accountType != accountType || individuallyAssignedUsers.contains(userID)) &&
+                           user?.organizationId == organizationId
+                }
+            } else {
+                selectedAccountTypes.insert(accountType)
+                // Add all users of this account type to selectedUserIDs, unless excluded
+                let usersToAdd = availableUsers
+                    .filter {
+                        $0.accountType == accountType &&
+                        !excludedUsers.contains($0.id ?? "") &&
+                        $0.organizationId == organizationId
+                    }
+                    .compactMap { $0.id }
+                selectedUserIDs.formUnion(usersToAdd)
+            }
+            objectWillChange.send()
+        }
+
+        func updateQuiz() async throws {
+            let nextRenewalDate = calculateNextRenewalDate()
+            
+            // Create Quiz with all required parameters
+            let updatedQuiz = Quiz(
+                id: quizId,
+                info: Info(
+                    title: quizTitle,
+                    description: quizDescription,
+                    peopleAttended: 0,
+                    rules: [""]
+                ),
+                quizCategory: quizCategory,
+                quizCategoryID: quizCategoryID,
+                accountTypes: Array(selectedAccountTypes),
+                dateCreated: nil,
+                dueDate: quizDueDate,
+                renewalFrequency: renewalFrequency,
+                nextRenewalDates: nextRenewalDate,
+                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil,
+                organizationId: organizationId,
+                verificationType: .quiz,
+                acknowledgmentText: nil,
+                questions: questions,
+                acknowledgmentMetadata: nil
+            )
+            
+            // Update quiz and questions
+            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
+            
+            // Handle user assignments only for users in the same organization
+            for userID in selectedUserIDs {
+                if let user = try await userManager.fetchUsers(by: userID),
+                   user.organizationId == organizationId {
+                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+                }
+            }
+            
+            // Remove quiz from unselected users in the same organization
+            let unselectedUsers = Set(availableUsers
+                .filter { $0.organizationId == organizationId }
+                .compactMap { $0.id })
+                .subtracting(selectedUserIDs)
+            
+            for userID in unselectedUsers {
+                try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
+            }
+        }
     
+    ///
     func fetchQuestions() async {
         do {
             self.questions = try await quizManager.getQuestionsForQuiz(quizId: quizId)
@@ -325,249 +880,7 @@ class EditQuizViewModel: ObservableObject {
             print("Error fetching assigned users: \(error)")
         }
     }
-    ///workingg
-//    func fetchAvailableUsers() async {
-//        isLoadingUsers = true
-//        userLoadingError = nil
-//        do {
-//            self.availableUsers = try await userManager.getAllUserss()
-//            self.isLoadingUsers = false
-//        } catch {
-//            print("Error fetching users: \(error.localizedDescription)")
-//            self.availableUsers = []
-//            self.isLoadingUsers = false
-//            self.userLoadingError = error.localizedDescription
-//        }
-//    }
-    
-//    func fetchAvailableUsers() async {
-//        print("Starting to fetch available users")
-//        isLoadingUsers = true
-//        userLoadingError = nil
-//        do {
-//            self.availableUsers = try await userManager.getAllUserss()
-//            print("Fetched \(self.availableUsers.count) users")
-//            await MainActor.run {
-//                self.isLoadingUsers = false
-//            }
-//        } catch {
-//            print("Error fetching users: \(error.localizedDescription)")
-//            await MainActor.run {
-//                self.availableUsers = []
-//                self.isLoadingUsers = false
-//                self.userLoadingError = error.localizedDescription
-//            }
-//        }
-//    }
-    
-//    @MainActor
-//       func fetchAvailableUsers() async {
-//           print("Starting to fetch available users")
-//           isLoadingUsers = true
-//           userLoadingError = nil
-//           do {
-//               self.availableUsers = try await userManager.getAllUserss()
-//               print("Fetched \(self.availableUsers.count) users")
-//               self.isLoadingUsers = false
-//           } catch {
-//               print("Error fetching users: \(error.localizedDescription)")
-//               self.availableUsers = []
-//               self.isLoadingUsers = false
-//               self.userLoadingError = error.localizedDescription
-//           }
-//       }
-    
-    //
-    
-//    func toggleUserSelection(_ userId: String) {
-//        if selectedUserIDs.contains(userId) {
-//            selectedUserIDs.remove(userId)
-//        } else {
-//            selectedUserIDs.insert(userId)
-//        }
-//    }
-    /// working method 
-//    func updateQuiz() async throws {
-//        let updatedQuiz = Quiz(
-//            id: quizId,
-//            info: Info(
-//                title: quizTitle,
-//                description: quizDescription,
-//                peopleAttended: 0,
-//                rules: [""]
-//            ),
-//            quizCategory: quizCategory,
-//            quizCategoryID: quizCategoryID,
-//            accountTypes: Array(selectedAccountTypes),
-//            dateCreated: nil,
-//            dueDate: quizDueDate
-//        )
-//        
-//        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-//        
-//        // Assign quiz to selected users
-//        for userID in selectedUserIDs {
-//            try await userManager.assignQuizToUser(userID: userID, quizID: quizId, dueDate: quizDueDate)
-//        }
-//        
-//        // Remove quiz from unselected users
-//        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
-//        for userID in unselectedUsers {
-//            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
-//        }
-//    }
-//    func updateQuiz() async throws {
-//        let updatedQuiz = Quiz(
-//            id: quizId,
-//            info: Info(
-//                title: quizTitle,
-//                description: quizDescription,
-//                peopleAttended: 0,
-//                rules: [""]
-//            ),
-//            quizCategory: quizCategory,
-//            quizCategoryID: quizCategoryID,
-//            accountTypes: Array(selectedAccountTypes),
-//            dateCreated: nil,
-//            dueDate: quizDueDate,
-//            renewalFrequency: renewalFrequency,
-//            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil
-//        )
-//        
-//        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-//        
-//        // Assign quiz to selected users
-//        for userID in selectedUserIDs {
-//            if let user = try await userManager.fetchUsers(by: userID) {
-//                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
-//            }
-//        }
-//    }
-//    func toggleUserSelection(_ userId: String) {
-//            if selectedUserIDs.contains(userId) {
-//                selectedUserIDs.remove(userId)
-//            } else {
-//                selectedUserIDs.insert(userId)
-//            }
-//            objectWillChange.send()
-//        }
-//    
-//    func toggleAccountType(_ accountType: String) {
-//           if selectedAccountTypes.contains(accountType) {
-//               selectedAccountTypes.remove(accountType)
-//               // Deselect users with this account type
-//               selectedUserIDs = selectedUserIDs.filter { userID in
-//                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
-//               }
-//           } else {
-//               selectedAccountTypes.insert(accountType)
-//               // Select users with this account type
-//               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
-//               selectedUserIDs.formUnion(usersToAdd)
-//           }
-//           objectWillChange.send()
-//       }
-    
-    
-    func fetchAvailableUsers() async {
-            print("Starting to fetch available users")
-            isLoadingUsers = true
-            userLoadingError = nil
-            do {
-                self.availableUsers = try await userManager.getAllUsers()
-                print("Fetched \(self.availableUsers.count) users")
-                // Update selectedUserIDs based on the fetched users and the current quiz
-                updateSelectedUsers()
-                self.isLoadingUsers = false
-            } catch {
-                print("Error fetching users: \(error.localizedDescription)")
-                self.availableUsers = []
-                self.isLoadingUsers = false
-                self.userLoadingError = error.localizedDescription
-            }
-        }
-    func fetchQuizDetails() async {
-        do {
-            let fetchedQuiz = try await quizManager.getQuiz(id: quizId)
-            await MainActor.run {
-                self.renewalFrequency = fetchedQuiz.renewalFrequency
-                self.nextRenewalDate = fetchedQuiz.nextRenewalDates
-                self.customRenewalDate = fetchedQuiz.nextRenewalDates ?? Date()
-            }
-        } catch {
-            print("Error fetching quiz details: \(error)")
-        }
-    }
-        private func updateSelectedUsers() {
-            // Update selectedUserIDs based on the current quiz and fetched users
-            selectedUserIDs = Set(availableUsers.filter { user in
-                // Check if the user has this quiz assigned
-                return user.quizScores?.contains(where: { $0.quizID == quizId }) ?? false
-            }.compactMap { $0.id })
-        }
-    ///working
-//       func toggleUserSelection(_ userId: String) {
-//           if selectedUserIDs.contains(userId) {
-//               selectedUserIDs.remove(userId)
-//           } else {
-//               selectedUserIDs.insert(userId)
-//           }
-//           objectWillChange.send()
-//       }
-//
-//       func toggleAccountType(_ accountType: String) {
-//           if selectedAccountTypes.contains(accountType) {
-//               selectedAccountTypes.remove(accountType)
-//               // Deselect users with this account type
-//               selectedUserIDs = selectedUserIDs.filter { userID in
-//                   availableUsers.first(where: { $0.id == userID })?.accountType != accountType
-//               }
-//           } else {
-//               selectedAccountTypes.insert(accountType)
-//               // Select users with this account type
-//               let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
-//               selectedUserIDs.formUnion(usersToAdd)
-//           }
-//           objectWillChange.send()
-//       }
-    
-    func toggleAccountType(_ accountType: String) {
-            if selectedAccountTypes.contains(accountType) {
-                selectedAccountTypes.remove(accountType)
-                // Remove all users of this account type from selectedUserIDs, unless individually assigned
-                selectedUserIDs = selectedUserIDs.filter { userID in
-                    let user = availableUsers.first(where: { $0.id == userID })
-                    return user?.accountType != accountType || individuallyAssignedUsers.contains(userID)
-                }
-            } else {
-                selectedAccountTypes.insert(accountType)
-                // Add all users of this account type to selectedUserIDs, unless excluded
-                let usersToAdd = availableUsers.filter { $0.accountType == accountType && !excludedUsers.contains($0.id ?? "") }.compactMap { $0.id }
-                selectedUserIDs.formUnion(usersToAdd)
-            }
-            objectWillChange.send()
-        }
-
-        func toggleUserSelection(_ userId: String) {
-            if let user = availableUsers.first(where: { $0.id == userId }) {
-                if selectedUserIDs.contains(userId) {
-                    selectedUserIDs.remove(userId)
-                    if selectedAccountTypes.contains(user.accountType) {
-                        excludedUsers.insert(userId)
-                    }
-                    individuallyAssignedUsers.remove(userId)
-                } else {
-                    selectedUserIDs.insert(userId)
-                    excludedUsers.remove(userId)
-                    if !selectedAccountTypes.contains(user.accountType) {
-                        individuallyAssignedUsers.insert(userId)
-                    }
-                }
-            }
-            objectWillChange.send()
-        }
-    
-    
+   
     func calculateNextRenewalDate() -> Date? {
             guard let frequency = renewalFrequency else { return nil }
             let calendar = Calendar.current
@@ -580,95 +893,19 @@ class EditQuizViewModel: ObservableObject {
                 return nextRenewalDate
             }
         }
-    
-//    func updateQuiz() async throws {
-//            let nextRenewalDate = calculateNextRenewalDate()
-//            let updatedQuiz = Quiz(
-//                id: quizId,
-//                info: Info(
-//                    title: quizTitle,
-//                    description: quizDescription,
-//                    peopleAttended: 0,
-//                    rules: [""]
-//                ),
-//                quizCategory: quizCategory,
-//                quizCategoryID: quizCategoryID,
-//                accountTypes: Array(selectedAccountTypes),
-//                dateCreated: nil,
-//                dueDate: quizDueDate,
-//                renewalFrequency: renewalFrequency,
-//                nextRenewalDates: nextRenewalDate,
-//                customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil, organizationId: organizationId
-//            )
-//            
-//            try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-//            
-//            // Assign quiz to selected users
-////            for userID in selectedUserIDs {
-////                if let user = try await userManager.fetchUsers(by: userID) {
-////                    try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
-////                }
-////            }
-//        for userID in selectedUserIDs {
-//                   if let user = try await userManager.fetchUsers(by: userID) {
-//                       try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
-//                   }
-//               }
-//        
-//        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
-//                for userID in unselectedUsers {
-//                    try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
-//                }
-//        }
-//    
-    func updateQuiz() async throws {
-        let nextRenewalDate = calculateNextRenewalDate()
-        
-        // Create Info struct
-        let info = Info(
-            title: quizTitle,
-            description: quizDescription,
-            peopleAttended: 0,
-            rules: [""]
-        )
-        
-        // Create Quiz with all required parameters
-        let updatedQuiz = Quiz(
-            id: quizId,
-            info: info,
-            quizCategory: quizCategory,
-            quizCategoryID: quizCategoryID,
-            accountTypes: Array(selectedAccountTypes),
-            dateCreated: nil,  // Maintain existing dateCreated if needed
-            dueDate: quizDueDate,
-            renewalFrequency: renewalFrequency,
-            nextRenewalDates: nextRenewalDate,
-            customRenewalDate: renewalFrequency == .custom ? customRenewalDate : nil,
-            organizationId: organizationId,
-            verificationType: .quiz,  // Add property to ViewModel if this needs to be configurable
-            acknowledgmentText: nil,  // Add to ViewModel if needed
-            questions: questions,
-            acknowledgmentMetadata: nil  // Add to ViewModel if needed
-        )
-        
-        // Update quiz and questions
-        try await quizManager.updateQuizWithQuestions(quiz: updatedQuiz, questions: questions)
-        
-        // Handle user assignments
-        for userID in selectedUserIDs {
-            if let user = try await userManager.fetchUsers(by: userID) {
-                try await userManager.assignQuizToUser(user: user, quiz: updatedQuiz)
+    func fetchQuizDetails() async {
+            do {
+                let fetchedQuiz = try await quizManager.getQuiz(id: quizId)
+                await MainActor.run {
+                    self.renewalFrequency = fetchedQuiz.renewalFrequency
+                    self.nextRenewalDate = fetchedQuiz.nextRenewalDates
+                    self.customRenewalDate = fetchedQuiz.nextRenewalDates ?? Date()
+                }
+            } catch {
+                print("Error fetching quiz details: \(error)")
             }
         }
-        
-        // Remove quiz from unselected users
-        let unselectedUsers = Set(availableUsers.compactMap { $0.id }).subtracting(selectedUserIDs)
-        for userID in unselectedUsers {
-            try await userManager.removeQuizFromUser(userID: userID, quizID: quizId)
-        }
-    }
 }
-
 
 struct EditQuizView: View {
     @ObservedObject var viewModel: EditQuizViewModel

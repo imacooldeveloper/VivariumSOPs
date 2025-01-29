@@ -312,7 +312,9 @@ struct UserProfileContentView: View {
             .padding()
         }
         .sheet(isPresented: $showingEditSheet) {
-            UserProfileEditView(viewModel: viewModel)
+            NavigationStack{
+                UserProfileEditView(viewModel: viewModel)
+            }
         }
         .navigationTitle("User Profile")
         .refreshable {
@@ -338,22 +340,31 @@ struct UserProfileContentView: View {
 struct UserProfileEditView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: UserProfileViewModel
+    @EnvironmentObject private var buildingManager: BuildingManagerViewModel
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var selectedFloors: Set<String> = []
     @State private var showingAccreditationSheet = false
     @State private var showingSaveAlert = false
+    @State private var availableFloors: [String] = []
     
     var body: some View {
-        NavigationView {
-            Form {
-                PersonalInfoSection(firstName: $firstName, lastName: $lastName)
-                FloorAssignmentSection(selectedFloors: $selectedFloors)
-                AccreditationsSection(
-                    viewModel: viewModel,
-                    showingAccreditationSheet: $showingAccreditationSheet
-                )
-            }
+       
+ 
+                Form {
+                    PersonalInfoSection(firstName: $firstName, lastName: $lastName)
+                    
+                    UserFloorAssignmentSection(
+                        selectedFloors: $selectedFloors,
+                        availableFloors: availableFloors
+                    )
+                    
+                    AccreditationsSection(
+                        viewModel: viewModel,
+                        showingAccreditationSheet: $showingAccreditationSheet
+                    )
+                }
+           
             .navigationTitle("Edit Profile")
             .navigationBarItems(
                 leading: Button("Cancel") { dismiss() },
@@ -367,8 +378,13 @@ struct UserProfileEditView: View {
             .alert("Profile Updated", isPresented: $showingSaveAlert) {
                 Button("OK") { dismiss() }
             }
-            .onAppear { loadUserData() }
-        }
+            .onAppear {
+                loadUserData()
+                Task {
+                    await loadAvailableFloors()
+                }
+            }
+        
     }
     
     private func loadUserData() {
@@ -384,16 +400,24 @@ struct UserProfileEditView: View {
         }
     }
     
+    private func loadAvailableFloors() async {
+        if let user = viewModel.user {
+            let floors = await buildingManager.fetchFloors(for: user.organizationId ?? "")
+            await MainActor.run {
+                self.availableFloors = floors.map { $0.mainFloor }
+            }
+        }
+    }
+    
     private func saveChanges() async {
-        guard let user = viewModel.user else { return }
+        guard var updatedUser = viewModel.user else { return }
         
-        var updatedUser = user
         updatedUser.firstName = firstName
         updatedUser.lastName = lastName
         updatedUser.assignedFloors = Array(selectedFloors)
         
         do {
-            try await UserManager.shared.updateUser(updatedUser)
+            try await buildingManager.updateUser(updatedUser)
             await MainActor.run {
                 viewModel.user = updatedUser
                 showingSaveAlert = true
@@ -404,7 +428,6 @@ struct UserProfileEditView: View {
     }
 }
 
-// MARK: - Subviews
 struct PersonalInfoSection: View {
     @Binding var firstName: String
     @Binding var lastName: String
@@ -417,24 +440,40 @@ struct PersonalInfoSection: View {
     }
 }
 
-struct FloorAssignmentSection: View {
+
+
+//struct FloorAssignmentSection: View {
+//    @Binding var selectedFloors: Set<String>
+//    
+//    private let availableFloors = [
+//        "1st", "2nd", "3rd", "3rd Annex Satellites",
+//        "4th SPF", "4th Core", "5th"
+//    ]
+//    
+//    var body: some View {
+//        Section(header: Text("Floor Assignments")) {
+//            ForEach(availableFloors, id: \.self) { floor in
+//                FloorRow(floor: floor, selectedFloors: $selectedFloors)
+//            }
+//        }
+//    }
+//}
+
+// MARK: - User Profile Components
+struct UserFloorAssignmentSection: View {
     @Binding var selectedFloors: Set<String>
-    
-    private let availableFloors = [
-        "1st", "2nd", "3rd", "3rd Annex Satellites",
-        "4th SPF", "4th Core", "5th"
-    ]
+    let availableFloors: [String]
     
     var body: some View {
         Section(header: Text("Floor Assignments")) {
             ForEach(availableFloors, id: \.self) { floor in
-                FloorRow(floor: floor, selectedFloors: $selectedFloors)
+                UserFloorRow(floor: floor, selectedFloors: $selectedFloors)
             }
         }
     }
 }
 
-struct FloorRow: View {
+struct UserFloorRow: View {
     let floor: String
     @Binding var selectedFloors: Set<String>
     
@@ -457,7 +496,6 @@ struct FloorRow: View {
         }
     }
 }
-
 struct AccreditationsSection: View {
     @ObservedObject var viewModel: UserProfileViewModel
     @Binding var showingAccreditationSheet: Bool
@@ -859,11 +897,7 @@ extension Date {
     }
 }
 
-#Preview {
-    NavigationStack{
-        UserProfileView()
-    }
-}
+
 struct DatePickerView: View {
     @Binding var selectedDate: Date
     @Binding var showingDatePicker: Bool

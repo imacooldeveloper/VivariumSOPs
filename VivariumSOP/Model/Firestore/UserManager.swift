@@ -477,7 +477,45 @@ class UserManager {
            try await userRef.updateData(updateData)
        }
     
-   
+    func updateFloorStructure(organizationId: String, floors: [FloorSection]) async throws {
+           let floorRef = db.collection("FloorStructure").document(organizationId)
+           try await floorRef.setData([
+               "floors": floors.map { floor in
+                   [
+                       "id": floor.id,
+                       "mainFloor": floor.mainFloor,
+                       "sections": floor.sections,
+                       "organizationId": floor.organizationId
+                   ]
+               }
+           ])
+       }
+       
+       func getFloorStructure(organizationId: String) async throws -> [FloorSection] {
+           let snapshot = try await db.collection("FloorStructure")
+               .document(organizationId)
+               .getDocument()
+               
+           guard let data = snapshot.data()?["floors"] as? [[String: Any]] else {
+               return []
+           }
+           
+           return data.compactMap { floorData in
+               guard
+                   let id = floorData["id"] as? String,
+                   let mainFloor = floorData["mainFloor"] as? String,
+                   let sections = floorData["sections"] as? [String],
+                   let orgId = floorData["organizationId"] as? String
+               else { return nil }
+               
+               return FloorSection(
+                   id: id,
+                   mainFloor: mainFloor,
+                   sections: sections,
+                   organizationId: orgId
+               )
+           }
+       }
 }
 
 struct QuizWithScore: Hashable {

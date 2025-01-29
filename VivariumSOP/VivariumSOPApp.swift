@@ -74,6 +74,7 @@ struct VivariumSOPApp: App {
     @StateObject var service = SOPService()
     @StateObject var navigationHandler = NavigationHandler()
     @StateObject var sharedViewModel = PDFCategoryViewModel()
+    @StateObject var buildingViewModel =  BuildingManagerViewModel()
     init() {
         FirebaseApp.configure()
         // FirebaseApp.configure()
@@ -89,6 +90,7 @@ struct VivariumSOPApp: App {
                              .environmentObject(navigationHandler)
                              .environmentObject(service)
                              .environmentObject(sharedViewModel)
+                             .environmentObject(buildingViewModel)
                      }
                  } else {
                      LoginView()

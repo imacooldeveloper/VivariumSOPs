@@ -511,12 +511,12 @@ struct Home: View {
                     Text("All Floors").tag("All Floors")
                     Text("1st").tag("1st")
                     Text("2nd").tag("2nd")
-                    Text("3rd").tag("3rd")
-                    Text("3rd Annex Sattelites").tag("3rd Annex Sattelites")
-                    Text("4th SPF").tag("4th SPF")
-                    Text("4th Core").tag("4th Core")
-                    Text("5th").tag("5th")
-                    // Add more floors as needed
+//                    Text("3rd").tag("3rd")
+//                    Text("3rd Annex Sattelites").tag("3rd Annex Sattelites")
+//                    Text("4th SPF").tag("4th SPF")
+//                    Text("4th Core").tag("4th Core")
+//                    Text("5th").tag("5th")
+//                    // Add more floors as needed
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)

@@ -442,6 +442,132 @@ class PDFCategoryViewModel: ObservableObject {
     }
     
     
+    func createOrUpdateSOPCategory(nameOfCategory: String, SOPForStaffTittle: String, pdfCount: Int) async throws {
+          do {
+              // Query for existing SOP category
+              let categoryRef = db.collection("SOPCategory")
+                  .whereField("nameOfCategory", isEqualTo: nameOfCategory)
+                  .whereField("SOPForStaffTittle", isEqualTo: SOPForStaffTittle)
+                  .whereField("organizationId", isEqualTo: organizationId)
+              
+              let snapshot = try await categoryRef.getDocuments()
+              
+              if let existingDoc = snapshot.documents.first {
+                  // Update existing category
+                  var sopCategory = try existingDoc.data(as: SOPCategory.self)
+                  let currentPages = Int(sopCategory.sopPages ?? "0") ?? 0
+                  let newPageCount = currentPages + pdfCount
+                  sopCategory.sopPages = String(newPageCount)
+                  
+                  print("Updating existing SOP category: \(SOPForStaffTittle)")
+                  print("Current pages: \(currentPages), Adding: \(pdfCount), New total: \(newPageCount)")
+                  
+                  try await db.collection("SOPCategory").document(existingDoc.documentID).setData(from: sopCategory)
+                  
+                  if let index = sopCategories.firstIndex(where: { $0.id == existingDoc.documentID }) {
+                      sopCategories[index] = sopCategory
+                  }
+              } else {
+                  // Create new category
+                  let newCategory = SOPCategory(
+                      id: UUID().uuidString,
+                      nameOfCategory: nameOfCategory,
+                      SOPForStaffTittle: SOPForStaffTittle,
+                      sopPages: String(pdfCount),
+                      organizationId: organizationId
+                  )
+                  
+                  print("Creating new SOP category: \(SOPForStaffTittle) with \(pdfCount) pages")
+                  
+                  try await db.collection("SOPCategory").document(newCategory.id).setData(from: newCategory)
+                  sopCategories.append(newCategory)
+              }
+              
+              // Refresh the categories
+              await fetchSOPCategories()
+              
+          } catch {
+              print("Error creating/updating SOP category: \(error.localizedDescription)")
+              throw error
+          }
+      }
+
+      // Updated uploadAllPDFs function to handle page counting correctly
+      @MainActor
+      func uploadAllPDFs(
+          selectedPDFs: [URL],
+          selectedTemplates: [TempSOP],
+          folder: String,
+          title: String,
+          onProgress: @escaping (Double, String) -> Void
+      ) async throws {
+          let totalFiles = selectedPDFs.count + selectedTemplates.count
+          var filesCompleted = 0
+          
+          // Create or update SOPCategory first with correct page count
+          try await createOrUpdateSOPCategory(
+              nameOfCategory: folder,
+              SOPForStaffTittle: title,
+              pdfCount: totalFiles
+          )
+          
+          // Upload regular PDFs
+          for url in selectedPDFs {
+              guard url.startAccessingSecurityScopedResource() else { continue }
+              defer { url.stopAccessingSecurityScopedResource() }
+              
+              let data = try Data(contentsOf: url)
+              let pdfName = url.deletingPathExtension().lastPathComponent
+              
+              onProgress(Double(filesCompleted) / Double(totalFiles), pdfName)
+              
+              let pdfCategory = PDFCategory(
+                  id: UUID().uuidString,
+                  nameOfCategory: folder,
+                  SOPForStaffTittle: title,
+                  pdfName: pdfName,
+                  organizationId: organizationId
+              )
+              
+              _ = try await uploadPDF(data: data, category: pdfCategory)
+              filesCompleted += 1
+          }
+          
+          // Upload template PDFs
+          for template in selectedTemplates {
+              onProgress(Double(filesCompleted) / Double(totalFiles), template.name)
+              
+              let storageRef = Storage.storage().reference(forURL: template.fileURL)
+              let data = try await storageRef.data(maxSize: 50 * 1024 * 1024)
+              
+              let pdfCategory = PDFCategory(
+                  id: UUID().uuidString,
+                  nameOfCategory: folder,
+                  SOPForStaffTittle: title,
+                  pdfName: template.name,
+                  organizationId: organizationId
+              )
+              
+              _ = try await uploadPDF(data: data, category: pdfCategory)
+              filesCompleted += 1
+          }
+          
+          onProgress(1.0, "Complete")
+      }
+    
+    func getCategoryList(for organizationId: String, title: String?) async throws -> [SOPCategory] {
+        var query = db.collection("SOPCategory")
+            .whereField("organizationId", isEqualTo: organizationId)
+        
+        if let title {
+            query = query.whereField(SOPCategory.CodingKeys.nameOfCategory.rawValue, isEqualTo: title)
+        }
+        
+        let snapshot = try await query.getDocuments()
+        return try snapshot.documents.compactMap { document in
+            try document.data(as: SOPCategory.self)
+        }
+    }
     
     func uploadSOPCategory(sopCategory: SOPCategory) async throws {
         print("Uploading SOP Category: \(sopCategory.SOPForStaffTittle)")
@@ -1029,71 +1155,71 @@ class PDFCategoryViewModel: ObservableObject {
         }
         updateUniqueCategories()
     }
-    @MainActor
-    func uploadAllPDFs(selectedPDFs: [URL],
-                      selectedTemplates: [TempSOP],
-                      folder: String,
-                      title: String,
-                      onProgress: @escaping (Double, String) -> Void) async throws {
-        
-        let totalFiles = selectedPDFs.count + selectedTemplates.count
-        var filesCompleted = 0
-        
-        // Create SOPCategory first
-        let sopCategory = SOPCategory(
-            id: UUID().uuidString,
-            nameOfCategory: folder,
-            SOPForStaffTittle: title,
-            sopPages: String(totalFiles),
-            organizationId: organizationId
-        )
-        
-        try await uploadSOPCategory(sopCategory: sopCategory)
-        
-        // Upload regular PDFs
-        for url in selectedPDFs {
-            guard url.startAccessingSecurityScopedResource() else { continue }
-            defer { url.stopAccessingSecurityScopedResource() }
-            
-            let data = try Data(contentsOf: url)
-            let pdfName = url.deletingPathExtension().lastPathComponent
-            
-            onProgress(Double(filesCompleted) / Double(totalFiles), pdfName)
-            
-            let pdfCategory = PDFCategory(
-                id: UUID().uuidString,
-                nameOfCategory: folder,
-                SOPForStaffTittle: title,
-                pdfName: pdfName,
-                organizationId: organizationId
-            )
-            
-            _ = try await uploadPDF(data: data, category: pdfCategory)
-            filesCompleted += 1
-        }
-        
-        // Upload template PDFs
-        for template in selectedTemplates {
-            onProgress(Double(filesCompleted) / Double(totalFiles), template.name)
-            
-            let storageRef = Storage.storage().reference(forURL: template.fileURL)
-            let data = try await storageRef.data(maxSize: 50 * 1024 * 1024)
-            
-            let pdfCategory = PDFCategory(
-                id: UUID().uuidString,
-                nameOfCategory: folder,
-                SOPForStaffTittle: title,
-                pdfName: template.name,
-                organizationId: organizationId
-            )
-            
-            _ = try await uploadPDF(data: data, category: pdfCategory)
-            filesCompleted += 1
-        }
-        
-        onProgress(1.0, "Complete")
-    }
-    
+//    @MainActor
+//    func uploadAllPDFs(selectedPDFs: [URL],
+//                      selectedTemplates: [TempSOP],
+//                      folder: String,
+//                      title: String,
+//                      onProgress: @escaping (Double, String) -> Void) async throws {
+//        
+//        let totalFiles = selectedPDFs.count + selectedTemplates.count
+//        var filesCompleted = 0
+//        
+//        // Create SOPCategory first
+//        let sopCategory = SOPCategory(
+//            id: UUID().uuidString,
+//            nameOfCategory: folder,
+//            SOPForStaffTittle: title,
+//            sopPages: String(totalFiles),
+//            organizationId: organizationId
+//        )
+//        
+//        try await uploadSOPCategory(sopCategory: sopCategory)
+//        
+//        // Upload regular PDFs
+//        for url in selectedPDFs {
+//            guard url.startAccessingSecurityScopedResource() else { continue }
+//            defer { url.stopAccessingSecurityScopedResource() }
+//            
+//            let data = try Data(contentsOf: url)
+//            let pdfName = url.deletingPathExtension().lastPathComponent
+//            
+//            onProgress(Double(filesCompleted) / Double(totalFiles), pdfName)
+//            
+//            let pdfCategory = PDFCategory(
+//                id: UUID().uuidString,
+//                nameOfCategory: folder,
+//                SOPForStaffTittle: title,
+//                pdfName: pdfName,
+//                organizationId: organizationId
+//            )
+//            
+//            _ = try await uploadPDF(data: data, category: pdfCategory)
+//            filesCompleted += 1
+//        }
+//        
+//        // Upload template PDFs
+//        for template in selectedTemplates {
+//            onProgress(Double(filesCompleted) / Double(totalFiles), template.name)
+//            
+//            let storageRef = Storage.storage().reference(forURL: template.fileURL)
+//            let data = try await storageRef.data(maxSize: 50 * 1024 * 1024)
+//            
+//            let pdfCategory = PDFCategory(
+//                id: UUID().uuidString,
+//                nameOfCategory: folder,
+//                SOPForStaffTittle: title,
+//                pdfName: template.name,
+//                organizationId: organizationId
+//            )
+//            
+//            _ = try await uploadPDF(data: data, category: pdfCategory)
+//            filesCompleted += 1
+//        }
+//        
+//        onProgress(1.0, "Complete")
+//    }
+//    
     
     deinit {
         listener?.remove()
