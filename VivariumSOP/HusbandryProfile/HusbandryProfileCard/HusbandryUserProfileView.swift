@@ -44,131 +44,331 @@ struct HusbandryUserProfileView: View {
         }
     }
 }
+//struct HusbandryUserProfileContentView: View {
+//    var user: User?
+//    @ObservedObject var viewModel: HusbandryUserProfileViewModel
+//    @State private var selectedDates: [String: Date] = [:]
+//    @State private var quizToRetake: Quiz?
+//    @State private var showingQuiz = false
+//   // @State private var isRefreshing = false
+//    
+//    
+//       @State private var isLoading = false
+//       @State private var errorMessage: String?
+//    var body: some View {
+//        ScrollView {
+//            VStack(spacing: 20) {
+//                // Profile Header
+//                VStack(spacing: 10) {
+//                    Image(systemName: "person.circle.fill")
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fit)
+//                        .frame(width: 100, height: 100)
+//                        .foregroundColor(.blue)
+//                    
+//                    Text(viewModel.user?.username ?? "")
+//                        .font(.title)
+//                        .fontWeight(.bold)
+//                }
+//                .padding()
+//                
+//                // Completed Quizzes
+//                VStack(alignment: .leading, spacing: 10) {
+//                    Text("Completed Quizzes")
+//                        .font(.headline)
+//                        .padding(.horizontal)
+//                    
+//                    if viewModel.quizzesWithScores.filter({ $0.score >= 80 }).isEmpty {
+//                        Text("No completed quizzes yet.")
+//                            .foregroundColor(.secondary)
+//                            .padding(.horizontal)
+//                    } else {
+//                        ForEach(viewModel.quizzesWithScores.filter { $0.score >= 80 }, id: \.quiz.id) { quizWithScore in
+//                            HusbandryCompletedQuizCard(
+//                                quizWithScore: quizWithScore,
+//                                onRetakeQuiz: {
+//                                    quizToRetake = quizWithScore.quiz
+//                                    showingQuiz = true
+//                                }
+//                            )
+//                        }
+//                    }
+//                }
+//                
+//                // Uncompleted Quizzes
+//                VStack(alignment: .leading, spacing: 10) {
+//                    Text("Incompleted Quizzes")
+//                        .font(.headline)
+//                        .padding(.horizontal)
+//                    
+//                    if viewModel.uncompletedQuizzes.isEmpty {
+//                        Text("No Incompleted quizzes.")
+//                            .foregroundColor(.secondary)
+//                            .padding(.horizontal)
+//                    } else {
+//                        Text("Total Incompleted: \(viewModel.uncompletedQuizzes.count)")
+//                            .font(.subheadline)
+//                            .foregroundColor(.secondary)
+//                            .padding(.horizontal)
+//                        
+//                        ForEach(viewModel.uncompletedQuizzes, id: \.id) { quiz in
+//                            HusbandryUncompletedQuizCard(quiz: quiz, user: viewModel.user, viewModel: viewModel, selectedDate: Binding(
+//                                get: { self.selectedDates[quiz.id] ?? Date() },
+//                                set: { self.selectedDates[quiz.id] = $0 }
+//                            ))
+//                        }
+//                    }
+//                }
+//            }
+//            .padding()
+//        }
+//        .navigationTitle("User Profile")
+////        .refreshable {
+////                    await refreshData()
+////                }
+//        
+//        .sheet(item: $quizToRetake) { quiz in
+//                    HusbandryQuestionView(
+//                        quizId: quiz.id,
+//                        quizTitle: quiz.info.title,
+//                        onFinish: {
+//                            quizToRetake = nil
+//                            Task {
+//                                await viewModel.fetchUserQuizzes()
+//                            }
+//                        }
+//                    )
+//                }
+//                .overlay(
+//                    Group {
+//                        if isLoading {
+//                            ProgressView("Loading...")
+//                        } else if let error = errorMessage {
+//                            Text(error)
+//                                .foregroundColor(.red)
+//                                .padding()
+//                        }
+//                    }
+//                )
+//        .onAppear {
+//                    if let user = user {
+//                        Task {
+//                            await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
+//                        }
+//                    }
+//                }
+//        
+//    }
+////    func refreshData() async {
+////            isRefreshing = true
+////            if let user = user {
+////                await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
+////            } else {
+////                await viewModel.fetchCompletedQuizzesAndScores()
+////            }
+////            isRefreshing = false
+////        }
+//}
+
 struct HusbandryUserProfileContentView: View {
     var user: User?
     @ObservedObject var viewModel: HusbandryUserProfileViewModel
     @State private var selectedDates: [String: Date] = [:]
     @State private var quizToRetake: Quiz?
     @State private var showingQuiz = false
-   // @State private var isRefreshing = false
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     
-    
-       @State private var isLoading = false
-       @State private var errorMessage: String?
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Profile Header
-                VStack(spacing: 10) {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.blue)
-                    
-                    Text(viewModel.user?.username ?? "")
-                        .font(.title)
-                        .fontWeight(.bold)
-                }
-                .padding()
+                profileHeader
                 
-                // Completed Quizzes
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Completed Quizzes")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    
-                    if viewModel.quizzesWithScores.filter({ $0.score >= 80 }).isEmpty {
-                        Text("No completed quizzes yet.")
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    } else {
-                        ForEach(viewModel.quizzesWithScores.filter { $0.score >= 80 }, id: \.quiz.id) { quizWithScore in
-                            HusbandryCompletedQuizCard(
-                                quizWithScore: quizWithScore,
-                                onRetakeQuiz: {
-                                    quizToRetake = quizWithScore.quiz
-                                    showingQuiz = true
-                                }
+                // Assigned Floors Section
+                if let assignedFloors = viewModel.user?.assignedFloors, !assignedFloors.isEmpty {
+                    floorsSection(floors: assignedFloors)
+                }
+                
+                // Accreditations Section
+                if let accreditations = viewModel.user?.accreditations, !accreditations.isEmpty {
+                    accreditationsSection(accreditations: accreditations)
+                }
+                
+                completedQuizzesSection
+                uncompletedQuizzesSection
+            }
+            .padding()
+        }
+        .navigationTitle("User Profile")
+        .sheet(item: $quizToRetake) { quiz in
+            HusbandryQuestionView(
+                quizId: quiz.id,
+                quizTitle: quiz.info.title,
+                onFinish: {
+                    quizToRetake = nil
+                    Task { await viewModel.fetchUserQuizzes() }
+                }
+            )
+        }
+        .overlay(loadingOverlay)
+        .onAppear {
+            if let user = user {
+                Task {
+                    await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
+                }
+            }
+        }
+    }
+    
+    private var profileHeader: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.circle.fill")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 100, height: 100)
+                .foregroundColor(.blue)
+            
+            Text(viewModel.user?.username ?? "")
+                .font(.title)
+                .fontWeight(.bold)
+            
+            Text(viewModel.user?.accountType ?? "")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+    }
+    
+    private func floorsSection(floors: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Assigned Floors")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(floors, id: \.self) { floor in
+                        Text(floor)
+                            .font(.subheadline)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.green.opacity(0.1))
                             )
-                        }
                     }
                 }
-                
-                // Uncompleted Quizzes
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Incompleted Quizzes")
-                        .font(.headline)
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    private func accreditationsSection(accreditations: [Accreditation]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Accreditations")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(accreditations, id: \.name) { accreditation in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(accreditation.name)
+                                .font(.subheadline)
+                                .bold()
+                            
+                            if let expDate = accreditation.expirationDate {
+                                Text("Expires: \(expDate.formatted(date: .abbreviated, time: .omitted))")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.blue.opacity(0.1))
+                        )
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    private var completedQuizzesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Completed Quizzes")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            if viewModel.quizzesWithScores.filter({ $0.score >= 80 }).isEmpty {
+                Text("No completed quizzes yet.")
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+            } else {
+                ForEach(viewModel.quizzesWithScores.filter { $0.score >= 80 }, id: \.quiz.id) { quizWithScore in
+                    HusbandryCompletedQuizCard(
+                        quizWithScore: quizWithScore,
+                        onRetakeQuiz: {
+                            quizToRetake = quizWithScore.quiz
+                            showingQuiz = true
+                        }
+                    )
+                }
+            }
+        }
+    }
+    
+    private var uncompletedQuizzesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Incompleted Quizzes")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            Group {
+                if viewModel.uncompletedQuizzes.isEmpty {
+                    Text("No Incompleted quizzes.")
+                        .foregroundColor(.secondary)
                         .padding(.horizontal)
-                    
-                    if viewModel.uncompletedQuizzes.isEmpty {
-                        Text("No Incompleted quizzes.")
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                    } else {
+                } else {
+                    VStack(spacing: 10) {
                         Text("Total Incompleted: \(viewModel.uncompletedQuizzes.count)")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                         
                         ForEach(viewModel.uncompletedQuizzes, id: \.id) { quiz in
-                            HusbandryUncompletedQuizCard(quiz: quiz, user: viewModel.user, viewModel: viewModel, selectedDate: Binding(
-                                get: { self.selectedDates[quiz.id] ?? Date() },
-                                set: { self.selectedDates[quiz.id] = $0 }
-                            ))
+                            HusbandryUncompletedQuizCard(
+                                quiz: quiz,
+                                user: viewModel.user,
+                                viewModel: viewModel,
+                                selectedDate: Binding(
+                                    get: { selectedDates[quiz.id] ?? Date() },
+                                    set: { selectedDates[quiz.id] = $0 }
+                                )
+                            )
                         }
                     }
                 }
             }
-            .padding()
         }
-        .navigationTitle("User Profile")
-//        .refreshable {
-//                    await refreshData()
-//                }
-        
-        .sheet(item: $quizToRetake) { quiz in
-                    HusbandryQuestionView(
-                        quizId: quiz.id,
-                        quizTitle: quiz.info.title,
-                        onFinish: {
-                            quizToRetake = nil
-                            Task {
-                                await viewModel.fetchUserQuizzes()
-                            }
-                        }
-                    )
-                }
-                .overlay(
-                    Group {
-                        if isLoading {
-                            ProgressView("Loading...")
-                        } else if let error = errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .padding()
-                        }
-                    }
-                )
-        .onAppear {
-                    if let user = user {
-                        Task {
-                            await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
-                        }
-                    }
-                }
-        
     }
-//    func refreshData() async {
-//            isRefreshing = true
-//            if let user = user {
-//                await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
-//            } else {
-//                await viewModel.fetchCompletedQuizzesAndScores()
-//            }
-//            isRefreshing = false
-//        }
+    
+    private var loadingOverlay: some View {
+        Group {
+            if isLoading {
+                ProgressView("Loading...")
+            } else if let error = errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .padding()
+            }
+        }
+    }
 }
+
+
 struct HusbandryCircularProgressView: View {
     let progress: Double
     
@@ -227,7 +427,89 @@ struct HusbandryCompletedQuizCard: View {
         .cornerRadius(10)
     }
 }
-
+struct HusbandryUncompletedQuizCard: View {
+    let quiz: Quiz
+    let user: User?
+    @ObservedObject var viewModel: HusbandryUserProfileViewModel
+    @Binding var selectedDate: Date
+    @State private var showingPDFList = false
+    
+    var body: some View {
+        NavigationLink(
+            value: HusbandryPDFListView(
+                SOPForStaffTittle: quiz.quizCategory,
+                nameOfCategory: quiz.quizCategory
+            )
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "flag.fill")
+                        .foregroundColor(.red)
+                    
+                    Text(quiz.info.title)
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Text(quizStatus)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                if user?.accountType == "admin" {
+                    DatePicker("Set Due Date", selection: $selectedDate, displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                    
+                    Button(action: updateDueDate) {
+                        Text("Update")
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.blue)
+                            .cornerRadius(8)
+                    }
+                } else {
+                    Text("Due Date: \(formattedDueDate)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding()
+            .background(Color.green.opacity(0.1))
+            .cornerRadius(10)
+        }
+    }
+    
+    // Keep your existing helper methods
+    var quizStatus: String {
+        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
+           let highestScore = quizScore.scores.max(), highestScore > 0 {
+            return "\(Int(highestScore))%"
+        } else {
+            return "Not Started"
+        }
+    }
+    
+    var formattedDueDate: String {
+        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
+           let dueDates = quizScore.dueDates,
+           let dueDate = dueDates[quiz.id],
+           let unwrappedDueDate = dueDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            return formatter.string(from: unwrappedDueDate)
+        }
+        return "Not set"
+    }
+    
+    func updateDueDate() {
+        Task {
+            await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user!)
+            await viewModel.setDueDateForFailedQuiz(user: user!, quizID: quiz.id, newDueDate: selectedDate)
+            await viewModel.updateUserQuizDueDate(for: user, quizID: quiz.id, newDate: selectedDate)
+        }
+    }
+}
 
 //struct HusbandryUncompletedQuizCard: View {
 //    let quiz: Quiz
@@ -410,86 +692,4 @@ struct HusbandryCompletedQuizCard: View {
 
 
 // Then update the HusbandryUncompletedQuizCard
-struct HusbandryUncompletedQuizCard: View {
-    let quiz: Quiz
-    let user: User?
-    @ObservedObject var viewModel: HusbandryUserProfileViewModel
-    @Binding var selectedDate: Date
-    @State private var showingPDFList = false
-    
-    var body: some View {
-        NavigationLink(
-            value: HusbandryPDFListView(
-                SOPForStaffTittle: quiz.quizCategory,
-                nameOfCategory: quiz.quizCategory
-            )
-        ) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Image(systemName: "flag.fill")
-                        .foregroundColor(.red)
-                    
-                    Text(quiz.info.title)
-                        .font(.headline)
-                    
-                    Spacer()
-                    
-                    Text(quizStatus)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
-                if user?.accountType == "admin" {
-                    DatePicker("Set Due Date", selection: $selectedDate, displayedComponents: .date)
-                        .datePickerStyle(.compact)
-                    
-                    Button(action: updateDueDate) {
-                        Text("Update")
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                    }
-                } else {
-                    Text("Due Date: \(formattedDueDate)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding()
-            .background(Color.green.opacity(0.1))
-            .cornerRadius(10)
-        }
-    }
-    
-    // Keep your existing helper methods
-    var quizStatus: String {
-        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
-           let highestScore = quizScore.scores.max(), highestScore > 0 {
-            return "\(Int(highestScore))%"
-        } else {
-            return "Not Started"
-        }
-    }
-    
-    var formattedDueDate: String {
-        if let quizScore = user?.quizScores?.first(where: { $0.quizID == quiz.id }),
-           let dueDates = quizScore.dueDates,
-           let dueDate = dueDates[quiz.id],
-           let unwrappedDueDate = dueDate {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: unwrappedDueDate)
-        }
-        return "Not set"
-    }
-    
-    func updateDueDate() {
-        Task {
-            await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user!)
-            await viewModel.setDueDateForFailedQuiz(user: user!, quizID: quiz.id, newDueDate: selectedDate)
-            await viewModel.updateUserQuizDueDate(for: user, quizID: quiz.id, newDate: selectedDate)
-        }
-    }
-}
+

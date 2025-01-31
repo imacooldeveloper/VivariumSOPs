@@ -336,6 +336,197 @@ struct UserProfileContentView: View {
     }
 }
 
+//struct UserProfileContentView: View {
+//    @ObservedObject var viewModel: UserProfileViewModel
+//    @State private var selectedDates: [String: Date] = [:]
+//    @State private var quizToRetake: Quiz?
+//    @State private var isRefreshing = false
+//    @State private var showingEditSheet = false
+//    
+//    var body: some View {
+//        ScrollView {
+//            VStack(spacing: 20) {
+//                // Profile Header with Edit Button
+//                profileHeader
+//                
+//                // Accreditations Section
+//                accreditationsSection
+//                
+//                // Floor Assignments Section
+//                floorAssignmentsSection
+//                
+//                // Completed Quizzes
+//                completedQuizzesSection
+//                
+//                // Uncompleted Quizzes
+//                uncompletedQuizzesSection
+//            }
+//            .padding()
+//        }
+//        .sheet(isPresented: $showingEditSheet) {
+//            NavigationStack {
+//                UserProfileEditView(viewModel: viewModel)
+//            }
+//        }
+//        .navigationTitle("User Profile")
+//        .refreshable {
+//            await refreshData()
+//        }
+//    }
+//    
+//    private var profileHeader: some View {
+//        VStack(spacing: 10) {
+//            HStack {
+//                Spacer()
+//                Button(action: { showingEditSheet = true }) {
+//                    Image(systemName: "pencil.circle.fill")
+//                        .font(.title2)
+//                        .foregroundColor(.blue)
+//                }
+//            }
+//            .padding(.horizontal)
+//            
+//            Image(systemName: "person.circle.fill")
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//                .frame(width: 100, height: 100)
+//                .foregroundColor(.blue)
+//            
+//            Text(viewModel.user?.username ?? "")
+//                .font(.title)
+//                .fontWeight(.bold)
+//            
+//            Text(viewModel.user?.accountType ?? "")
+//                .font(.subheadline)
+//                .foregroundColor(.secondary)
+//        }
+//        .padding()
+//    }
+//    
+//    private var accreditationsSection: some View {
+//        VStack(alignment: .leading, spacing: 8) {
+//            Text("Accreditations")
+//                .font(.headline)
+//                .padding(.horizontal)
+//            
+//            if let accreditations = viewModel.user?.accreditations, !accreditations.isEmpty {
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 12) {
+//                        ForEach(accreditations, id: \.name) { accreditation in
+//                            VStack(alignment: .leading, spacing: 4) {
+//                                Text(accreditation.name)
+//                                    .font(.subheadline)
+//                                    .bold()
+//                                Text(accreditation.issuingAuthority)
+//                                    .font(.caption)
+//                                    .foregroundColor(.secondary)
+//                                if let expDate = accreditation.expirationDate {
+//                                    Text("Expires: \(expDate.formatted(date: .abbreviated, time: .omitted))")
+//                                        .font(.caption)
+//                                        .foregroundColor(.red)
+//                                }
+//                            }
+//                            .padding(.vertical, 8)
+//                            .padding(.horizontal, 12)
+//                            .background(RoundedRectangle(cornerRadius: 8)
+//                                .fill(Color.blue.opacity(0.1)))
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                }
+//            } else {
+//                Text("No accreditations yet")
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal)
+//            }
+//        }
+//    }
+//    
+//    private var floorAssignmentsSection: some View {
+//        VStack(alignment: .leading, spacing: 8) {
+//            Text("Assigned Floors")
+//                .font(.headline)
+//                .padding(.horizontal)
+//            
+//            if let assignedFloors = viewModel.user?.assignedFloors, !assignedFloors.isEmpty {
+//                ScrollView(.horizontal, showsIndicators: false) {
+//                    HStack(spacing: 12) {
+//                        ForEach(assignedFloors, id: \.self) { floor in
+//                            Text(floor)
+//                                .font(.subheadline)
+//                                .padding(.vertical, 8)
+//                                .padding(.horizontal, 12)
+//                                .background(RoundedRectangle(cornerRadius: 8)
+//                                    .fill(Color.green.opacity(0.1)))
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                }
+//            } else {
+//                Text("No floors assigned")
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal)
+//            }
+//        }
+//    }
+//    
+//    private var completedQuizzesSection: some View {
+//        VStack(alignment: .leading, spacing: 10) {
+//            Text("Completed Quizzes")
+//                .font(.headline)
+//                .padding(.horizontal)
+//            
+//            if viewModel.quizzesWithScores.filter({ $0.score >= 80 }).isEmpty {
+//                Text("No completed quizzes yet.")
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal)
+//            } else {
+//                ForEach(viewModel.quizzesWithScores.filter { $0.score >= 80 }, id: \.quiz.id) { quizWithScore in
+//                    CompletedQuizCard(
+//                        quizWithScore: quizWithScore,
+//                        onRetakeQuiz: { quizToRetake = quizWithScore.quiz }
+//                    )
+//                }
+//            }
+//        }
+//    }
+//    
+//    private var uncompletedQuizzesSection: some View {
+//        VStack(alignment: .leading, spacing: 10) {
+//            Text("Incompleted Quizzes")
+//                .font(.headline)
+//                .padding(.horizontal)
+//            
+//            if viewModel.uncompletedQuizzes.isEmpty {
+//                Text("No Incompleted quizzes.")
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal)
+//            } else {
+//                ForEach(viewModel.uncompletedQuizzes, id: \.id) { quiz in
+//                    UncompletedQuizCard(
+//                        quiz: quiz,
+//                        user: viewModel.user,
+//                        viewModel: viewModel,
+//                        selectedDate: Binding(
+//                            get: { selectedDates[quiz.id] ?? Date() },
+//                            set: { selectedDates[quiz.id] = $0 }
+//                        ),
+//                        onDateUpdated: { refreshData() }
+//                    )
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func refreshData() {
+//        Task {
+//            if let user = viewModel.user {
+//                await viewModel.fetchCompletedQuizzesAndScoresofUser(user: user)
+//            }
+//        }
+//    }
+//}
+
 
 struct UserProfileEditView: View {
     @Environment(\.dismiss) var dismiss
