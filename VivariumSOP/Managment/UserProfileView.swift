@@ -355,8 +355,8 @@ struct UserProfileEditView: View {
                     PersonalInfoSection(firstName: $firstName, lastName: $lastName)
                     
                     UserFloorAssignmentSection(
-                        selectedFloors: $selectedFloors,
-                        availableFloors: availableFloors
+                        selectedFloors: $selectedFloors, viewModel: viewModel
+                       
                     )
                     
                     AccreditationsSection(
@@ -460,14 +460,37 @@ struct PersonalInfoSection: View {
 //}
 
 // MARK: - User Profile Components
+//struct UserFloorAssignmentSection: View {
+//    @Binding var selectedFloors: Set<String>
+//    let availableFloors: [String]
+//    
+//    var body: some View {
+//        Section(header: Text("Floor Assignments")) {
+//            ForEach(availableFloors, id: \.self) { floor in
+//                UserFloorRow(floor: floor, selectedFloors: $selectedFloors)
+//            }
+//        }
+//    }
+//}
+//
+
 struct UserFloorAssignmentSection: View {
     @Binding var selectedFloors: Set<String>
-    let availableFloors: [String]
+    let availableFloors = ["1st", "2nd"]
+    @ObservedObject var viewModel: UserProfileViewModel
     
     var body: some View {
         Section(header: Text("Floor Assignments")) {
             ForEach(availableFloors, id: \.self) { floor in
                 UserFloorRow(floor: floor, selectedFloors: $selectedFloors)
+                    .onChange(of: selectedFloors) { _ in
+                        Task {
+                            try? await UserManager.shared.updateUserFloors(
+                                userID: viewModel.user?.userUID ?? "",
+                                floors: Array(selectedFloors)
+                            )
+                        }
+                    }
             }
         }
     }
