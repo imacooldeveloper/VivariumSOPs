@@ -73,7 +73,7 @@ struct HusbandryPDFListView: View,Hashable {
              .opacity(vm.areAllPDFsCompleted() ? 1 : 0.5)
              .padding(.bottom, sizeClass == .regular ? 0 : 16)
          }
-         .navigationTitle("PDF List")
+         .navigationTitle(SOPForStaffTittle)
          .onAppear {
                
                     Task {

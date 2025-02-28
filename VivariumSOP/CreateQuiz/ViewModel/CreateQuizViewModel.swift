@@ -412,6 +412,11 @@ class CreateQuizViewModel: ObservableObject {
 //        let currentOrgId = organizationId
 //        print("Uploading quiz for organization: \(currentOrgId)")
 //        
+//        // Convert selectedAccountTypes to Array and print for debugging
+//        let accountTypesArray = Array(selectedAccountTypes)
+//        print("Selected Account Types: \(accountTypesArray)")
+//        
+//        // Create the quiz with verification type and account types
 //        var quizToUpload = Quiz(
 //            id: existingQuizId ?? UUID().uuidString,
 //            info: Info(
@@ -422,20 +427,33 @@ class CreateQuizViewModel: ObservableObject {
 //            ),
 //            quizCategory: quizCategory,
 //            quizCategoryID: quizCategoryID,
-//            accountTypes: Array(selectedAccountTypes),
+//            accountTypes: accountTypesArray,  // Make sure this is included
 //            dateCreated: existingQuizId == nil ? Date() : nil,
 //            dueDate: quizDueDate,
-//            organizationId: currentOrgId, verificationType: nil
+//            renewalFrequency: nil,
+//            nextRenewalDates: nil,
+//            customRenewalDate: nil,
+//            organizationId: currentOrgId,
+//            verificationType: verificationType,
+//            acknowledgmentText: acknowledgmentText.isEmpty ? nil : acknowledgmentText,
+//            questions: questions
 //        )
 //
-//        print("Quiz being uploaded with organizationId: \(quizToUpload.organizationId)")
+//        print("DEBUG - Quiz being uploaded:")
+//          print("ID: \(quizToUpload.id)")
+//          print("Title: \(quizToUpload.info.title)")
+//          print("VerificationType: \(quizToUpload.verificationType)")
+//          print("Account Types: \(quizToUpload.accountTypes)")
+//          print("Organization ID: \(quizToUpload.organizationId)")
 //
-//        if existingQuizId != nil {
-//            try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
-//        } else {
-//            let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
-//            quizToUpload.id = newQuizId
-//        }
+//          if existingQuizId != nil {
+//              print("DEBUG - Updating existing quiz")
+//              try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//          } else {
+//              print("DEBUG - Creating new quiz")
+//              let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//              print("DEBUG - New quiz ID: \(newQuizId)")
+//          }
 //
 //        // Assign quiz to selected users within the same organization
 //        for userID in selectedUserIDs {
@@ -451,45 +469,39 @@ class CreateQuizViewModel: ObservableObject {
 //            }
 //        }
 //    }
+//   
+
+    
 //    
-//    func uploadQuizs() async throws -> String {
-//            // Validate organizationId
-//            guard !organizationId.isEmpty else {
-//                throw NSError(domain: "CreateQuizViewModel",
-//                             code: 400,
-//                             userInfo: [NSLocalizedDescriptionKey: "Organization ID is missing"])
-//            }
-//            
-//            let quizToUpload = Quiz(
-//                id: existingQuizId ?? UUID().uuidString,
-//                info: Info(
-//                    title: quizTitle,
-//                    description: quizDescription,
-//                    peopleAttended: 0,
-//                    rules: [""]
-//                ),
-//                quizCategory: quizCategory,
-//                quizCategoryID: quizCategoryID,
-//                accountTypes: Array(selectedAccountTypes),
-//                dateCreated: existingQuizId == nil ? Date() : nil,
-//                dueDate: quizDueDate,
-//                renewalFrequency: nil,
-//                nextRenewalDates: nil,
-//                customRenewalDate: nil,
-//                organizationId: organizationId, verificationType: nil
-//            )
-//            
-//            print("Quiz being uploaded with organizationId: \(quizToUpload.organizationId)")
-//            
-//            if let existingQuizId = existingQuizId {
-//                try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
-//                return existingQuizId
-//            } else {
-//                let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
-//                return newQuizId
-//            }
+//        func uploadQuiz() async throws {
+//        var quizToUpload = Quiz(
+//            id: existingQuizId ?? UUID().uuidString,
+//            info: Info(
+//                title: quizTitle,
+//                description: quizDescription,
+//                peopleAttended: 0,
+//                rules: [""]
+//            ),
+//            quizCategory: quizCategory,
+//            quizCategoryID: quizCategoryID,
+//            accountTypes: Array(selectedAccountTypes),
+//            dateCreated: existingQuizId == nil ? Date() : nil,
+//            dueDate: quizDueDate,
+//            organizationId: organizationId,
+//            verificationType: verificationType,
+//            acknowledgmentText: acknowledgmentText.isEmpty ? nil : acknowledgmentText,
+//            questions: questions
+//        )
+//
+//        if existingQuizId != nil {
+//            try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//        } else {
+//            let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//            quizToUpload.id = newQuizId
 //        }
+//    }
 //    
+    
     func uploadQuiz() async throws {
         guard validateOrganization() else {
             throw NSError(domain: "CreateQuizViewModel", code: 400,
@@ -526,21 +538,16 @@ class CreateQuizViewModel: ObservableObject {
             questions: questions
         )
 
-        print("DEBUG - Quiz being uploaded:")
-          print("ID: \(quizToUpload.id)")
-          print("Title: \(quizToUpload.info.title)")
-          print("VerificationType: \(quizToUpload.verificationType)")
-          print("Account Types: \(quizToUpload.accountTypes)")
-          print("Organization ID: \(quizToUpload.organizationId)")
+     
 
-          if existingQuizId != nil {
-              print("DEBUG - Updating existing quiz")
-              try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
-          } else {
-              print("DEBUG - Creating new quiz")
-              let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
-              print("DEBUG - New quiz ID: \(newQuizId)")
-          }
+        if existingQuizId != nil {
+        
+            try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
+        } else {
+          
+            let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
+          
+        }
 
         // Assign quiz to selected users within the same organization
         for userID in selectedUserIDs {
@@ -556,6 +563,82 @@ class CreateQuizViewModel: ObservableObject {
             }
         }
     }
+    
+    
+//    func uploadQuiz() async throws {
+//        guard validateOrganization() else {
+//            throw NSError(domain: "CreateQuizViewModel", code: 400,
+//                         userInfo: [NSLocalizedDescriptionKey: errorMessage ?? "Missing organization ID"])
+//        }
+//        
+//        let currentOrgId = organizationId
+//        print("Uploading quiz for organization: \(currentOrgId)")
+//        
+//        let accountTypesArray = Array(selectedAccountTypes)
+//        print("Selected Account Types: \(accountTypesArray)")
+//        
+//        var quizToUpload = Quiz(
+//            id: existingQuizId ?? UUID().uuidString,
+//            info: Info(
+//                title: quizTitle,
+//                description: quizDescription,
+//                peopleAttended: 0,
+//                rules: [""]
+//            ),
+//            quizCategory: quizCategory,
+//            quizCategoryID: quizCategoryID,
+//            accountTypes: accountTypesArray,
+//            dateCreated: existingQuizId == nil ? Date() : nil,
+//            dueDate: quizDueDate,
+//            renewalFrequency: nil,
+//            nextRenewalDates: nil,
+//            customRenewalDate: nil,
+//            organizationId: currentOrgId,
+//            verificationType: verificationType,
+//            acknowledgmentText: acknowledgmentText.isEmpty ? nil : acknowledgmentText,
+//            questions: questions
+//        )
+//
+//        print("DEBUG - Quiz being uploaded:")
+//        print("ID: \(quizToUpload.id)")
+//        print("Title: \(quizToUpload.info.title)")
+//        print("VerificationType: \(quizToUpload.verificationType)")
+//        print("Account Types: \(quizToUpload.accountTypes)")
+//        print("Organization ID: \(quizToUpload.organizationId)")
+//        print("Selected User IDs: \(selectedUserIDs)")
+//
+//        // First upload or update the quiz
+//        if existingQuizId != nil {
+//            print("DEBUG - Updating existing quiz")
+//            try await quizManager.updateQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//        } else {
+//            print("DEBUG - Creating new quiz")
+//            let newQuizId = try await quizManager.uploadQuizWithQuestions(quiz: quizToUpload, questions: questions)
+//            quizToUpload.id = newQuizId
+//            print("DEBUG - New quiz ID: \(newQuizId)")
+//        }
+//
+//        // Then assign to users - make sure this runs after quiz is created
+//        print("Starting user assignments...")
+//        for userID in selectedUserIDs {
+//            do {
+//                guard let user = try await UserManager.shared.fetchUser(by: userID) else {
+//                    print("Warning: Could not find user with ID: \(userID)")
+//                    continue
+//                }
+//                
+//                if user.organizationId == organizationId {
+//                    print("Assigning quiz to user: \(user.username)")
+//                    try await UserManager.shared.assignQuizToUser(user: user, quiz: quizToUpload)
+//                    print("Successfully assigned quiz to user: \(user.username)")
+//                } else {
+//                    print("Warning: User \(userID) belongs to different organization (org: \(user.organizationId ?? "none"))")
+//                }
+//            } catch {
+//                print("Error assigning quiz to user \(userID): \(error.localizedDescription)")
+//            }
+//        }
+//    }
     func toggleAccountType(_ accountType: String) {
         if selectedAccountTypes.contains(accountType) {
             selectedAccountTypes.remove(accountType)

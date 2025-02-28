@@ -708,7 +708,7 @@ import UniformTypeIdentifiers
 //}
 
 struct CreateQuizView: View {
-    @ObservedObject var viewModel: CreateQuizViewModel
+    @StateObject var viewModel: CreateQuizViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showingAddQuestion = false
     @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")

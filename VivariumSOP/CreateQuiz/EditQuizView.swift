@@ -706,67 +706,126 @@ class EditQuizViewModel: ObservableObject {
            print("Renewal frequency is now: \(String(describing: self.renewalFrequency))")
        }
     init(quiz: Quiz) {
-           self.quizId = quiz.id
-           self.quizTitle = quiz.info.title
-           self.quizDescription = quiz.info.description
-           self.quizCategory = quiz.quizCategory
-           self.quizCategoryID = quiz.quizCategoryID
-           self.quizDueDate = quiz.dueDate ?? Date()
-           self.selectedAccountTypes = Set(quiz.accountTypes)
-           self.questions = []
-           self.renewalFrequency = quiz.renewalFrequency
-           self.nextRenewalDate = quiz.nextRenewalDates
-           self.customRenewalDate = quiz.nextRenewalDates ?? Date()
-           
-           print("Initializing EditQuizViewModel with quiz: \(quiz.id) for organization: \(organizationId)")
-           
-           Task {
-               await fetchQuestions()
-               await fetchAssignedUsers()
-               await fetchAvailableUsers()
-           }
-       }
-    func fetchAvailableUsers() async {
-            print("Starting to fetch available users for organization: \(organizationId)")
-            isLoadingUsers = true
-            userLoadingError = nil
-            
-            do {
-                // Fetch all users
-                let allUsers = try await userManager.getAllUsers()
-                
-                // Filter users by organization ID
-                let organizationUsers = allUsers.filter { $0.organizationId == organizationId }
-                
-                await MainActor.run {
-                    self.availableUsers = organizationUsers
-                    print("Fetched \(organizationUsers.count) users for organization")
-                    
-                    // Update selected users
-                    updateSelectedUsers()
-                    self.isLoadingUsers = false
-                }
-            } catch {
-                await MainActor.run {
-                    print("Error fetching users: \(error.localizedDescription)")
-                    self.availableUsers = []
-                    self.isLoadingUsers = false
-                    self.userLoadingError = error.localizedDescription
-                }
+        self.quizId = quiz.id
+        self.quizTitle = quiz.info.title
+        self.quizDescription = quiz.info.description
+        self.quizCategory = quiz.quizCategory
+        self.quizCategoryID = quiz.quizCategoryID
+        self.quizDueDate = quiz.dueDate ?? Date()
+        self.selectedAccountTypes = Set(quiz.accountTypes)
+        self.questions = []
+        self.renewalFrequency = quiz.renewalFrequency
+        self.nextRenewalDate = quiz.nextRenewalDates
+        self.customRenewalDate = quiz.nextRenewalDates ?? Date()
+        
+        print("Initializing EditQuizViewModel with quiz: \(quiz.id) for organization: \(organizationId)")
+        
+        Task {
+            await fetchQuestions()
+            await fetchAssignedUsers()
+            await fetchAvailableUsers()
+            // After fetching users, update selected users based on account types
+            await MainActor.run {
+                updateSelectedUsersForAccountTypes()
             }
         }
+    }
 
-        private func updateSelectedUsers() {
-            // Update selectedUserIDs based on the current quiz and fetched users
+    private func updateSelectedUsersForAccountTypes() {
+        for accountType in selectedAccountTypes {
+            let usersForType = availableUsers
+                .filter {
+                    $0.accountType == accountType &&
+                    !excludedUsers.contains($0.id ?? "") &&
+                    $0.organizationId == organizationId
+                }
+                .compactMap { $0.id }
+            selectedUserIDs.formUnion(usersForType)
+        }
+        
+        print("Initial selected users updated: \(selectedUserIDs.count) users selected")
+    }
+    func fetchAvailableUsers() async {
+        print("Starting to fetch available users for organization: \(organizationId)")
+        isLoadingUsers = true
+        userLoadingError = nil
+        
+        do {
+            // Fetch all users
+            let allUsers = try await userManager.getAllUsers()
+            
+            // Filter users by organization ID
+            let organizationUsers = allUsers.filter { $0.organizationId == organizationId }
+            
+            await MainActor.run {
+                self.availableUsers = organizationUsers
+                print("Fetched \(organizationUsers.count) users for organization")
+                
+                // If account types are selected, update user selections
+                if !selectedAccountTypes.isEmpty {
+                    updateSelectedUsersForAccountTypes()
+                } else {
+                    // Only update from assigned users if no account types are selected
+                    updateSelectedUsers()
+                }
+                
+                self.isLoadingUsers = false
+            }
+        } catch {
+            await MainActor.run {
+                print("Error fetching users: \(error.localizedDescription)")
+                self.availableUsers = []
+                self.isLoadingUsers = false
+                self.userLoadingError = error.localizedDescription
+            }
+        }
+    }
+
+    private func updateSelectedUsers() {
+        // Only update selections if no account types are selected
+        if selectedAccountTypes.isEmpty {
             selectedUserIDs = Set(availableUsers.filter { user in
-                // Only include users from the same organization who have this quiz assigned
                 return user.organizationId == organizationId &&
                        (user.quizScores?.contains(where: { $0.quizID == quizId }) ?? false)
             }.compactMap { $0.id })
-            
-            print("Selected users updated: \(selectedUserIDs.count) users selected")
         }
+        
+        print("Selected users updated: \(selectedUserIDs.count) users selected")
+    }
+    
+    func toggleAccountType(_ accountType: String) {
+        print("Toggling account type: \(accountType)")
+        print("Before - Selected account types: \(selectedAccountTypes)")
+        print("Before - Selected user IDs: \(selectedUserIDs.count)")
 
+        if selectedAccountTypes.contains(accountType) {
+            selectedAccountTypes.remove(accountType)
+            // Remove all users of this account type from selectedUserIDs, unless individually assigned
+            selectedUserIDs = selectedUserIDs.filter { userID in
+                guard let user = availableUsers.first(where: { $0.id == userID }) else { return false }
+                return user.accountType != accountType || individuallyAssignedUsers.contains(userID)
+            }
+        } else {
+            selectedAccountTypes.insert(accountType)
+            // Add all users of this account type to selectedUserIDs, unless excluded
+            let usersToAdd = availableUsers
+                .filter {
+                    $0.accountType == accountType &&
+                    !excludedUsers.contains($0.id ?? "") &&
+                    $0.organizationId == organizationId
+                }
+                .compactMap { $0.id }
+            selectedUserIDs.formUnion(usersToAdd)
+        }
+        
+        print("After - Selected account types: \(selectedAccountTypes)")
+        print("After - Selected user IDs: \(selectedUserIDs.count)")
+        print("Available users count: \(availableUsers.count)")
+        
+        // Force UI update
+        objectWillChange.send()
+    }
+    
         func toggleUserSelection(_ userId: String) {
             guard let user = availableUsers.first(where: { $0.id == userId }),
                   user.organizationId == organizationId else {
@@ -790,29 +849,37 @@ class EditQuizViewModel: ObservableObject {
             objectWillChange.send()
         }
 
-        func toggleAccountType(_ accountType: String) {
-            if selectedAccountTypes.contains(accountType) {
-                selectedAccountTypes.remove(accountType)
-                // Remove all users of this account type from selectedUserIDs, unless individually assigned
-                selectedUserIDs = selectedUserIDs.filter { userID in
-                    let user = availableUsers.first(where: { $0.id == userID })
-                    return (user?.accountType != accountType || individuallyAssignedUsers.contains(userID)) &&
-                           user?.organizationId == organizationId
-                }
-            } else {
-                selectedAccountTypes.insert(accountType)
-                // Add all users of this account type to selectedUserIDs, unless excluded
-                let usersToAdd = availableUsers
-                    .filter {
-                        $0.accountType == accountType &&
-                        !excludedUsers.contains($0.id ?? "") &&
-                        $0.organizationId == organizationId
-                    }
-                    .compactMap { $0.id }
-                selectedUserIDs.formUnion(usersToAdd)
-            }
-            objectWillChange.send()
-        }
+//    func toggleAccountType(_ accountType: String) {
+//        if selectedAccountTypes.contains(accountType) {
+//            selectedAccountTypes.remove(accountType)
+//            // Remove all users of this account type from selectedUserIDs, unless individually assigned
+//            selectedUserIDs = selectedUserIDs.filter { userID in
+//                let user = availableUsers.first(where: { $0.id == userID })
+//                return (user?.accountType != accountType || individuallyAssignedUsers.contains(userID)) &&
+//                       user?.organizationId == organizationId
+//            }
+//        } else {
+//            selectedAccountTypes.insert(accountType)
+//            // Add all users of this account type to selectedUserIDs, unless excluded
+//            let usersToAdd = availableUsers
+//                .filter {
+//                    $0.accountType == accountType &&
+//                    !excludedUsers.contains($0.id ?? "") &&
+//                    $0.organizationId == organizationId
+//                }
+//                .compactMap { $0.id }
+//            selectedUserIDs.formUnion(usersToAdd)
+//        }
+//        
+//        // Force UI update
+//        objectWillChange.send()
+//        
+//        // Debug print statements
+//        print("Account type \(accountType) toggled")
+//        print("Selected account types: \(selectedAccountTypes)")
+//        print("Selected user IDs: \(selectedUserIDs)")
+//        print("Available users: \(availableUsers.map { "\($0.username): \($0.accountType)" })")
+//    }
 
         func updateQuiz() async throws {
             let nextRenewalDate = calculateNextRenewalDate()
@@ -907,29 +974,182 @@ class EditQuizViewModel: ObservableObject {
         }
 }
 
+//struct EditQuizView: View {
+//    @StateObject var viewModel: EditQuizViewModel
+//       @Environment(\.presentationMode) var presentationMode
+//       @State private var showingAddQuestion = false
+//       @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//       @State private var refreshToggle = false
+//       @State private var selectedRenewalFrequency: Quiz.RenewalFrequency?
+//       @State private var customRenewalDate: Date = Date()
+//    private var renewalFrequencyBinding: Binding<Quiz.RenewalFrequency?> {
+//            Binding<Quiz.RenewalFrequency?>(
+//                get: { self.viewModel.renewalFrequency },
+//                set: { self.viewModel.updateRenewalFrequency($0) }
+//            )
+//        }
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                           Section(header: Text("Quiz Details")) {
+//                               TextField("Quiz Title", text: $viewModel.quizTitle)
+//                                   .disabled(true)
+//                               TextField("Description", text: $viewModel.quizDescription)
+//                               DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+//                           }
+//                
+//                Section(header: Text("Renewal Settings")) {
+//                    Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
+//                        Text("None").tag(Quiz.RenewalFrequency?.none)
+//                        Text("Quarterly").tag(Quiz.RenewalFrequency?.some(.quarterly))
+//                        Text("Yearly").tag(Quiz.RenewalFrequency?.some(.yearly))
+//                        Text("Custom").tag(Quiz.RenewalFrequency?.some(.custom))
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//
+//                    if viewModel.renewalFrequency == .custom {
+//                        DatePicker("Custom Renewal Date", selection: $viewModel.customRenewalDate, displayedComponents: .date)
+//                    }
+//
+//                    if let nextRenewalDate = viewModel.nextRenewalDate {
+//                        Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
+//                    }
+//                              }
+////
+////                    if selectedRenewalFrequency == .custom {
+////                        DatePicker("Custom Renewal Date", selection: $customRenewalDate, displayedComponents: .date)
+////                            .onChange(of: customRenewalDate) { newValue in
+////                                viewModel.customRenewalDate = newValue
+////                            }
+////                    }
+//               // }
+//                
+//                Section(header: Text("Account Types")) {
+//                    ForEach(AccountType.allCases, id: \.self) { accountType in
+//                        Toggle(accountType.rawValue, isOn: Binding(
+//                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+//                            set: { isOn in
+//                                if isOn {
+//                                    viewModel.toggleAccountType(accountType.rawValue)
+//                                } else {
+//                                    viewModel.toggleAccountType(accountType.rawValue)
+//                                }
+//                            }
+//                        ))
+//                    }
+//                }
+//                
+//                Section(header: Text("Assign to Users")) {
+//                                   if viewModel.isLoadingUsers {
+//                                       ProgressView("Loading users...")
+//                                   } else if let error = viewModel.userLoadingError {
+//                                       Text("Error: \(error)")
+//                                           .foregroundColor(.red)
+//                                   } else if viewModel.availableUsers.isEmpty {
+//                                       Text("No users available")
+//                                   } else {
+//                                       ForEach(viewModel.availableUsers, id: \.id) { user in
+//                                           Toggle(isOn: Binding(
+//                                               get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+//                                               set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+//                                           )) {
+//                                               HStack {
+//                                                   Text("\(user.username) - \(user.accountType)")
+//                                                   if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
+//                                                       Image(systemName: "person.fill")
+//                                                           .foregroundColor(.blue)
+//                                                   } else if viewModel.excludedUsers.contains(user.id ?? "") {
+//                                                       Image(systemName: "person.fill.xmark")
+//                                                           .foregroundColor(.red)
+//                                                   }
+//                                               }
+//                                           }
+//                                       }
+//                                   }
+//                               }
+//                
+//                Section(header: Text("Questions")) {
+//                    ForEach(viewModel.questions.indices, id: \.self) { index in
+//                        NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+//                            Text("Question \(index + 1)")
+//                        }
+//                    }
+//                    .onDelete(perform: deleteQuestion)
+//                    
+//                    Button(action: { showingAddQuestion = true }) {
+//                        Label("Add Question", systemImage: "plus")
+//                    }
+//                }
+//            }
+//            .navigationTitle(viewModel.quizTitle)
+//            .navigationBarItems(
+//                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+//                trailing: Button("Save") { saveQuiz() }
+//            )
+//            .sheet(isPresented: $showingAddQuestion) {
+//                AddQuestionView(question: $newQuestion)
+//                    .onDisappear {
+//                        if !newQuestion.questionText.isEmpty {
+//                            viewModel.questions.append(newQuestion)
+//                            newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//                        }
+//                    }
+//            }
+//        }
+//        .id(refreshToggle)
+//        .onAppear {
+////            selectedRenewalFrequency = viewModel.renewalFrequency
+////            customRenewalDate = viewModel.customRenewalDate ?? Date()
+//            Task {
+//                await viewModel.fetchQuizDetails()
+//                await viewModel.fetchAvailableUsers()
+//            }
+//        }
+//    }
+//
+//    private func deleteQuestion(at offsets: IndexSet) {
+//        viewModel.questions.remove(atOffsets: offsets)
+//    }
+//
+//    private func saveQuiz() {
+//        Task {
+//            do {
+//                try await viewModel.updateQuiz()
+//                presentationMode.wrappedValue.dismiss()
+//            } catch {
+//                print("Error updating quiz: \(error)")
+//            }
+//        }
+//    }
+//    private let itemFormatter: DateFormatter = {
+//           let formatter = DateFormatter()
+//           formatter.dateStyle = .medium
+//           formatter.timeStyle = .short
+//           return formatter
+//       }()
+//    
+//    
+//    
+//}
+
+
 struct EditQuizView: View {
-    @ObservedObject var viewModel: EditQuizViewModel
-       @Environment(\.presentationMode) var presentationMode
-       @State private var showingAddQuestion = false
-       @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
-       @State private var refreshToggle = false
-       @State private var selectedRenewalFrequency: Quiz.RenewalFrequency?
-       @State private var customRenewalDate: Date = Date()
-    private var renewalFrequencyBinding: Binding<Quiz.RenewalFrequency?> {
-            Binding<Quiz.RenewalFrequency?>(
-                get: { self.viewModel.renewalFrequency },
-                set: { self.viewModel.updateRenewalFrequency($0) }
-            )
-        }
+    @StateObject var viewModel: EditQuizViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @State private var showingAddQuestion = false
+    @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+    @State private var refreshToggle = false
+    var onSave: (() -> Void)? // Add callback for refresh
+    
     var body: some View {
         NavigationView {
             Form {
-                           Section(header: Text("Quiz Details")) {
-                               TextField("Quiz Title", text: $viewModel.quizTitle)
-                                   .disabled(true)
-                               TextField("Description", text: $viewModel.quizDescription)
-                               DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
-                           }
+                Section(header: Text("Quiz Details")) {
+                    TextField("Quiz Title", text: $viewModel.quizTitle)
+                        .disabled(true)
+                    TextField("Description", text: $viewModel.quizDescription)
+                    DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+                }
                 
                 Section(header: Text("Renewal Settings")) {
                     Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
@@ -947,53 +1167,51 @@ struct EditQuizView: View {
                     if let nextRenewalDate = viewModel.nextRenewalDate {
                         Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
                     }
-                              }
-//
-//                    if selectedRenewalFrequency == .custom {
-//                        DatePicker("Custom Renewal Date", selection: $customRenewalDate, displayedComponents: .date)
-//                            .onChange(of: customRenewalDate) { newValue in
-//                                viewModel.customRenewalDate = newValue
-//                            }
-//                    }
-               // }
+                }
                 
                 Section(header: Text("Account Types")) {
-                                   ForEach(AccountType.allCases, id: \.self) { accountType in
-                                       Toggle(accountType.rawValue, isOn: Binding(
-                                           get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
-                                           set: { _ in viewModel.toggleAccountType(accountType.rawValue) }
-                                       ))
-                                   }
-                               }
+                    ForEach(AccountType.allCases, id: \.self) { accountType in
+                        Toggle(accountType.rawValue, isOn: Binding(
+                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+                            set: { isOn in
+                                if isOn {
+                                    viewModel.toggleAccountType(accountType.rawValue)
+                                } else {
+                                    viewModel.toggleAccountType(accountType.rawValue)
+                                }
+                            }
+                        ))
+                    }
+                }
                 
                 Section(header: Text("Assign to Users")) {
-                                   if viewModel.isLoadingUsers {
-                                       ProgressView("Loading users...")
-                                   } else if let error = viewModel.userLoadingError {
-                                       Text("Error: \(error)")
-                                           .foregroundColor(.red)
-                                   } else if viewModel.availableUsers.isEmpty {
-                                       Text("No users available")
-                                   } else {
-                                       ForEach(viewModel.availableUsers, id: \.id) { user in
-                                           Toggle(isOn: Binding(
-                                               get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
-                                               set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
-                                           )) {
-                                               HStack {
-                                                   Text("\(user.username) - \(user.accountType)")
-                                                   if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
-                                                       Image(systemName: "person.fill")
-                                                           .foregroundColor(.blue)
-                                                   } else if viewModel.excludedUsers.contains(user.id ?? "") {
-                                                       Image(systemName: "person.fill.xmark")
-                                                           .foregroundColor(.red)
-                                                   }
-                                               }
-                                           }
-                                       }
-                                   }
-                               }
+                    if viewModel.isLoadingUsers {
+                        ProgressView("Loading users...")
+                    } else if let error = viewModel.userLoadingError {
+                        Text("Error: \(error)")
+                            .foregroundColor(.red)
+                    } else if viewModel.availableUsers.isEmpty {
+                        Text("No users available")
+                    } else {
+                        ForEach(viewModel.availableUsers, id: \.id) { user in
+                            Toggle(isOn: Binding(
+                                get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+                                set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+                            )) {
+                                HStack {
+                                    Text("\(user.username) - \(user.accountType)")
+                                    if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
+                                        Image(systemName: "person.fill")
+                                            .foregroundColor(.blue)
+                                    } else if viewModel.excludedUsers.contains(user.id ?? "") {
+                                        Image(systemName: "person.fill.xmark")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 Section(header: Text("Questions")) {
                     ForEach(viewModel.questions.indices, id: \.self) { index in
@@ -1025,8 +1243,6 @@ struct EditQuizView: View {
         }
         .id(refreshToggle)
         .onAppear {
-//            selectedRenewalFrequency = viewModel.renewalFrequency
-//            customRenewalDate = viewModel.customRenewalDate ?? Date()
             Task {
                 await viewModel.fetchQuizDetails()
                 await viewModel.fetchAvailableUsers()
@@ -1042,19 +1258,18 @@ struct EditQuizView: View {
         Task {
             do {
                 try await viewModel.updateQuiz()
+                onSave?() // Call the refresh callback
                 presentationMode.wrappedValue.dismiss()
             } catch {
                 print("Error updating quiz: \(error)")
             }
         }
     }
+    
     private let itemFormatter: DateFormatter = {
-           let formatter = DateFormatter()
-           formatter.dateStyle = .medium
-           formatter.timeStyle = .short
-           return formatter
-       }()
-    
-    
-    
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
 }

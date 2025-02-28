@@ -47,7 +47,7 @@ final class SopSearchViewModel: ObservableObject {
                     $0.SOPForStaffTittle.localizedCaseInsensitiveContains(searchQuery)
                 }.sorted { $0.pdfName < $1.pdfName }
             }
-            print("DEBUG - Filter: Filtered to \(filteredPDFList.count) PDFs")
+         
         }
 
     func isPDFCompleted(pdfId: String) -> Bool {
@@ -406,10 +406,13 @@ struct SopSearchView: View {
     @State private var expandedSections: Set<String> = []
     @State private var animatingSection: String? = nil
     
+//    let columns = [
+//        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 16)
+//    ]
     let columns = [
-        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 16)
-    ]
-    
+           GridItem(.flexible(minimum: 140, maximum: .infinity), spacing: 16),
+           GridItem(.flexible(minimum: 140, maximum: .infinity), spacing: 16)
+       ]
     var groupedPDFs: [String: [PDFCategory]] {
         Dictionary(grouping: viewModel.filteredPDFList) { $0.nameOfCategory }
     }
@@ -431,35 +434,29 @@ struct SopSearchView: View {
             .padding(.vertical, 8)
             
             ScrollView {
-                let groupedCount = groupedPDFs.keys.count
-
-                ForEach(groupedPDFs.keys.sorted(), id: \.self) { category in
-                    SectionCard(
-                        category: category,
-                        isExpanded: isExpanded(category),
-                        itemCount: groupedPDFs[category]?.count ?? 0,
-                        onTap: { toggleSection(category) }
-                    ) {
-                        if isExpanded(category) {
-                            LazyVGrid(columns: columns, spacing: 16) {
-                                ForEach(groupedPDFs[category] ?? [], id: \.id) { pdf in
-                                    PDFCardView(pdf: pdf, isCompleted: viewModel.isPDFCompleted(pdfId: pdf.id))
-                                        .frame(height: 260)
-                                }
-                            }
-                            .padding(.horizontal)
-                            .padding(.vertical, 12)
-                            .transition(.asymmetric(
-                                insertion: .scale(scale: 0.95).combined(with: .opacity),
-                                removal: .scale(scale: 0.95).combined(with: .opacity)
-                            ))
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 6)
-                }
-            }
-        }
+                         ForEach(groupedPDFs.keys.sorted(), id: \.self) { category in
+                             SectionCard(
+                                 category: category,
+                                 isExpanded: isExpanded(category),
+                                 itemCount: groupedPDFs[category]?.count ?? 0,
+                                 onTap: { toggleSection(category) }
+                             ) {
+                                 if isExpanded(category) {
+                                     LazyVGrid(columns: columns, spacing: 16) {
+                                         ForEach(groupedPDFs[category] ?? [], id: \.id) { pdf in
+                                             PDFCardView(pdf: pdf, isCompleted: viewModel.isPDFCompleted(pdfId: pdf.id))
+                                                 .frame(height: 260)
+                                         }
+                                     }
+                                     .padding(.horizontal)
+                                     .padding(.vertical, 12)
+                                 }
+                             }
+                             .padding(.horizontal)
+                             .padding(.vertical, 6)
+                         }
+                     }
+                 }
         .navigationTitle("PDF Library")
         .onAppear {
             refreshData()
@@ -484,16 +481,13 @@ struct SopSearchView: View {
     }
     
     private func refreshData() {
-        print("DEBUG: Starting refresh data")
+    
         Task {
-            print("DEBUG: Fetching PDFs")
+          
             await viewModel.fetchAllPDFs()
-            print("DEBUG: PDFs fetched, count: \(viewModel.PDFList.count)")
-            print("DEBUG: Filtered PDFs count: \(viewModel.filteredPDFList.count)")
-            print("DEBUG: Grouped PDFs count: \(groupedPDFs.count)")
-            
+         
             if let currentUserUID = Auth.auth().currentUser?.uid {
-                print("DEBUG: Fetching user progress for \(currentUserUID)")
+            
                 await viewModel.fetchUserProgress(userUID: currentUserUID)
             }
         }
@@ -612,14 +606,14 @@ struct PDFCardView: View {
                 .frame(maxWidth: .infinity)
                 .background(isCompleted ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
             }
-            .frame(maxWidth: .infinity)
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isCompleted ? Color.green.opacity(0.3) : Color.red.opacity(0.3), lineWidth: 1)
-            )
+            .frame(minWidth: 140, maxWidth: .infinity) // Add minWidth constraint
+                       .background(Color(.systemBackground))
+                       .cornerRadius(12)
+                       .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1)
+                       .overlay(
+                           RoundedRectangle(cornerRadius: 12)
+                               .stroke(isCompleted ? Color.green.opacity(0.3) : Color.red.opacity(0.3), lineWidth: 1)
+                       )
         }
     }
 }

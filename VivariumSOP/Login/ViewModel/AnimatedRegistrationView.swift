@@ -67,13 +67,22 @@ let registrationItems: [RegistrationItem] = [
 
 struct AnimatedRegistrationView: View {
     @StateObject private var viewModel = RegisterUserViewModel()
-    @Binding var showLoginView: Bool
-    @Environment(\.presentationMode) var presentationMode
-    @State private var selectedItem: RegistrationItem = registrationItems.first!
-    @State private var introItems: [RegistrationItem] = registrationItems
-    @State private var activeIndex: Int = 0
-    
+       @Binding var showLoginView: Bool
+       @Environment(\.presentationMode) var presentationMode
+       @State private var selectedItem: RegistrationItem = registrationItems.first!
+       @State private var introItems: [RegistrationItem] = registrationItems
+       @State private var activeIndex: Int = 0
+       // Add keyboard state tracking
+       @FocusState private var focusedField: Field?
+       @State private var keyboardHeight: CGFloat = 0
+       
+       // Define fields that can be focused
+       enum Field {
+           case firstName, lastName, email, password, confirmPassword, facilityName
+       }
     var body: some View {
+        // Form Content
+        ScrollView {
         VStack(spacing: 0) {
             HStack{
                 if activeIndex > 0 {
@@ -121,8 +130,7 @@ struct AnimatedRegistrationView: View {
                 Text(selectedItem.subtitle)
                     .foregroundStyle(.gray)
                 
-                // Form Content
-                ScrollView {
+               
                     VStack(spacing: 20) {
                         switch selectedItem.type {
                         case .personalInfo:
@@ -169,6 +177,18 @@ struct AnimatedRegistrationView: View {
                       }
                   .presentationDetents([.large])
         }
+        .scrollDismissesKeyboard(.interactively)
+        .onAppear {
+                    // Setup keyboard notifications
+                    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                        let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+                        keyboardHeight = keyboardFrame?.height ?? 0
+                    }
+                    
+                    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                        keyboardHeight = 0
+                    }
+                }
         .alert(isPresented: $viewModel.showError) {
             Alert(title: Text("Error"),
                   message: Text(viewModel.errorMessage),
@@ -297,20 +317,23 @@ struct AnimatedRegistrationView: View {
 //}
 struct PersonalInfoView: View {
     @ObservedObject var viewModel: RegisterUserViewModel
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            CustomTextField(text: $viewModel.firstName,
-                          placeholder: "First Name",
-                          label: "First Name",
-                          isSecure: false,
-                          icon: "person")
-            
-            CustomTextField(text: $viewModel.lastName,
-                          placeholder: "Last Name",
-                          label: "Last Name",
-                          isSecure: false,
-                          icon: "person")
+       @FocusState var focusedField: AnimatedRegistrationView.Field?
+       
+       var body: some View {
+           VStack(spacing: 20) {
+               CustomTextField(text: $viewModel.firstName,
+                             placeholder: "First Name",
+                             label: "First Name",
+                             isSecure: false,
+                             icon: "person")
+                   .focused($focusedField, equals: .firstName)
+               
+               CustomTextField(text: $viewModel.lastName,
+                             placeholder: "Last Name",
+                             label: "Last Name",
+                             isSecure: false,
+                             icon: "person")
+                   .focused($focusedField, equals: .lastName)
             
             // Replace username TextField with a display-only view
             VStack(alignment: .leading, spacing: 4) {
@@ -392,3 +415,48 @@ struct FacilityInfoView: View {
 }
 
 
+struct CustomTextField: View {
+    @Binding var text: String
+    let placeholder: String
+    let label: String
+    let isSecure: Bool
+    let icon: String
+    var validator: ((String) -> (Bool, String?))? = nil
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.gray)
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.gray)
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                        .textContentType(label.lowercased().contains("confirm") ? .newPassword : .password)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                } else {
+                    TextField(placeholder, text: $text)
+                        .textContentType(label.lowercased().contains("email") ? .emailAddress : .none)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+            
+            if let validator = validator {
+                let (isValid, message) = validator(text)
+                if !isValid && !text.isEmpty {
+                    Text(message ?? "Invalid input")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+            }
+        }
+    }
+}

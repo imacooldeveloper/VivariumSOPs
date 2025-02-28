@@ -206,8 +206,7 @@ class LoginViewModel: ObservableObject {
         let user = try await Firestore.firestore().collection("Users").document(userUID).getDocument(as: User.self)
       
         // Debug print to check user data
-        print("Fetched user data: \(user)")
-        print("Organization ID check: \(user.organizationId ?? "No org ID")")
+      
 
         self.userUID = userUID
         userNameStored = user.username
@@ -218,18 +217,18 @@ class LoginViewModel: ObservableObject {
         
         // Explicitly check for organizationId presence
         if let orgId = user.organizationId, !orgId.isEmpty {
-            print("User has organization: \(orgId)")
+        
             selectedOrganizationId = orgId
             organizationId = orgId
             logStatus = true
         } else {
-            print("No organization found - showing selection view")
+          
             // Ensure organizations are loaded before showing selection
             if !organizations.isEmpty {
                 showOrganizationSelection = true
                 logStatus = false // Keep logged out until org is selected
             } else {
-                print("No organizations available")
+             
                 // Handle the case where no organizations are available
                 errorMessage = "No organizations available. Please contact support."
                 showError = true

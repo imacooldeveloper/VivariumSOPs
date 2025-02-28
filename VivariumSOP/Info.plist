@@ -1,8 +1,30 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">-->
+<!--<plist version="1.0">-->
+<!--<dict>-->
+<!--	<key>CFBundleGetInfoString</key>-->
+<!--	<string></string>-->
+<!--	<key>NSExtensionFileProviderOnlyVisibleInParentApplication</key>-->
+<!--	<false/>-->
+<!--	<key>U</key>-->
+<!--	<string></string>-->
+<!--</dict>-->
+<!--</plist>-->
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSExtensionFileProviderOnlyVisibleInParentApplication</key>
-	<false/>
+    <key>CFBundleGetInfoString</key>
+    <string></string>
+    <key>NSExtensionFileProviderOnlyVisibleInParentApplication</key>
+    <false/>
+    <key>U</key>
+    <string></string>
+    <!-- Add these lines here -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
+    <!-- End of new addition -->
 </dict>
 </plist>

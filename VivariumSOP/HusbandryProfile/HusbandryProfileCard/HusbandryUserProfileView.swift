@@ -11,7 +11,7 @@ import SwiftUI
 
 struct HusbandryUserProfileView: View {
     @EnvironmentObject var navigationHandler: NavigationHandler
-    @ObservedObject var viewModel = HusbandryUserProfileViewModel()
+    @State var viewModel = HusbandryUserProfileViewModel()
     @State private var batteryLevel: Double = 60
     var userSelected: User?
     let columns = [

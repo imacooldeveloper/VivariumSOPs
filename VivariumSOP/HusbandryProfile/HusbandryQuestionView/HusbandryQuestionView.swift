@@ -298,7 +298,7 @@ struct HusbandryQuestionView: View {
         Group {
             if vm.questions.isEmpty  {
                 QuizAcknowledgmentView(quiz:Quiz(
-                    id: "quiz001",
+                    id: quizId,
                     info: Info(
                         title: "Vivarium Safety Protocol",
                         description: "This quiz tests your knowledge on vivarium safety protocols.",
@@ -313,7 +313,7 @@ struct HusbandryQuestionView: View {
                     renewalFrequency: .yearly,
                     nextRenewalDates: Calendar.current.date(byAdding: .year, value: 1, to: Date()),
                     customRenewalDate: nil,
-                    organizationId: "org001",
+                    organizationId: "org1",
                     verificationType: .quiz,
                     acknowledgmentText: "Please acknowledge that you have read the safety SOP before starting.",
                     questions: [
@@ -348,7 +348,11 @@ struct HusbandryQuestionView: View {
 //                if let quiz = vm.quiz {
 //                    QuizAcknowledgmentView(quiz: quiz, onFinish: onFinish)
 //                }
-            } else { VStack {
+                //QuizAcknowledgmentView(quiz: vm.quiz, onFinish: onFinish)
+            }
+            
+          
+            else { VStack {
                 // Header
                 HStack {
                     Button(action: dismiss.callAsFunction) {

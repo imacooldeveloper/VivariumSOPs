@@ -74,12 +74,6 @@ class FloorManagementViewModel: ObservableObject {
 
 
 
-////
-///
-///
-///
-///
-import SwiftUI
 
 // Floor Section Row View
 struct FloorSectionRow: View {
@@ -176,17 +170,3 @@ struct FloorListView: View {
     }
 }
 
-// AddFloorView remains the same as before
-
-
-//extension BuildingManagerViewModel {
-//    func addFloor(to buildingId: String, floorName: String, level: Int, isRestricted: Bool) {
-//        guard let building = buildings.first(where: { $0.id == buildingId }) else { return }
-//        addFloor(
-//            to: building,
-//            level: level,
-//            name: floorName,
-//            isRestricted: isRestricted
-//        )
-//    }
-//}

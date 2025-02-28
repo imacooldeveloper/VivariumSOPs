@@ -57,7 +57,7 @@ struct PDFDetailsView: View {
             Spacer()
         }
         .padding()
-        .navigationBarTitle("PDF Detail", displayMode: .inline)
+        .navigationBarTitle(pdfDocument.pdfName, displayMode: .inline)
         .onAppear {
             setupView()
             loadPDF()

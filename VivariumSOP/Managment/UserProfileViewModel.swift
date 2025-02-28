@@ -66,45 +66,97 @@ final class UserProfileViewModel: ObservableObject {
            }
        }
        
-       @MainActor
-       func fetchUserQuizzes() async {
-           guard let user = self.user else {
-               print("No user available to fetch quizzes")
-               return
-           }
-           
-           print("Fetching quizzes for user: \(user.username) in organization: \(user.organizationId ?? "none")")
-           
-           do {
-               // Fetch quizzes for the user's organization and account type
-               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
-                   [user.accountType],
-                   organizationId: user.organizationId ?? organizationId
-               )
-               
-               // Process completed quizzes
-               var completedQuizzes: [QuizWithScore] = []
-               var incompleteQuizzes: [Quiz] = []
-               
-               for quiz in organizationQuizzes {
-                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
-                      let highestScore = quizScore.scores.max() {
-                       completedQuizzes.append(QuizWithScore(quiz: quiz, score: highestScore))
-                   } else {
-                       incompleteQuizzes.append(quiz)
-                   }
-               }
-               
-               await MainActor.run {
-                   self.quizzesWithScores = completedQuizzes
-                   self.uncompletedQuizzes = incompleteQuizzes
-                   print("Found \(completedQuizzes.count) completed and \(incompleteQuizzes.count) incomplete quizzes")
-               }
-           } catch {
-               print("Error fetching user quizzes: \(error)")
-           }
-       }
-       
+//       @MainActor
+//       func fetchUserQuizzes() async {
+//           guard let user = self.user else {
+//               print("No user available to fetch quizzes")
+//               return
+//           }
+//           
+//           print("Fetching quizzes for user: \(user.username) in organization: \(user.organizationId ?? "none")")
+//           
+//           do {
+//               // Fetch quizzes for the user's organization and account type
+//               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+//                   [user.accountType],
+//                   organizationId: user.organizationId ?? organizationId
+//               )
+//               
+//               // Process completed quizzes
+//               var completedQuizzes: [QuizWithScore] = []
+//               var incompleteQuizzes: [Quiz] = []
+//               
+//               for quiz in organizationQuizzes {
+//                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+//                      let highestScore = quizScore.scores.max() {
+//                       completedQuizzes.append(QuizWithScore(quiz: quiz, score: highestScore))
+//                   } else {
+//                       incompleteQuizzes.append(quiz)
+//                   }
+//               }
+//               
+//               await MainActor.run {
+//                   self.quizzesWithScores = completedQuizzes
+//                   self.uncompletedQuizzes = incompleteQuizzes
+//                   print("Found \(completedQuizzes.count) completed and \(incompleteQuizzes.count) incomplete quizzes")
+//               }
+//           } catch {
+//               print("Error fetching user quizzes: \(error)")
+//           }
+//       }
+//       
+    
+    @MainActor
+    func fetchUserQuizzes() async {
+        guard let user = self.user else { return }
+        
+        do {
+            // 1. Fetch ALL quizzes for the organization
+            let allOrganizationQuizzes = try await QuizManager.shared.getAllQuizzes(for: user.organizationId ?? organizationId)
+            
+            // 2. Filter quizzes to include those matching account type OR directly assigned to user
+            let userQuizzes = allOrganizationQuizzes.filter { quiz in
+                // Quiz matches user's account type
+                let matchesAccountType = quiz.accountTypes.contains(user.accountType)
+                
+                // Quiz is directly assigned to user (has an entry in quizScores)
+                let isDirectlyAssigned = user.quizScores?.contains { $0.quizID == quiz.id } ?? false
+                
+                return matchesAccountType || isDirectlyAssigned
+            }
+            
+            // Process completed and uncompleted quizzes
+            var completedQuizzes: [QuizWithScore] = []
+            var incompleteQuizzes: [Quiz] = []
+            
+            for quiz in userQuizzes {
+                if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+                   let highestScore = quizScore.scores.max() {
+                    let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
+                    if highestScore >= 80.0 {
+                        completedQuizzes.append(quizWithScore)
+                    } else {
+                        incompleteQuizzes.append(quiz)
+                    }
+                } else {
+                    incompleteQuizzes.append(quiz)
+                }
+            }
+            
+            await MainActor.run {
+                self.quizzesWithScores = completedQuizzes
+                self.uncompletedQuizzes = incompleteQuizzes
+            }
+            
+            print("Completed Quizzes: \(completedQuizzes.count)")
+            print("Uncompleted Quizzes: \(incompleteQuizzes.count)")
+            
+        } catch {
+            print("Error fetching quizzes: \(error)")
+        }
+    }
+    
+    
        @MainActor
        func fetchCompletedQuizzesAndScoresofUser(user: User) async {
            self.user = user

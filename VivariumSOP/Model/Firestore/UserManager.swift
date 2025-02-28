@@ -191,6 +191,49 @@ class UserManager {
         try await updateUser(updatedUser)
     }
 
+//    func assignQuizToUser(user: User, quiz: Quiz) async throws {
+//        // Check the verification type of the quiz
+//        switch quiz.verificationType {
+//        case .acknowledgment:
+//            // For acknowledgment only, automatically create a score of 100
+//            let acknowledgmentScore = UserQuizScore(
+//                quizID: quiz.id,
+//                scores: [100], // Automatically set to 100%
+//                completionDates: [Date()],
+//                dueDates: [quiz.id: quiz.dueDate],
+//                nextRenewalDates: nil,
+//                acknowledgmentStatus: UserQuizScore.AcknowledgmentStatus(
+//                    acknowledged: true,
+//                    acknowledgedDate: Date(),
+//                    readingTime: nil  // You could track this if needed
+//                )
+//            )
+//            // Update user's quiz scores
+//            var updatedScores = user.quizScores ?? []
+//            updatedScores.append(acknowledgmentScore)
+//            // Update user document
+//            
+//        case .quiz:
+//            // Handle regular quiz assignment (your existing logic)
+//            let quizScore = UserQuizScore(
+//                quizID: quiz.id,
+//                scores: [],  // Will be filled when user actually takes the quiz
+//                completionDates: [],
+//                dueDates: [quiz.id: quiz.dueDate]
+//            )
+//            
+//        case .both:
+//            // For both types, create structure but don't mark as complete until both are done
+//            let combinedScore = UserQuizScore(
+//                quizID: quiz.id,
+//                scores: [],  // Will be filled when user takes the quiz portion
+//                completionDates: [],
+//                dueDates: [quiz.id: quiz.dueDate],
+//                acknowledgmentStatus: nil  // Will be filled when user acknowledges
+//            )
+//        }
+//    }
+//    
     func calculateNextRenewalDate(for quiz: Quiz, from date: Date) -> Date? {
         guard let renewalFrequency = quiz.renewalFrequency else { return nil }
         

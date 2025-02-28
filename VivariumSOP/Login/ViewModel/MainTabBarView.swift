@@ -15,6 +15,8 @@ struct MainTabBarView: View {
     @StateObject private var navigationHandler = NavigationHandler()
     @State private var selectedTab = 0
     @AppStorage("account_Type") var userAccountType: String = ""
+    @StateObject private var notificationManager = NotificationManager.shared  // Add this line
+        
     var body: some View {
         
         if userAccountType.lowercased() != "husbandry"  {
@@ -83,31 +85,56 @@ struct MainTabBarView: View {
             .onChange(of: selectedTab) { _ in
                 navigationHandler.path.removeLast(navigationHandler.path.count)
             }
+            .onAppear {
+                
+                Task {
+                       await MainActor.run {
+                           notificationManager.requestAuthorization()
+                       }
+                   }
+                
+            }
            
         } else {
             NavigationStack {
                 TabView(selection: $selectedTab) {
-                    SOPCategoryView()
-                        .navigationTitle("Upload PDFs")
+                    
+                    HusbandryUserProfileView()
                         .tabItem {
-                            Label("Home", systemImage: "folder.fill")
+                            Label("Home", systemImage: "person.circle.fill")
                         }
                         .tag(0)
                     
+//
+//                    
                     SopSearchView()
                         .navigationTitle("Search")
                    
                         .tabItem {
                             Label("Search", systemImage: "doc.text.magnifyingglass")
                         }
-                        .tag(2)
+                        .tag(1)
                     
-                    HusbandryUserProfileView()
-                        .tabItem {
-                            Label("Home", systemImage: "person.circle.fill")
-                        }
-                        .tag(3)
+                    SOPCategoryView()
+                                           .navigationTitle("Folder")
+                                           .tabItem {
+                                               Label("Folder", systemImage: "folder.fill")
+                                           }
+                                           .tag(2)
                 }
+                
+                
+                
+                
+                .onAppear {
+                    Task {
+                           await MainActor.run {
+                               notificationManager.requestAuthorization()
+                           }
+                       }
+                }
+                
+                
                 .navigationDestination(for: Categorys.self) { category in
                     SOPCategoryListView(catagoryType: category.categoryTitle)
                 }
@@ -135,8 +162,12 @@ struct MainTabBarView: View {
                       }
                 .navigationBarItems(trailing: signOutButton)
             }
+           
         }
+          
+           
     }
+   
 
     private var signOutButton: some View {
         Button(action: {
@@ -145,9 +176,6 @@ struct MainTabBarView: View {
             Text("Sign Out")
         }
     }
-    
-       
-   
     
     
 }

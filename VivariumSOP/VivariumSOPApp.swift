@@ -64,6 +64,24 @@ import UserNotifications
 //    }
 //}
 
+
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+    
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+}
+
+
+
 @main
 struct VivariumSOPApp: App {
     
@@ -76,6 +94,8 @@ struct VivariumSOPApp: App {
     @StateObject var sharedViewModel = PDFCategoryViewModel()
     @StateObject var buildingViewModel =  BuildingManagerViewModel()
     @StateObject var userViewModel =  UserProfileViewModel()
+    @StateObject private var notificationManager = NotificationManager.shared
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     init() {
         FirebaseApp.configure()
         // FirebaseApp.configure()
@@ -93,7 +113,9 @@ struct VivariumSOPApp: App {
                              .environmentObject(sharedViewModel)
                              .environmentObject(buildingViewModel)
                              .environmentObject(userViewModel)
-                         
+//                             .onAppear {
+//                                        notificationManager.requestAuthorization()
+//                                    }
                      }
                  } else {
                      LoginView()

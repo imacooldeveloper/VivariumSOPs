@@ -120,9 +120,9 @@ struct PDFUploadView: View {
                 }
             }
             .navigationTitle("Add New PDFs")
-            .navigationBarItems(trailing: Button("Done") {
-                presentationMode.wrappedValue.dismiss()
-            })
+//            .navigationBarItems(trailing: Button("Done") {
+//                presentationMode.wrappedValue.dismiss()
+//            })
             .fileImporter(
                 isPresented: $showFileImporter,
                 allowedContentTypes: [.pdf],

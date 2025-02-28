@@ -117,77 +117,77 @@ struct LoginTextField: View {
 }
 
 
-struct CustomTextField: View {
-    @Binding var text: String
-    let placeholder: String
-    let label: String
-    let isSecure: Bool
-    let icon: String?
-    var validator: ((String) -> (Bool, String?))?
-    
-    @State private var isValid: Bool = true
-    @State private var errorMessage: String?
-    @State private var isSecureTextVisible: Bool = false
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.gray)
-            
-            HStack {
-                if isSecure && !isSecureTextVisible {
-                    SecureField(placeholder, text: $text)
-                } else {
-                    TextField(placeholder, text: $text)
-                }
-                
-                if let icon = icon {
-                    Image(systemName: icon)
-                        .foregroundColor(.gray)
-                }
-                
-                if isSecure {
-                    Button(action: {
-                        isSecureTextVisible.toggle()
-                    }) {
-                        Image(systemName: isSecureTextVisible ? "eye.slash" : "eye")
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(isValid ? Color.gray.opacity(0.3) : Color.red, lineWidth: 1)
-            )
-            
-            if !isValid, let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundColor(.red)
-            }
-            
-            if isSecure {
-                PasswordStrengthIndicator(password: text)
-            }
-        }
-        .onChange(of: text) { oldValue, newValue in
-            validateInput(newValue)
-        }
-    }
-    
-    private func validateInput(_ input: String) {
-        if let validator = validator {
-            let (valid, message) = validator(input)
-            isValid = valid
-            errorMessage = message
-        } else {
-            isValid = true
-            errorMessage = nil
-        }
-    }
-}
+//struct CustomTextField: View {
+//    @Binding var text: String
+//    let placeholder: String
+//    let label: String
+//    let isSecure: Bool
+//    let icon: String?
+//    var validator: ((String) -> (Bool, String?))?
+//    
+//    @State private var isValid: Bool = true
+//    @State private var errorMessage: String?
+//    @State private var isSecureTextVisible: Bool = false
+//    
+//    var body: some View {
+//        VStack(alignment: .leading, spacing: 4) {
+//            Text(label)
+//                .font(.caption)
+//                .foregroundColor(.gray)
+//            
+//            HStack {
+//                if isSecure && !isSecureTextVisible {
+//                    SecureField(placeholder, text: $text)
+//                } else {
+//                    TextField(placeholder, text: $text)
+//                }
+//                
+//                if let icon = icon {
+//                    Image(systemName: icon)
+//                        .foregroundColor(.gray)
+//                }
+//                
+//                if isSecure {
+//                    Button(action: {
+//                        isSecureTextVisible.toggle()
+//                    }) {
+//                        Image(systemName: isSecureTextVisible ? "eye.slash" : "eye")
+//                            .foregroundColor(.gray)
+//                    }
+//                }
+//            }
+//            .padding()
+//            .background(
+//                RoundedRectangle(cornerRadius: 12, style: .continuous)
+//                    .stroke(isValid ? Color.gray.opacity(0.3) : Color.red, lineWidth: 1)
+//            )
+//            
+//            if !isValid, let errorMessage = errorMessage {
+//                Text(errorMessage)
+//                    .font(.caption)
+//                    .foregroundColor(.red)
+//            }
+//            
+//            if isSecure {
+//                PasswordStrengthIndicator(password: text)
+//            }
+//        }
+//        .onChange(of: text) { oldValue, newValue in
+//            validateInput(newValue)
+//        }
+//    }
+//    
+//    private func validateInput(_ input: String) {
+//        if let validator = validator {
+//            let (valid, message) = validator(input)
+//            isValid = valid
+//            errorMessage = message
+//        } else {
+//            isValid = true
+//            errorMessage = nil
+//        }
+//    }
+//}
 
 struct PasswordStrengthIndicator: View {
     let password: String

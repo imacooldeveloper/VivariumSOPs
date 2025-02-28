@@ -142,12 +142,7 @@ struct ModernQuizCard: View {
                     
                     Spacer()
                     
-                    Label(
-                        "\(quiz.info.peopleAttended) completed",
-                        systemImage: "person.2.fill"
-                    )
-                    .font(.caption)
-                    .foregroundColor(.green)
+                    
                 }
             }
             .padding()
@@ -523,8 +518,122 @@ class QuizListViewModel: ObservableObject {
     }
 }
 
+//struct QuizListView: View {
+//    @ObservedObject var viewModel: QuizListViewModel
+//    @State private var showingEditQuizView = false
+//    @State private var selectedQuiz: Quiz?
+//    @State private var showingDeleteAlert = false
+//    @State private var quizToDelete: Quiz?
+//    @State private var loginViewModel = LoginViewModel()
+//    @State private var refreshID = UUID()
+//    @State private var selectedQuizID: String?
+//    @State private var searchText = ""
+//    
+//    // Add new state variables for verification
+//    @State private var deletionCode = ""
+//    @State private var showingDeleteVerification = false
+//    @State private var showingIncorrectCodeError = false
+//    
+//    private let correctDeletionCode = "12345" // This should match your PDFCategoryListView code
+//    
+//    var body: some View {
+//        ZStack {
+//            Color(.systemBackground)
+//                .ignoresSafeArea()
+//            
+//            VStack(spacing: 0) {
+//                QuizSearchBar(text: $searchText)
+//                    .padding()
+//                
+//                ScrollView {
+//                    LazyVStack(spacing: 16) {
+//                        ForEach(filteredQuizzes) { quiz in
+//                            ModernQuizCard(
+//                                quiz: quiz,
+//                                onTap: {
+//                                    selectedQuiz = quiz
+//                                    showingEditQuizView = true
+//                                },
+//                                onDelete: {
+//                                    quizToDelete = quiz
+//                                    showingDeleteVerification = true
+//                                }
+//                            )
+//                            .padding(.horizontal)
+//                        }
+//                    }
+//                    .padding(.vertical)
+//                }
+//                .refreshable {
+//                    await viewModel.fetchQuizzesAsync()
+//                }
+//            }
+//        }
+//        .navigationTitle("Quizzes")
+//        .sheet(item: $selectedQuiz) { quiz in
+//            EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+//        }
+//        // Add verification alert
+//        .alert("Verification Required", isPresented: $showingDeleteVerification) {
+//            TextField("Enter deletion code", text: $deletionCode)
+//                .keyboardType(.numberPad)
+//            Button("Delete", role: .destructive) {
+//                verifyAndDelete()
+//            }
+//            Button("Cancel", role: .cancel) {
+//                deletionCode = ""
+//            }
+//        } message: {
+//            Text("Enter the deletion code to remove this quiz and all its contents.")
+//        }
+//        // Add incorrect code alert
+//        .alert("Incorrect Code", isPresented: $showingIncorrectCodeError) {
+//            Button("OK", role: .cancel) {
+//                deletionCode = ""
+//            }
+//        } message: {
+//            Text("The deletion code entered was incorrect. Please try again.")
+//        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                Button("Sign Out") {
+//                    loginViewModel.logOutUser()
+//                }
+//            }
+//        }
+//    }
+//    
+//    private var filteredQuizzes: [Quiz] {
+//        if searchText.isEmpty {
+//            return viewModel.quizzes
+//        }
+//        return viewModel.quizzes.filter { quiz in
+//            quiz.info.title.localizedCaseInsensitiveContains(searchText) ||
+//            quiz.quizCategory.localizedCaseInsensitiveContains(searchText)
+//        }
+//    }
+//    
+//    private func verifyAndDelete() {
+//        if deletionCode == correctDeletionCode {
+//            if let quiz = quizToDelete {
+//                Task {
+//                    do {
+//                        try await viewModel.deleteQuiz(quiz)
+//                    } catch {
+//                        print("Error deleting quiz: \(error)")
+//                    }
+//                }
+//            }
+//        } else {
+//            showingIncorrectCodeError = true
+//        }
+//        deletionCode = ""
+//    }
+//}
+
+
 struct QuizListView: View {
-    @ObservedObject var viewModel: QuizListViewModel
+    @StateObject var viewModel: QuizListViewModel
     @State private var showingEditQuizView = false
     @State private var selectedQuiz: Quiz?
     @State private var showingDeleteAlert = false
@@ -539,7 +648,7 @@ struct QuizListView: View {
     @State private var showingDeleteVerification = false
     @State private var showingIncorrectCodeError = false
     
-    private let correctDeletionCode = "12345" // This should match your PDFCategoryListView code
+    private let correctDeletionCode = "12345"
     
     var body: some View {
         ZStack {
@@ -576,7 +685,16 @@ struct QuizListView: View {
         }
         .navigationTitle("Quizzes")
         .sheet(item: $selectedQuiz) { quiz in
-            EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+            // Use the customized EditQuizView with a refresh callback
+            EditQuizView(
+                viewModel: EditQuizViewModel(quiz: quiz),
+                onSave: {
+                    // Refresh the quiz list when saved
+                    Task {
+                        await viewModel.fetchQuizzesAsync()
+                    }
+                }
+            )
         }
         // Add verification alert
         .alert("Verification Required", isPresented: $showingDeleteVerification) {
@@ -606,6 +724,13 @@ struct QuizListView: View {
                 }
             }
         }
+        .id(refreshID) // Add an ID to the entire view to force refresh when needed
+        .onAppear {
+            // Refresh data when view appears
+            Task {
+                await viewModel.fetchQuizzesAsync()
+            }
+        }
     }
     
     private var filteredQuizzes: [Quiz] {
@@ -624,6 +749,7 @@ struct QuizListView: View {
                 Task {
                     do {
                         try await viewModel.deleteQuiz(quiz)
+                        // No need to call refresh manually here as deleteQuiz already calls fetchQuizzesAsync
                     } catch {
                         print("Error deleting quiz: \(error)")
                     }

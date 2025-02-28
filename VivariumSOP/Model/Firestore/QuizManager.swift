@@ -90,9 +90,7 @@ class QuizManager {
             "acknowledgmentText": quiz.acknowledgmentText ?? NSNull()  // Add this line
         ]
         
-        print("DEBUG - Firebase Data:")
-        print(quizData)
-        
+       
         try await quizRef.setData(quizData)
         
         let questionsCollection = quizRef.collection("Questions")

@@ -244,16 +244,15 @@ class CategoryManager {
             return nil
         })
         
-        print("Found subcategories to delete: \(subcategories)")
-        
+      
         // 2. Get all quizzes in organization
         let allQuizzes = try await quizManager.getAllQuizzes(for: organizationId)
-        print("Total quizzes in organization: \(allQuizzes.count)")
+      
         
         // 3. Find quizzes where quizCategory matches any subcategory
         let quizzesToDelete = allQuizzes.filter { quiz in
             if subcategories.contains(quiz.quizCategory) {
-                print("Found quiz to delete: \(quiz.info.title) (Category: \(quiz.quizCategory))")
+             
                 return true
             }
             return false
@@ -261,18 +260,15 @@ class CategoryManager {
         
         // 4. Delete the matching quizzes
         if !quizzesToDelete.isEmpty {
-            print("Found \(quizzesToDelete.count) quizzes to delete")
+          
             for quiz in quizzesToDelete {
-                print("Deleting quiz: \(quiz.info.title) (ID: \(quiz.id))")
+               
                 try await quizManager.deleteQuiz(quiz)
             }
         } else {
-            print("No quizzes found matching subcategories: \(subcategories)")
-            print("\nDebug - All quizzes in organization:")
+         
             for quiz in allQuizzes {
-                print("- Quiz: \(quiz.info.title)")
-                print("  Category: \(quiz.quizCategory)")
-                print("  ID: \(quiz.id)")
+              
             }
         }
     }

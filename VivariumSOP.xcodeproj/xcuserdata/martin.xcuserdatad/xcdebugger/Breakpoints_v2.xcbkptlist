@@ -126,8 +126,8 @@
             filePath = "VivariumSOP/Model/Firestore/UserManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "406"
-            endingLineNumber = "406"
+            startingLineNumber = "449"
+            endingLineNumber = "449"
             landmarkName = "getAllUserss()"
             landmarkType = "7">
          </BreakpointContent>
@@ -144,38 +144,6 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "43"
             endingLineNumber = "43"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "986D7BED-0B05-48A1-884B-41C0B7F6F4FE"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "VivariumSOP/Managment/UserProfileView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4811EA58-6FAE-4411-80BD-CB9E81A9017F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "VivariumSOP/Managment/UserProfileView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
             landmarkName = "unknown"
             landmarkType = "0">
          </BreakpointContent>
@@ -292,8 +260,8 @@
             filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "179"
-            endingLineNumber = "179"
+            startingLineNumber = "322"
+            endingLineNumber = "322"
             landmarkName = "addCategorywith(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -308,8 +276,8 @@
             filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
             landmarkName = "addCategorywith(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -324,8 +292,8 @@
             filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "188"
-            endingLineNumber = "188"
+            startingLineNumber = "331"
+            endingLineNumber = "331"
             landmarkName = "addCategorywith(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -340,13 +308,13 @@
             filePath = "VivariumSOP/Managment/UserProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1001"
-            endingLineNumber = "1001"
-            landmarkName = "fetchCompletedQuizzes()"
+            startingLineNumber = "1053"
+            endingLineNumber = "1053"
+            landmarkName = "fetchCompletedQuizzesAndScores()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 91bde113ecafcabd"
+                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 91bde113ecafc3e1"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -356,11 +324,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1001"
-                  endingLineNumber = "1001">
+                  startingLineNumber = "1053"
+                  endingLineNumber = "1053">
                </Location>
                <Location
-                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 1a1b5b6520f1f57"
+                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 1a1b5b6520f160b"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -370,11 +338,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1001"
-                  endingLineNumber = "1001">
+                  startingLineNumber = "1053"
+                  endingLineNumber = "1053">
                </Location>
                <Location
-                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 2661201eca368ebf"
+                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - 2661201eca3687e3"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -384,11 +352,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1001"
-                  endingLineNumber = "1001">
+                  startingLineNumber = "1053"
+                  endingLineNumber = "1053">
                </Location>
                <Location
-                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - a172878632aca0b8"
+                  uuid = "B0C90276-BC38-4012-AB3F-A91AAD4EED3F - a172878632aca9e4"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -398,8 +366,8 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1001"
-                  endingLineNumber = "1001">
+                  startingLineNumber = "1053"
+                  endingLineNumber = "1053">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -414,13 +382,13 @@
             filePath = "VivariumSOP/Managment/UserProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "997"
-            endingLineNumber = "997"
-            landmarkName = "fetchCompletedQuizzes()"
+            startingLineNumber = "1049"
+            endingLineNumber = "1049"
+            landmarkName = "fetchCompletedQuizzesAndScores()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - 91bde113ecafca39"
+                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - 91bde113ecafc36d"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -430,11 +398,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "997"
-                  endingLineNumber = "997">
+                  startingLineNumber = "1049"
+                  endingLineNumber = "1049">
                </Location>
                <Location
-                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - cad56719a198423d"
+                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - cad56719a1984b69"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -444,11 +412,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "997"
-                  endingLineNumber = "997">
+                  startingLineNumber = "1049"
+                  endingLineNumber = "1049">
                </Location>
                <Location
-                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - a172878632aca03c"
+                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - a172878632aca968"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -458,11 +426,11 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "997"
-                  endingLineNumber = "997">
+                  startingLineNumber = "1049"
+                  endingLineNumber = "1049">
                </Location>
                <Location
-                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - 9f98a6049f63063f"
+                  uuid = "23F23DE9-B003-4112-AD46-AAD17F46AA3F - 9f98a6049f630f6b"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -472,8 +440,8 @@
                   urlString = "file:///Volumes/MacsLife/Developer/VivariumSOP/VivariumSOP/VivariumSOP/Managment/UserProfileViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "997"
-                  endingLineNumber = "997">
+                  startingLineNumber = "1049"
+                  endingLineNumber = "1049">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -488,8 +456,8 @@
             filePath = "VivariumSOP/Managment/UserProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1600"
-            endingLineNumber = "1600"
+            startingLineNumber = "1652"
+            endingLineNumber = "1652"
             landmarkName = "fetchCompletedQuizzesAndScoresofUser(user:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -504,9 +472,9 @@
             filePath = "VivariumSOP/Managment/UserProfileViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1637"
-            endingLineNumber = "1637"
-            landmarkName = "fetchCompletedQuizzesAndScoresofUser(user:)"
+            startingLineNumber = "1689"
+            endingLineNumber = "1689"
+            landmarkName = "fetchAssignedQuizzesForUser(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -575,22 +543,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "CAE242AE-19CF-40B9-8E2C-0A4BCDD3690B"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "VivariumSOP/Managment/FloorManagementView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "186"
-            endingLineNumber = "186"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "825A68D0-DBFF-426D-8435-6B649AB17399"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -623,22 +575,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "70B0B74D-5847-4C04-9661-877A641A6EEC"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "VivariumSOP/PDFCategory/View/PDFCategoryListView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1486"
-            endingLineNumber = "1486"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "F5199307-6D6D-4D1F-BF17-9E5E705FA898"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -650,6 +586,102 @@
             endingLineNumber = "64"
             landmarkName = "unknown"
             landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C9E3B8CE-D3A1-4970-AC6F-947A9D6A1FB3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/HusbandryQuestionView/HusbandryQuestionViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "ED80F1F4-65E4-49BB-AEDF-D065DD62402E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/HusbandryQuestionView/HusbandryQuestionViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AAB4F047-DD1B-4D49-840B-087C9735C65D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/HusbandryProfile/HusbandryQuestionView/HusbandryQuestionViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
+            landmarkName = "unknown"
+            landmarkType = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5B78EA13-AFE9-4A49-BFF4-611DC3A97354"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "323"
+            endingLineNumber = "323"
+            landmarkName = "addCategorywith(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6B04C4BA-AD28-4A90-ADAE-FBBA9BBBC667"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/PDFCategory/ViewModel/PDFCategoryViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "319"
+            endingLineNumber = "319"
+            landmarkName = "PDFCategoryViewModel"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "18BF1DB4-9F53-43F0-AC15-57EEF659B81E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VivariumSOP/Managment/UserProfileViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1650"
+            endingLineNumber = "1650"
+            landmarkName = "fetchCompletedQuizzesAndScoresofUser(user:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

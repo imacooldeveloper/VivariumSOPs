@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import Firebase
 struct QuizAcknowledgmentView: View {
     let quiz: Quiz
     let onFinish: () -> Void
