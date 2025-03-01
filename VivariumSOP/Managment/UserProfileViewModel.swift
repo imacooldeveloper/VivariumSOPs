@@ -1913,45 +1913,105 @@ final class HusbandryUserProfileViewModel: ObservableObject {
 //           await fetchCompletedQuizzesAndScoresofUser(user: user)
 //       }
     
+//    @MainActor
+//       func fetchUserQuizzes() async {
+//           guard let user = self.user else { return }
+//           
+//           do {
+//               // Only fetch quizzes for the user's organization
+//               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
+//                   [user.accountType],
+//                   organizationId: user.organizationId ?? organizationId
+//               )
+//               
+//               // Process completed and uncompleted quizzes
+//               var completedQuizzes: [QuizWithScore] = []
+//               var incompleteQuizzes: [Quiz] = []
+//               
+//               for quiz in organizationQuizzes {
+//                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+//                      let highestScore = quizScore.scores.max() {
+//                       let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
+//                       if highestScore >= 80.0 {
+//                           completedQuizzes.append(quizWithScore)
+//                       } else {
+//                           incompleteQuizzes.append(quiz)
+//                       }
+//                   } else {
+//                       incompleteQuizzes.append(quiz)
+//                   }
+//               }
+//               
+//               await MainActor.run {
+//                   self.quizzesWithScores = completedQuizzes
+//                   self.uncompletedQuizzes = incompleteQuizzes
+//               }
+//               
+//               print("Completed Quizzes: \(completedQuizzes.count)")
+//               print("Uncompleted Quizzes: \(incompleteQuizzes.count)")
+//               
+//           } catch {
+//               print("Error fetching quizzes: \(error)")
+//           }
+//       }
+//    
     @MainActor
-       func fetchUserQuizzes() async {
-           guard let user = self.user else { return }
-           
-           do {
-               // Only fetch quizzes for the user's organization
-               let organizationQuizzes = try await QuizManager.shared.fetchQuizzesForAccountTypes(
-                   [user.accountType],
-                   organizationId: user.organizationId ?? organizationId
-               )
-               
-               // Process completed and uncompleted quizzes
-               var completedQuizzes: [QuizWithScore] = []
-               var incompleteQuizzes: [Quiz] = []
-               
-               for quiz in organizationQuizzes {
-                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
-                      let highestScore = quizScore.scores.max() {
-                       let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
-                       if highestScore >= 80.0 {
-                           completedQuizzes.append(quizWithScore)
-                       } else {
-                           incompleteQuizzes.append(quiz)
-                       }
-                   } else {
-                       incompleteQuizzes.append(quiz)
-                   }
-               }
-               
-               await MainActor.run {
-                   self.quizzesWithScores = completedQuizzes
-                   self.uncompletedQuizzes = incompleteQuizzes
-               }
-               
-               print("Completed Quizzes: \(completedQuizzes.count)")
-               print("Uncompleted Quizzes: \(incompleteQuizzes.count)")
-               
-           } catch {
-               print("Error fetching quizzes: \(error)")
-           }
-       }
+    func fetchUserQuizzes() async {
+        guard let user = self.user else { return }
+        
+        do {
+            // 1. Fetch ALL quizzes for the organization
+            let allOrganizationQuizzes = try await QuizManager.shared.getAllQuizzes(for: user.organizationId ?? organizationId)
+            
+            // 2. Filter quizzes based on multiple assignment methods
+            let userQuizzes = allOrganizationQuizzes.filter { quiz in
+                // Check if the quiz category is assigned to the user
+                let isCategoryAssigned = user.assignedCategoryIDs?.contains(quiz.quizCategoryID) ?? false
+                
+                // Direct assignment to user (if quiz ID is in assignedCategoryIDs - may be misnamed in model)
+                let isDirectlyAssigned = user.assignedCategoryIDs?.contains(quiz.id) ?? false
+                
+                // Assignment by account type
+                let isAccountTypeAssigned = quiz.accountTypes.contains(user.accountType)
+                
+                // User has already started/completed this quiz
+                let isInQuizScores = user.quizScores?.contains(where: { $0.quizID == quiz.id }) ?? false
+                
+                // Return true if ANY of these conditions are met
+                return isCategoryAssigned || isDirectlyAssigned || isAccountTypeAssigned || isInQuizScores
+            }
+            
+            // Process completed and uncompleted quizzes
+            var completedQuizzes: [QuizWithScore] = []
+            var incompleteQuizzes: [Quiz] = []
+            
+            for quiz in userQuizzes {
+                if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }),
+                   let highestScore = quizScore.scores.max() {
+                    let quizWithScore = QuizWithScore(quiz: quiz, score: highestScore)
+                    if highestScore >= 80.0 {
+                        completedQuizzes.append(quizWithScore)
+                    } else {
+                        incompleteQuizzes.append(quiz)
+                    }
+                } else {
+                    incompleteQuizzes.append(quiz)
+                }
+            }
+            
+            await MainActor.run {
+                self.quizzesWithScores = completedQuizzes
+                self.uncompletedQuizzes = incompleteQuizzes
+            }
+            
+            print("Total available quizzes: \(userQuizzes.count)")
+            print("Completed Quizzes: \(completedQuizzes.count)")
+            print("Uncompleted Quizzes: \(incompleteQuizzes.count)")
+            
+        } catch {
+            print("Error fetching user quizzes: \(error)")
+        }
+    }
+    
+    
 }

@@ -1269,7 +1269,22 @@ struct PDFCategoryListView: View {
                 if viewModel.isLoading {
                     ProgressView("Loading categories...")
                 } else if viewModel.uniqueCategories.isEmpty {
-                    Text("No categories found")
+                    VStack(spacing: 20) {
+                        Text("No categories found")
+                            .font(.headline)
+                        
+                        VStack {
+                            Image(systemName: "folder.badge.plus")
+                                .font(.system(size: 50))
+                                .foregroundColor(.blue)
+                            
+                            Text("Tap the + button below to add a category")
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
+                        .padding(.top, 30)
+                    }
                 } else {
                     List {
                         ForEach(viewModel.uniqueCategories, id: \.self) { category in
@@ -1290,19 +1305,31 @@ struct PDFCategoryListView: View {
                 }
             }
             
-            // Add Category Button
+            // Add Category Button with tooltip
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    Button(action: { showingAddCategorySheet = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.blue)
-                            .background(Color.white)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
+                    VStack(spacing: 5) {
+                        // Tooltip
+                        Text("Add Category")
+                            .font(.caption)
+                            .padding(8)
+                            .background(Color(.systemBackground))
+                            .cornerRadius(8)
+                            .shadow(color: Color.black.opacity(0.2), radius: 2)
+                            .offset(y: -5)
+                        
+                        // The existing button
+                        Button(action: { showingAddCategorySheet = true }) {
+                            Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.blue)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .shadow(radius: 4)
+                        }
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 20)
@@ -1312,8 +1339,15 @@ struct PDFCategoryListView: View {
         .navigationTitle("PDF Categories")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingPDFUploadView = true }) {
-                    Image(systemName: "plus")
+                HStack {
+                    Text("Upload PDF")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    
+                    Button(action: { showingPDFUploadView = true }) {
+                        Image(systemName: "arrow.up.doc")
+                            .foregroundColor(.blue)
+                    }
                 }
             }
         }
@@ -1393,40 +1427,62 @@ struct PDFCategoryListView: View {
 }
 struct SubcategoryView: View {
     let category: String
-        @ObservedObject var viewModel: PDFCategoryViewModel
-        @State private var showingDeleteAlert = false
-        @State private var subcategoryToDelete: String?
-        @State private var deletionCode = ""
-        @State private var showingDeleteVerification = false
-        @State private var showingIncorrectCodeError = false
-        @State private var subcategories: [String] = [] // Cache subcategories
-        
-        private let correctDeletionCode = "12345"
-    @State private var isDeleting = false
-    @State private var showingErrorAlert = false
-    @State private var errorMessage = ""
-        var body: some View {
-            List {
-                ForEach(subcategories, id: \.self) { subcategory in
-                    NavigationLink(destination: PDFListView(category: category, subcategory: subcategory, viewModel: viewModel)) {
-                        Text(subcategory)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            subcategoryToDelete = subcategory
-                            showingDeleteVerification = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                }
-            }
-            .listStyle(InsetGroupedListStyle())
-            .navigationTitle(category)
-            .onAppear {
-                // Cache subcategories when view appears
-                subcategories = viewModel.getSubcategories(for: category)
-            }
+       @ObservedObject var viewModel: PDFCategoryViewModel
+       @State private var showingDeleteAlert = false
+       @State private var subcategoryToDelete: String?
+       @State private var deletionCode = ""
+       @State private var showingDeleteVerification = false
+       @State private var showingIncorrectCodeError = false
+       @State private var subcategories: [String] = [] // Cache subcategories
+       
+       private let correctDeletionCode = "12345"
+       @State private var isDeleting = false
+       @State private var showingErrorAlert = false
+       @State private var errorMessage = ""
+       
+       var body: some View {
+           ZStack {
+               if subcategories.isEmpty {
+                   // Empty state UI - simplified without button
+                   VStack(spacing: 25) {
+                       Image(systemName: "doc.text.magnifyingglass")
+                           .font(.system(size: 60))
+                           .foregroundColor(.blue)
+                       
+                       Text("No SOPs Found")
+                           .font(.title2)
+                           .fontWeight(.semibold)
+                       
+                       Text("SOPs for '\(category)' will appear here.\nUse the Upload button in the main screen to add new SOPs.")
+                           .multilineTextAlignment(.center)
+                           .foregroundColor(.secondary)
+                           .padding(.horizontal)
+                   }
+                   .padding()
+               } else {
+                   List {
+                       ForEach(subcategories, id: \.self) { subcategory in
+                           NavigationLink(destination: PDFListView(category: category, subcategory: subcategory, viewModel: viewModel)) {
+                               Text(subcategory)
+                           }
+                           .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                               Button(role: .destructive) {
+                                   subcategoryToDelete = subcategory
+                                   showingDeleteVerification = true
+                               } label: {
+                                   Label("Delete", systemImage: "trash")
+                               }
+                           }
+                       }
+                   }
+                   .listStyle(InsetGroupedListStyle())
+               }
+           }
+           .navigationTitle(category)
+           .onAppear {
+               // Cache subcategories when view appears
+               subcategories = viewModel.getSubcategories(for: category)
+           }
         .alert("Verification Required", isPresented: $showingDeleteVerification) {
             TextField("Enter deletion code", text: $deletionCode)
                 .keyboardType(.numberPad)

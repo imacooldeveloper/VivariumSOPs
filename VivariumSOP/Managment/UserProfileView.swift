@@ -13,7 +13,7 @@
 //
 
 import SwiftUI
-
+import FirebaseAuth
 
 struct UserProfileView: View {
     @EnvironmentObject var navigationHandler: NavigationHandler
@@ -29,6 +29,7 @@ struct UserProfileView: View {
                  .onAppear {
                      Task {
                          if let selectedUser = userSelected {
+                             viewModel.userSelected = selectedUser
                              viewModel.loadUser(selectedUser)
                          } else {
                              await viewModel.fetchCurrentUser()
@@ -59,6 +60,14 @@ struct UserProfileContentView: View {
     @State private var quizToRetake: Quiz?
     @State private var isRefreshing = false
     @State var showingEditSheet = false
+   
+    
+    // Determine if this is an admin viewing a user profile or a user viewing their own profile
+       var isAdminView: Bool {
+           // If userSelected is not nil, it means an admin is viewing a user's profile
+           return viewModel.userSelected != nil && viewModel.user?.id != Auth.auth().currentUser?.uid
+       }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -152,11 +161,13 @@ struct UserProfileContentView: View {
                                 quizWithScore: quizWithScore,
                                 onRetakeQuiz: {
                                     quizToRetake = quizWithScore.quiz
-                                }
+                                },
+                                isAdminView: isAdminView  // Pass the admin view status
                             )
                         }
                     }
                 }
+               
                 
                 // Uncompleted Quizzes
                 VStack(alignment: .leading, spacing: 10) {
@@ -530,25 +541,61 @@ struct AddAccreditationView: View {
 }
 
 
+//struct CompletedQuizCard: View {
+//    let quizWithScore: QuizWithScore
+//    let onRetakeQuiz: () -> Void
+//    
+//    var body: some View {
+//        HStack {
+//            CircularProgressView(progress: quizWithScore.score / 100)
+//                .frame(width: 60, height: 60)
+//            
+//            VStack(alignment: .leading) {
+//                Text(quizWithScore.quiz.info.title)
+//                    .font(.headline)
+//                    .lineLimit(2)
+//                
+//                Button("Retake Quiz") {
+//                    onRetakeQuiz()
+//                }
+//                .foregroundColor(.blue)
+//                .padding(.top, 4)
+//            }
+//            
+//            Spacer()
+//        }
+//        .padding()
+//        .background(Color.blue.opacity(0.1))
+//        .cornerRadius(10)
+//    }
+//}
+
+
 struct CompletedQuizCard: View {
     let quizWithScore: QuizWithScore
     let onRetakeQuiz: () -> Void
     
+    // Add a parameter to check if we're in admin mode (viewing someone else's profile)
+    let isAdminView: Bool
+    
     var body: some View {
-        HStack {
+        HStack() {
             CircularProgressView(progress: quizWithScore.score / 100)
                 .frame(width: 60, height: 60)
-            
+               //.padding(.horizontal,10)
             VStack(alignment: .leading) {
                 Text(quizWithScore.quiz.info.title)
                     .font(.headline)
                     .lineLimit(2)
                 
-                Button("Retake Quiz") {
-                    onRetakeQuiz()
+                // Only show the Retake Quiz button if we're not in admin view
+                if !isAdminView {
+                    Button("Retake Quiz") {
+                        onRetakeQuiz()
+                    }
+                    .foregroundColor(.blue)
+                    .padding(.top, 4)
                 }
-                .foregroundColor(.blue)
-                .padding(.top, 4)
             }
             
             Spacer()
@@ -558,7 +605,6 @@ struct CompletedQuizCard: View {
         .cornerRadius(10)
     }
 }
-
 
 struct UncompletedQuizCard: View {
     let quiz: Quiz
