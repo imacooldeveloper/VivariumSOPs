@@ -13,6 +13,8 @@ import Firebase
 import PDFKit
 
 
+
+
 struct PDFUploadView: View {
     @ObservedObject var viewModel: PDFCategoryViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -120,9 +122,6 @@ struct PDFUploadView: View {
                 }
             }
             .navigationTitle("Add New PDFs")
-//            .navigationBarItems(trailing: Button("Done") {
-//                presentationMode.wrappedValue.dismiss()
-//            })
             .fileImporter(
                 isPresented: $showFileImporter,
                 allowedContentTypes: [.pdf],
@@ -172,8 +171,13 @@ struct PDFUploadView: View {
     private func uploadPDFs() {
         Task {
             do {
-                isUploading = true
-                uploadProgress = 0
+                // Immediately update UI state on the main thread
+                await MainActor.run {
+                    isUploading = true
+                    uploadProgress = 0.01 // Start with a small visible progress
+                    currentUploadingPDF = selectedPDFs.first?.lastPathComponent ?? "Starting upload..."
+                }
+                
                 let title = isNewSOP ? sopForStaffTitle : selectedExistingSOP
                 
                 try await viewModel.uploadAllPDFs(
@@ -182,16 +186,21 @@ struct PDFUploadView: View {
                     folder: selectedFolder,
                     title: title,
                     onProgress: { progress, currentFile in
-                        Task { @MainActor in
-                            uploadProgress = progress
-                            currentUploadingPDF = currentFile
+                        // We need to make sure UI updates happen on the main thread
+                        DispatchQueue.main.async {
+                            // Ensure progress is never 0 to show some initial progress
+                            self.uploadProgress = max(0.01, progress)
+                            self.currentUploadingPDF = currentFile
                         }
                     }
                 )
                 
                 await MainActor.run {
-                    isUploading = false
-                    showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+                    uploadProgress = 1.0 // Ensure we show 100% at the end
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.isUploading = false
+                        self.showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+                    }
                 }
             } catch {
                 await MainActor.run {
@@ -234,13 +243,34 @@ struct PDFUploadView: View {
                         .edgesIgnoringSafeArea(.all)
                     
                     VStack(spacing: 20) {
-                        ProgressView()
-                            .scaleEffect(1.5)
                         Text("Uploading \(currentUploadingPDF)...")
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
+                            .padding(.bottom, 5)
+                        
+                        // Linear progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                // Background of the progress bar
+                                Rectangle()
+                                    .frame(width: geometry.size.width, height: 20)
+                                    .opacity(0.3)
+                                    .foregroundColor(.gray)
+                                
+                                // Foreground of the progress bar
+                                Rectangle()
+                                    .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+                                    .foregroundColor(.blue)
+                                    .animation(.linear, value: uploadProgress)
+                            }
+                            .cornerRadius(10)
+                        }
+                        .frame(height: 20)
+                        .frame(width: 250)
+                        
                         Text("\(Int(uploadProgress * 100))%")
-                            .foregroundColor(.white)
-                            .font(.title2)
+                            .foregroundColor(.primary)
+                            .font(.headline)
+                            .bold()
                     }
                     .padding()
                     .background(Color(.systemBackground))
@@ -251,7 +281,6 @@ struct PDFUploadView: View {
         }
     }
 }
-
 
 struct UploadProgressView: View {
     let progress: Double
@@ -289,6 +318,7 @@ struct UploadProgressView: View {
         .shadow(radius: 10)
     }
 }
+
 struct UploadSummaryView: View {
     let uploadedPDFs: [String]
     @Environment(\.presentationMode) var presentationMode
@@ -307,7 +337,6 @@ struct UploadSummaryView: View {
         }
     }
 }
-
 
 
 

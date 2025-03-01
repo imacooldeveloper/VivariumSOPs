@@ -639,22 +639,22 @@ class CreateQuizViewModel: ObservableObject {
 //            }
 //        }
 //    }
-    func toggleAccountType(_ accountType: String) {
-        if selectedAccountTypes.contains(accountType) {
-            selectedAccountTypes.remove(accountType)
-            // Deselect users with this account type
-            selectedUserIDs = selectedUserIDs.filter { userID in
-                availableUsers.first(where: { $0.id == userID })?.accountType != accountType
-            }
-        } else {
-            selectedAccountTypes.insert(accountType)
-            // Select users with this account type
-            let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
-            selectedUserIDs.formUnion(usersToAdd)
-        }
-        print("Current selectedAccountTypes after toggle: \(selectedAccountTypes)")
-        objectWillChange.send()
-    }
+//    func toggleAccountType(_ accountType: String) {
+//        if selectedAccountTypes.contains(accountType) {
+//            selectedAccountTypes.remove(accountType)
+//            // Deselect users with this account type
+//            selectedUserIDs = selectedUserIDs.filter { userID in
+//                availableUsers.first(where: { $0.id == userID })?.accountType != accountType
+//            }
+//        } else {
+//            selectedAccountTypes.insert(accountType)
+//            // Select users with this account type
+//            let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
+//            selectedUserIDs.formUnion(usersToAdd)
+//        }
+//        print("Current selectedAccountTypes after toggle: \(selectedAccountTypes)")
+//        objectWillChange.send()
+//    }
     func uploadQuizs() async throws -> String {
         guard !organizationId.isEmpty else {
             throw NSError(domain: "CreateQuizViewModel",
@@ -695,27 +695,72 @@ class CreateQuizViewModel: ObservableObject {
         }
     }
     ///
-        func toggleUserSelection(_ userId: String) {
-            // Only allow selection of users from the same organization
-            guard let user = availableUsers.first(where: { $0.id == userId }),
-                  user.organizationId == organizationId else {
-                return
-            }
-            
-            if selectedUserIDs.contains(userId) {
-                selectedUserIDs.remove(userId)
-                if !availableUsers.contains(where: { $0.id != userId &&
-                                                   $0.accountType == user.accountType &&
-                                                   selectedUserIDs.contains($0.id ?? "") }) {
-                    selectedAccountTypes.remove(user.accountType)
-                }
-            } else {
-                selectedUserIDs.insert(userId)
-                selectedAccountTypes.insert(user.accountType)
-            }
-            objectWillChange.send()
+//        func toggleUserSelection(_ userId: String) {
+//            // Only allow selection of users from the same organization
+//            guard let user = availableUsers.first(where: { $0.id == userId }),
+//                  user.organizationId == organizationId else {
+//                return
+//            }
+//            
+//            if selectedUserIDs.contains(userId) {
+//                selectedUserIDs.remove(userId)
+//                if !availableUsers.contains(where: { $0.id != userId &&
+//                                                   $0.accountType == user.accountType &&
+//                                                   selectedUserIDs.contains($0.id ?? "") }) {
+//                    selectedAccountTypes.remove(user.accountType)
+//                }
+//            } else {
+//                selectedUserIDs.insert(userId)
+//                selectedAccountTypes.insert(user.accountType)
+//            }
+//            objectWillChange.send()
+//        }
+//        
+    
+    
+    // Fixed toggleUserSelection method - only affects the user, not the account type
+    func toggleUserSelection(_ userId: String) {
+        // Find the user first
+        guard let user = availableUsers.first(where: { $0.id == userId }) else {
+            return
         }
         
+        if selectedUserIDs.contains(userId) {
+            // Remove user from selection
+            selectedUserIDs.remove(userId)
+            
+            // We DON'T modify selectedAccountTypes here regardless of selection status
+            // The account type stays selected even if we deselect the last user of that type
+        } else {
+            // Add user to selection
+            selectedUserIDs.insert(userId)
+            
+            // We also DON'T add the account type automatically
+            // Account types should only be toggled through the account type toggles
+        }
+        
+        // Notify observers that the state has changed
+        objectWillChange.send()
+    }
+
+    // The toggleAccountType method remains the same - it affects all users of that type
+    func toggleAccountType(_ accountType: String) {
+        if selectedAccountTypes.contains(accountType) {
+            selectedAccountTypes.remove(accountType)
+            // Deselect users with this account type
+            selectedUserIDs = selectedUserIDs.filter { userID in
+                availableUsers.first(where: { $0.id == userID })?.accountType != accountType
+            }
+        } else {
+            selectedAccountTypes.insert(accountType)
+            // Select users with this account type
+            let usersToAdd = availableUsers.filter { $0.accountType == accountType }.compactMap { $0.id }
+            selectedUserIDs.formUnion(usersToAdd)
+        }
+        print("Current selectedAccountTypes after toggle: \(selectedAccountTypes)")
+        objectWillChange.send()
+    }
+    
         @MainActor
         func loadDatas() async {
             print("Loading data for quiz title: \(quizTitle) in organization: \(organizationId)")

@@ -275,6 +275,322 @@ import PDFKit
 import UniformTypeIdentifiers
 
 
+//struct ExportAllUsersView: View {
+//   @StateObject private var viewModel = ManagementUserViewModel()
+//   @State private var isLoading = false
+//   
+//   var body: some View {
+//       VStack(spacing: 20) {
+//           Image(systemName: "square.and.arrow.up.circle.fill")
+//               .resizable()
+//               .frame(width: 60, height: 60)
+//               .foregroundColor(.blue)
+//           
+//           Text("Export All Users Data")
+//               .font(.title2)
+//               .fontWeight(.semibold)
+//           
+//           Button(action: {
+//               Task {
+//                   isLoading = true
+//                   exportAllUsersData()
+//                   isLoading = false // Reset loading state after export
+//               }
+//           }) {
+//               HStack {
+//                   if isLoading {
+//                       ProgressView()
+//                           .padding(.trailing, 5)
+//                   }
+//                   Text("Export to CSV")
+//               }
+//               .frame(minWidth: 200)
+//               .padding()
+//               .background(Color.blue)
+//               .foregroundColor(.white)
+//               .cornerRadius(10)
+//               .shadow(radius: 5)
+//           }
+//           .disabled(isLoading)
+//       }
+//       .padding()
+//       .frame(maxWidth: .infinity, maxHeight: .infinity)
+//       .background(Color(.systemGroupedBackground))
+//       .task {
+//           await viewModel.fetchAllUsersAndQuizzes()
+//       }
+//   }
+//   
+////    func exportAllUsersData() {
+////       var csv = "User,Account Type,Quiz Title,Score,Status,Completion Date,Due Date\n"
+////       
+////       // Create timestamp for filename
+////       let dateFormatter = DateFormatter()
+////       dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+////       let timestamp = dateFormatter.string(from: Date())
+////       
+////       // Generate CSV content
+////       for user in viewModel.users {
+////           for quiz in viewModel.quizzes {
+////               if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+////                   let score = quizScore.scores.max() ?? 0
+////                   let status = score >= 80 ? "Passed" : "Not Passed"
+////                   let completionDate = quizScore.completionDates.last?.description ?? "Not Attempted"
+////                   let dueDate = quiz.dueDate?.description ?? "No Due Date"
+////                   
+////                   csv += "\(user.username),\(user.accountType ?? ""),\(quiz.info.title),\(score),\(status),\(completionDate),\(dueDate)\n"
+////               }
+////           }
+////       }
+////       
+////       if let data = csv.data(using: .utf8) {
+////           let filename = "users_progress_\(timestamp).csv"
+////           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+////           
+////           do {
+////               try data.write(to: tempURL)
+////               let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+////               
+////               if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+////                  let window = windowScene.windows.first,
+////                  let rootVC = window.rootViewController {
+////                   activityVC.popoverPresentationController?.sourceView = window
+////                   rootVC.present(activityVC, animated: true)
+////               }
+////           } catch {
+////               print("Export failed: \(error)")
+////           }
+////       }
+////    }
+////    
+//    func exportAllUsersData() {
+//        // Create timestamp for filename
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+//        let timestamp = dateFormatter.string(from: Date())
+//        
+//        // Sort all quizzes alphabetically for consistent column order
+//        let sortedQuizzes = viewModel.quizzes.sorted { $0.info.title < $1.info.title }
+//        
+//        // Create headers with quiz titles
+//        var csv = "User,Account Type"
+//        for quiz in sortedQuizzes {
+//            // Escape any commas in quiz titles
+//            let safeTitle = quiz.info.title.replacingOccurrences(of: ",", with: " ")
+//            csv += ",\(safeTitle)"
+//        }
+//        csv += "\n"
+//        
+//        // Sort users alphabetically
+//        let sortedUsers = viewModel.users.sorted { $0.username < $1.username }
+//        
+//        // Add each user as a row
+//        for user in sortedUsers {
+//            // Add user info
+//            csv += "\(user.username),\(user.accountType ?? "")"
+//            
+//            // Add score for each quiz
+//            for quiz in sortedQuizzes {
+//                if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+//                    let score = quizScore.scores.max() ?? 0
+//                    let passed = score >= 80 ? "P" : "F" // P for passed, F for failed
+//                    csv += ",\(score)(\(passed))"
+//                } else if quiz.accountTypes.contains(user.accountType ?? "") {
+//                    // Quiz is assigned but not attempted
+//                    csv += ",Not Attempted"
+//                } else {
+//                    // Quiz is not assigned to this user
+//                    csv += ",N/A"
+//                }
+//            }
+//            csv += "\n"
+//        }
+//        
+//        // Write and share the CSV file
+//        if let data = csv.data(using: .utf8) {
+//            let filename = "users_progress_\(timestamp).csv"
+//            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+//            
+//            do {
+//                try data.write(to: tempURL)
+//                let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+//                
+//                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                   let window = windowScene.windows.first,
+//                   let rootVC = window.rootViewController {
+//                    activityVC.popoverPresentationController?.sourceView = window
+//                    rootVC.present(activityVC, animated: true)
+//                }
+//            } catch {
+//                print("Export failed: \(error)")
+//            }
+//        }
+//    }
+//    
+//}
+//
+
+//struct ExportAllUsersView: View {
+//   @StateObject private var viewModel = ManagementUserViewModel()
+//   @State private var isLoading = false
+//   @State private var showingExportResult = false
+//   @State private var exportResultMessage = ""
+//   @State private var exportSuccess = false
+//   
+//   var body: some View {
+//       VStack(spacing: 20) {
+//           Image(systemName: "square.and.arrow.up.circle.fill")
+//               .resizable()
+//               .frame(width: 60, height: 60)
+//               .foregroundColor(.blue)
+//           
+//           Text("Export All Users Data")
+//               .font(.title2)
+//               .fontWeight(.semibold)
+//           
+//           Button(action: {
+//               Task {
+//                   await exportWithLoading()
+//               }
+//           }) {
+//               ZStack {
+//                   // Button background
+//                   RoundedRectangle(cornerRadius: 10)
+//                       .fill(isLoading ? Color.blue.opacity(0.7) : Color.blue)
+//                       .frame(minWidth: 200, minHeight: 50)
+//                       .shadow(radius: 5)
+//                   
+//                   // Button content
+//                   HStack {
+//                       if isLoading {
+//                           // Show a spinner when loading
+//                           ProgressView()
+//                               .progressViewStyle(CircularProgressViewStyle(tint: .white))
+//                               .padding(.trailing, 10)
+//                       } else {
+//                           Image(systemName: "arrow.down.doc.fill")
+//                               .foregroundColor(.white)
+//                               .padding(.trailing, 5)
+//                       }
+//                       
+//                       Text(isLoading ? "Exporting..." : "Export to CSV")
+//                           .font(.headline)
+//                           .foregroundColor(.white)
+//                   }
+//                   .padding()
+//               }
+//           }
+//           .disabled(isLoading)
+//       }
+//       .padding()
+//       .frame(maxWidth: .infinity, maxHeight: .infinity)
+//       .background(Color(.systemGroupedBackground))
+//       .task {
+//           await viewModel.fetchAllUsersAndQuizzes()
+//       }
+//       .alert(isPresented: $showingExportResult) {
+//           Alert(
+//               title: Text(exportSuccess ? "Export Successful" : "Export Failed"),
+//               message: Text(exportResultMessage),
+//               dismissButton: .default(Text("OK"))
+//           )
+//       }
+//   }
+//   
+//   func exportWithLoading() async {
+//       // Set loading state
+//       await MainActor.run {
+//           isLoading = true
+//       }
+//       
+//       do {
+//           // Create timestamp for filename
+//           let dateFormatter = DateFormatter()
+//           dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+//           let timestamp = dateFormatter.string(from: Date())
+//           
+//           // Sort all quizzes alphabetically for consistent column order
+//           let sortedQuizzes = viewModel.quizzes.sorted { $0.info.title < $1.info.title }
+//           
+//           // Create headers with quiz titles
+//           var csv = "User,Account Type"
+//           for quiz in sortedQuizzes {
+//               // Escape any commas in quiz titles
+//               let safeTitle = quiz.info.title.replacingOccurrences(of: ",", with: " ")
+//               csv += ",\(safeTitle)"
+//           }
+//           csv += "\n"
+//           
+//           // Sort users alphabetically
+//           let sortedUsers = viewModel.users.sorted { $0.username < $1.username }
+//           
+//           // Add each user as a row
+//           for user in sortedUsers {
+//               // Add user info
+//               csv += "\(user.username),\(user.accountType ?? "")"
+//               
+//               // Add score for each quiz
+//               for quiz in sortedQuizzes {
+//                   if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+//                       let score = quizScore.scores.max() ?? 0
+//                       let passed = score >= 80 ? "P" : "F" // P for passed, F for failed
+//                       csv += ",\(score)(\(passed))"
+//                   } else if quiz.accountTypes.contains(user.accountType ?? "") {
+//                       // Quiz is assigned but not attempted
+//                       csv += ",Not Attempted"
+//                   } else {
+//                       // Quiz is not assigned to this user
+//                       csv += ",N/A"
+//                   }
+//               }
+//               csv += "\n"
+//           }
+//           
+//           // Write and share the CSV file
+//           if let data = csv.data(using: .utf8) {
+//               let filename = "users_progress_\(timestamp).csv"
+//               let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+//               
+//               try data.write(to: tempURL)
+//               
+//               await MainActor.run {
+//                   let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+//                   
+//                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                      let window = windowScene.windows.first,
+//                      let rootVC = window.rootViewController {
+//                       activityVC.popoverPresentationController?.sourceView = window
+//                       rootVC.present(activityVC, animated: true) {
+//                           // Reset loading state after presenting the share sheet
+//                           self.isLoading = false
+//                       }
+//                   } else {
+//                       isLoading = false
+//                       showExportResult(success: false, message: "Could not present share sheet")
+//                   }
+//               }
+//           } else {
+//               await MainActor.run {
+//                   isLoading = false
+//                   showExportResult(success: false, message: "Could not create CSV data")
+//               }
+//           }
+//       } catch {
+//           await MainActor.run {
+//               isLoading = false
+//               showExportResult(success: false, message: "Export failed: \(error.localizedDescription)")
+//           }
+//       }
+//   }
+//   
+//   private func showExportResult(success: Bool, message: String) {
+//       exportSuccess = success
+//       exportResultMessage = message
+//       showingExportResult = true
+//   }
+//}
+
+    
 struct ExportAllUsersView: View {
    @StateObject private var viewModel = ManagementUserViewModel()
    @State private var isLoading = false
@@ -293,7 +609,7 @@ struct ExportAllUsersView: View {
            Button(action: {
                Task {
                    isLoading = true
-                   exportAllUsersData()
+                   await exportAllUsersData()
                    isLoading = false // Reset loading state after export
                }
            }) {
@@ -302,7 +618,7 @@ struct ExportAllUsersView: View {
                        ProgressView()
                            .padding(.trailing, 5)
                    }
-                   Text("Export to CSV")
+                   Text(isLoading ? "Exporting..." : "Export to CSV")
                }
                .frame(minWidth: 200)
                .padding()
@@ -321,110 +637,71 @@ struct ExportAllUsersView: View {
        }
    }
    
-//    func exportAllUsersData() {
-//       var csv = "User,Account Type,Quiz Title,Score,Status,Completion Date,Due Date\n"
-//       
-//       // Create timestamp for filename
-//       let dateFormatter = DateFormatter()
-//       dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
-//       let timestamp = dateFormatter.string(from: Date())
-//       
-//       // Generate CSV content
-//       for user in viewModel.users {
-//           for quiz in viewModel.quizzes {
-//               if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
-//                   let score = quizScore.scores.max() ?? 0
-//                   let status = score >= 80 ? "Passed" : "Not Passed"
-//                   let completionDate = quizScore.completionDates.last?.description ?? "Not Attempted"
-//                   let dueDate = quiz.dueDate?.description ?? "No Due Date"
-//                   
-//                   csv += "\(user.username),\(user.accountType ?? ""),\(quiz.info.title),\(score),\(status),\(completionDate),\(dueDate)\n"
-//               }
-//           }
-//       }
-//       
-//       if let data = csv.data(using: .utf8) {
-//           let filename = "users_progress_\(timestamp).csv"
-//           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-//           
-//           do {
-//               try data.write(to: tempURL)
-//               let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-//               
-//               if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                  let window = windowScene.windows.first,
-//                  let rootVC = window.rootViewController {
-//                   activityVC.popoverPresentationController?.sourceView = window
-//                   rootVC.present(activityVC, animated: true)
-//               }
-//           } catch {
-//               print("Export failed: \(error)")
-//           }
-//       }
-//    }
-//    
-    func exportAllUsersData() {
-        // Create timestamp for filename
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
-        let timestamp = dateFormatter.string(from: Date())
-        
-        // Sort all quizzes alphabetically for consistent column order
-        let sortedQuizzes = viewModel.quizzes.sorted { $0.info.title < $1.info.title }
-        
-        // Create headers with quiz titles
-        var csv = "User,Account Type"
-        for quiz in sortedQuizzes {
-            // Escape any commas in quiz titles
-            let safeTitle = quiz.info.title.replacingOccurrences(of: ",", with: " ")
-            csv += ",\(safeTitle)"
-        }
-        csv += "\n"
-        
-        // Sort users alphabetically
-        let sortedUsers = viewModel.users.sorted { $0.username < $1.username }
-        
-        // Add each user as a row
-        for user in sortedUsers {
-            // Add user info
-            csv += "\(user.username),\(user.accountType ?? "")"
-            
-            // Add score for each quiz
-            for quiz in sortedQuizzes {
-                if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
-                    let score = quizScore.scores.max() ?? 0
-                    let passed = score >= 80 ? "P" : "F" // P for passed, F for failed
-                    csv += ",\(score)(\(passed))"
-                } else if quiz.accountTypes.contains(user.accountType ?? "") {
-                    // Quiz is assigned but not attempted
-                    csv += ",Not Attempted"
-                } else {
-                    // Quiz is not assigned to this user
-                    csv += ",N/A"
-                }
-            }
-            csv += "\n"
-        }
-        
-        // Write and share the CSV file
-        if let data = csv.data(using: .utf8) {
-            let filename = "users_progress_\(timestamp).csv"
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-            
-            do {
-                try data.write(to: tempURL)
-                let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-                
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first,
-                   let rootVC = window.rootViewController {
-                    activityVC.popoverPresentationController?.sourceView = window
-                    rootVC.present(activityVC, animated: true)
-                }
-            } catch {
-                print("Export failed: \(error)")
-            }
-        }
-    }
-    
+   func exportAllUsersData() async {
+       // Create timestamp for filename
+       let dateFormatter = DateFormatter()
+       dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+       let timestamp = dateFormatter.string(from: Date())
+       
+       // Sort all quizzes alphabetically for consistent column order
+       let sortedQuizzes = viewModel.quizzes.sorted { $0.info.title < $1.info.title }
+       
+       // Create headers with quiz titles
+       var csv = "User,Account Type"
+       for quiz in sortedQuizzes {
+           // Escape any commas in quiz titles
+           let safeTitle = quiz.info.title.replacingOccurrences(of: ",", with: " ")
+           csv += ",\(safeTitle)"
+       }
+       csv += "\n"
+       
+       // Sort users alphabetically
+       let sortedUsers = viewModel.users.sorted { $0.username < $1.username }
+       
+       // Add each user as a row
+       for user in sortedUsers {
+           // Add user info
+           csv += "\(user.username),\(user.accountType ?? "")"
+           
+           // Add score for each quiz
+           for quiz in sortedQuizzes {
+               if let quizScore = user.quizScores?.first(where: { $0.quizID == quiz.id }) {
+                   let score = quizScore.scores.max() ?? 0
+                   let passed = score >= 80 ? "P" : "F" // P for passed, F for failed
+                   csv += ",\(score)(\(passed))"
+               } else if quiz.accountTypes.contains(user.accountType ?? "") {
+                   // Quiz is assigned but not attempted
+                   csv += ",Not Attempted"
+               } else {
+                   // Quiz is not assigned to this user
+                   csv += ",N/A"
+               }
+           }
+           csv += "\n"
+       }
+       
+       // Write and share the CSV file
+       if let data = csv.data(using: .utf8) {
+           let filename = "users_progress_\(timestamp).csv"
+           let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+           
+           do {
+               try data.write(to: tempURL)
+               
+               // Use MainActor for UI operations
+               await MainActor.run {
+                   let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+                   
+                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first,
+                      let rootVC = window.rootViewController {
+                       activityVC.popoverPresentationController?.sourceView = window
+                       rootVC.present(activityVC, animated: true)
+                   }
+               }
+           } catch {
+               print("Export failed: \(error)")
+           }
+       }
+   }
 }

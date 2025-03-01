@@ -1133,97 +1133,264 @@ class EditQuizViewModel: ObservableObject {
 //}
 
 
+//struct EditQuizView: View {
+//    @StateObject var viewModel: EditQuizViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var showingAddQuestion = false
+//    @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//    @State private var refreshToggle = false
+//    var onSave: (() -> Void)? // Add callback for refresh
+//    
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Section(header: Text("Quiz Details")) {
+//                    TextField("Quiz Title", text: $viewModel.quizTitle)
+//                        .disabled(true)
+//                    TextField("Description", text: $viewModel.quizDescription)
+//                    DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+//                }
+//                
+//                Section(header: Text("Renewal Settings")) {
+//                    Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
+//                        Text("None").tag(Quiz.RenewalFrequency?.none)
+//                        Text("Quarterly").tag(Quiz.RenewalFrequency?.some(.quarterly))
+//                        Text("Yearly").tag(Quiz.RenewalFrequency?.some(.yearly))
+//                        Text("Custom").tag(Quiz.RenewalFrequency?.some(.custom))
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//
+//                    if viewModel.renewalFrequency == .custom {
+//                        DatePicker("Custom Renewal Date", selection: $viewModel.customRenewalDate, displayedComponents: .date)
+//                    }
+//
+//                    if let nextRenewalDate = viewModel.nextRenewalDate {
+//                        Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
+//                    }
+//                }
+//                
+//                Section(header: Text("Account Types")) {
+//                    ForEach(AccountType.allCases, id: \.self) { accountType in
+//                        Toggle(accountType.rawValue, isOn: Binding(
+//                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+//                            set: { isOn in
+//                                if isOn {
+//                                    viewModel.toggleAccountType(accountType.rawValue)
+//                                } else {
+//                                    viewModel.toggleAccountType(accountType.rawValue)
+//                                }
+//                            }
+//                        ))
+//                    }
+//                }
+//                
+//                Section(header: Text("Assign to Users")) {
+//                    if viewModel.isLoadingUsers {
+//                        ProgressView("Loading users...")
+//                    } else if let error = viewModel.userLoadingError {
+//                        Text("Error: \(error)")
+//                            .foregroundColor(.red)
+//                    } else if viewModel.availableUsers.isEmpty {
+//                        Text("No users available")
+//                    } else {
+//                        ForEach(viewModel.availableUsers, id: \.id) { user in
+//                            Toggle(isOn: Binding(
+//                                get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+//                                set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+//                            )) {
+//                                HStack {
+//                                    Text("\(user.username) - \(user.accountType)")
+//                                    if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
+//                                        Image(systemName: "person.fill")
+//                                            .foregroundColor(.blue)
+//                                    } else if viewModel.excludedUsers.contains(user.id ?? "") {
+//                                        Image(systemName: "person.fill.xmark")
+//                                            .foregroundColor(.red)
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                
+//                Section(header: Text("Questions")) {
+//                    ForEach(viewModel.questions.indices, id: \.self) { index in
+//                        NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+//                            Text("Question \(index + 1)")
+//                        }
+//                    }
+//                    .onDelete(perform: deleteQuestion)
+//                    
+//                    Button(action: { showingAddQuestion = true }) {
+//                        Label("Add Question", systemImage: "plus")
+//                    }
+//                }
+//            }
+//            .navigationTitle("Edit Quiz")
+//            .navigationBarItems(
+//                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+//                trailing: Button("Save") { saveQuiz() }
+//            )
+//            .sheet(isPresented: $showingAddQuestion) {
+//                AddQuestionView(question: $newQuestion)
+//                    .onDisappear {
+//                        if !newQuestion.questionText.isEmpty {
+//                            viewModel.questions.append(newQuestion)
+//                            newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//                        }
+//                    }
+//            }
+//        }
+//        .id(refreshToggle)
+//        .onAppear {
+//            Task {
+//                await viewModel.fetchQuizDetails()
+//                await viewModel.fetchAvailableUsers()
+//            }
+//        }
+//    }
+//
+//    private func deleteQuestion(at offsets: IndexSet) {
+//        viewModel.questions.remove(atOffsets: offsets)
+//    }
+//
+//    private func saveQuiz() {
+//        Task {
+//            do {
+//                try await viewModel.updateQuiz()
+//                onSave?() // Call the refresh callback
+//                presentationMode.wrappedValue.dismiss()
+//            } catch {
+//                print("Error updating quiz: \(error)")
+//            }
+//        }
+//    }
+//    
+//    private let itemFormatter: DateFormatter = {
+//        let formatter = DateFormatter()
+//        formatter.dateStyle = .medium
+//        formatter.timeStyle = .short
+//        return formatter
+//    }()
+//}
+//import SwiftUI
+//import Foundation
+//import FirebaseFirestore
+
 struct EditQuizView: View {
     @StateObject var viewModel: EditQuizViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showingAddQuestion = false
     @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
     @State private var refreshToggle = false
-    var onSave: (() -> Void)? // Add callback for refresh
+    @State private var isSaving = false // Add this for the loading indicator
+    var onSave: (() -> Void)? // Callback for refresh
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Quiz Details")) {
-                    TextField("Quiz Title", text: $viewModel.quizTitle)
-                        .disabled(true)
-                    TextField("Description", text: $viewModel.quizDescription)
-                    DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
-                }
-                
-                Section(header: Text("Renewal Settings")) {
-                    Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
-                        Text("None").tag(Quiz.RenewalFrequency?.none)
-                        Text("Quarterly").tag(Quiz.RenewalFrequency?.some(.quarterly))
-                        Text("Yearly").tag(Quiz.RenewalFrequency?.some(.yearly))
-                        Text("Custom").tag(Quiz.RenewalFrequency?.some(.custom))
+            ZStack {
+                Form {
+                    Section(header: Text("Quiz Details")) {
+                        TextField("Quiz Title", text: $viewModel.quizTitle)
+                            .disabled(true)
+                        TextField("Description", text: $viewModel.quizDescription)
+                        DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
                     }
-                    .pickerStyle(SegmentedPickerStyle())
+                    
+                    Section(header: Text("Renewal Settings")) {
+                        Picker("Renewal Frequency", selection: $viewModel.renewalFrequency) {
+                            Text("None").tag(Quiz.RenewalFrequency?.none)
+                            Text("Quarterly").tag(Quiz.RenewalFrequency?.some(.quarterly))
+                            Text("Yearly").tag(Quiz.RenewalFrequency?.some(.yearly))
+                            Text("Custom").tag(Quiz.RenewalFrequency?.some(.custom))
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
 
-                    if viewModel.renewalFrequency == .custom {
-                        DatePicker("Custom Renewal Date", selection: $viewModel.customRenewalDate, displayedComponents: .date)
-                    }
+                        if viewModel.renewalFrequency == .custom {
+                            DatePicker("Custom Renewal Date", selection: $viewModel.customRenewalDate, displayedComponents: .date)
+                        }
 
-                    if let nextRenewalDate = viewModel.nextRenewalDate {
-                        Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
+                        if let nextRenewalDate = viewModel.nextRenewalDate {
+                            Text("Next Renewal: \(nextRenewalDate, formatter: itemFormatter)")
+                        }
                     }
-                }
-                
-                Section(header: Text("Account Types")) {
-                    ForEach(AccountType.allCases, id: \.self) { accountType in
-                        Toggle(accountType.rawValue, isOn: Binding(
-                            get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
-                            set: { isOn in
-                                if isOn {
-                                    viewModel.toggleAccountType(accountType.rawValue)
-                                } else {
-                                    viewModel.toggleAccountType(accountType.rawValue)
+                    
+                    Section(header: Text("Account Types")) {
+                        ForEach(AccountType.allCases, id: \.self) { accountType in
+                            Toggle(accountType.rawValue, isOn: Binding(
+                                get: { viewModel.selectedAccountTypes.contains(accountType.rawValue) },
+                                set: { isOn in
+                                    if isOn {
+                                        viewModel.toggleAccountType(accountType.rawValue)
+                                    } else {
+                                        viewModel.toggleAccountType(accountType.rawValue)
+                                    }
                                 }
-                            }
-                        ))
+                            ))
+                        }
                     }
-                }
-                
-                Section(header: Text("Assign to Users")) {
-                    if viewModel.isLoadingUsers {
-                        ProgressView("Loading users...")
-                    } else if let error = viewModel.userLoadingError {
-                        Text("Error: \(error)")
-                            .foregroundColor(.red)
-                    } else if viewModel.availableUsers.isEmpty {
-                        Text("No users available")
-                    } else {
-                        ForEach(viewModel.availableUsers, id: \.id) { user in
-                            Toggle(isOn: Binding(
-                                get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
-                                set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
-                            )) {
-                                HStack {
-                                    Text("\(user.username) - \(user.accountType)")
-                                    if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
-                                        Image(systemName: "person.fill")
-                                            .foregroundColor(.blue)
-                                    } else if viewModel.excludedUsers.contains(user.id ?? "") {
-                                        Image(systemName: "person.fill.xmark")
-                                            .foregroundColor(.red)
+                    
+                    Section(header: Text("Assign to Users")) {
+                        if viewModel.isLoadingUsers {
+                            ProgressView("Loading users...")
+                        } else if let error = viewModel.userLoadingError {
+                            Text("Error: \(error)")
+                                .foregroundColor(.red)
+                        } else if viewModel.availableUsers.isEmpty {
+                            Text("No users available")
+                        } else {
+                            ForEach(viewModel.availableUsers, id: \.id) { user in
+                                Toggle(isOn: Binding(
+                                    get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+                                    set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+                                )) {
+                                    HStack {
+                                        Text("\(user.username) - \(user.accountType)")
+                                        if viewModel.individuallyAssignedUsers.contains(user.id ?? "") {
+                                            Image(systemName: "person.fill")
+                                                .foregroundColor(.blue)
+                                        } else if viewModel.excludedUsers.contains(user.id ?? "") {
+                                            Image(systemName: "person.fill.xmark")
+                                                .foregroundColor(.red)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                
-                Section(header: Text("Questions")) {
-                    ForEach(viewModel.questions.indices, id: \.self) { index in
-                        NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
-                            Text("Question \(index + 1)")
+                    
+                    Section(header: Text("Questions")) {
+                        ForEach(viewModel.questions.indices, id: \.self) { index in
+                            NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+                                Text("Question \(index + 1)")
+                            }
+                        }
+                        .onDelete(perform: deleteQuestion)
+                        
+                        Button(action: { showingAddQuestion = true }) {
+                            Label("Add Question", systemImage: "plus")
                         }
                     }
-                    .onDelete(perform: deleteQuestion)
-                    
-                    Button(action: { showingAddQuestion = true }) {
-                        Label("Add Question", systemImage: "plus")
-                    }
+                }
+                
+                // Saving indicator overlay
+                if isSaving {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .overlay(
+                            VStack {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .padding()
+                                Text("Saving quiz...")
+                                    .foregroundColor(.white)
+                                    .font(.headline)
+                            }
+                            .padding(30)
+                            .background(Color(.systemBackground))
+                            .cornerRadius(15)
+                            .shadow(radius: 10)
+                        )
                 }
             }
             .navigationTitle("Edit Quiz")
@@ -1255,13 +1422,24 @@ struct EditQuizView: View {
     }
 
     private func saveQuiz() {
+        isSaving = true // Show loading indicator
+        
         Task {
             do {
                 try await viewModel.updateQuiz()
-                onSave?() // Call the refresh callback
-                presentationMode.wrappedValue.dismiss()
+                
+                await MainActor.run {
+                    isSaving = false // Hide loading indicator
+                    onSave?() // Call the refresh callback
+                    presentationMode.wrappedValue.dismiss()
+                }
             } catch {
                 print("Error updating quiz: \(error)")
+                
+                await MainActor.run {
+                    isSaving = false // Hide loading indicator
+                    // You could add an alert here to show the error
+                }
             }
         }
     }

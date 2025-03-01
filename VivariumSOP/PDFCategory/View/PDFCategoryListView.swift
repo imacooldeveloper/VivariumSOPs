@@ -1907,6 +1907,92 @@ struct FetchQuizView: View {
         }
     }
    
+//struct QuizButtonView: View {
+//    let subcategory: String
+//    @State private var existingQuiz: Quiz?
+//    @State private var isLoading = true
+//    @State private var showingQuizView = false
+//    @State private var errorMessage: String?
+//    @State private var showingError = false
+//    
+//    var body: some View {
+//        Group {
+//            if isLoading {
+//                ProgressView()
+//            } else {
+//                if let quiz = existingQuiz {
+//                    Button(action: {
+//                        showingQuizView = true
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "pencil.circle.fill")
+//                            Text("Edit Quiz")
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(10)
+//                    }
+//                    .padding(20)
+//                    .sheet(isPresented: $showingQuizView) {
+//                        EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+//                    }
+//                } else {
+//                    Button(action: {
+//                        showingQuizView = true
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "plus.circle.fill")
+//                            Text("Create Quiz")
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                        .background(Color.green)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(10)
+//                    }
+//                    .padding(20)
+//                    .sheet(isPresented: $showingQuizView) {
+//                        CreateQuizView(
+//                            viewModel: CreateQuizViewModel(
+//                                category: subcategory,
+//                                quizTitle: subcategory
+//                            )
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//        .alert("Error", isPresented: $showingError) {
+//            Button("OK", role: .cancel) { }
+//        } message: {
+//            Text(errorMessage ?? "An unknown error occurred")
+//        }
+//        .onAppear {
+//            checkForExistingQuiz()
+//        }
+//    }
+//    
+//    private func checkForExistingQuiz() {
+//        Task {
+//            do {
+//                let quiz = try await QuizManager.shared.getQuizForCategory(category: subcategory)
+//                await MainActor.run {
+//                    self.existingQuiz = quiz
+//                    self.isLoading = false
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    self.errorMessage = error.localizedDescription
+//                    self.showingError = true
+//                    self.isLoading = false
+//                }
+//            }
+//        }
+//    }
+//}
+
 struct QuizButtonView: View {
     let subcategory: String
     @State private var existingQuiz: Quiz?
@@ -1914,6 +2000,7 @@ struct QuizButtonView: View {
     @State private var showingQuizView = false
     @State private var errorMessage: String?
     @State private var showingError = false
+    @State private var viewId = UUID() // Add this for forcing view refresh
     
     var body: some View {
         Group {
@@ -1935,8 +2022,14 @@ struct QuizButtonView: View {
                         .cornerRadius(10)
                     }
                     .padding(20)
-                    .sheet(isPresented: $showingQuizView) {
-                        EditQuizView(viewModel: EditQuizViewModel(quiz: quiz))
+                    .sheet(isPresented: $showingQuizView, onDismiss: {
+                        // Refresh quiz data when returning from edit view
+                        checkForExistingQuiz()
+                    }) {
+                        EditQuizView(viewModel: EditQuizViewModel(quiz: quiz), onSave: {
+                            // This will be called when saving from EditQuizView
+                            checkForExistingQuiz()
+                        })
                     }
                 } else {
                     Button(action: {
@@ -1953,7 +2046,10 @@ struct QuizButtonView: View {
                         .cornerRadius(10)
                     }
                     .padding(20)
-                    .sheet(isPresented: $showingQuizView) {
+                    .sheet(isPresented: $showingQuizView, onDismiss: {
+                        // Refresh quiz data when returning from create view
+                        checkForExistingQuiz()
+                    }) {
                         CreateQuizView(
                             viewModel: CreateQuizViewModel(
                                 category: subcategory,
@@ -1964,6 +2060,7 @@ struct QuizButtonView: View {
                 }
             }
         }
+        .id(viewId) // Force view refresh when viewId changes
         .alert("Error", isPresented: $showingError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -1975,12 +2072,17 @@ struct QuizButtonView: View {
     }
     
     private func checkForExistingQuiz() {
+        isLoading = true
+        
         Task {
             do {
                 let quiz = try await QuizManager.shared.getQuizForCategory(category: subcategory)
+                
                 await MainActor.run {
                     self.existingQuiz = quiz
                     self.isLoading = false
+                    self.viewId = UUID() // Force view to refresh
+                    print("Quiz check completed: \(quiz != nil ? "Found quiz" : "No quiz found") for \(subcategory)")
                 }
             } catch {
                 await MainActor.run {
@@ -1992,6 +2094,8 @@ struct QuizButtonView: View {
         }
     }
 }
+
+
 struct PDFDetailView: View {
         @Environment(\.presentationMode) var presentationMode
         @State private var pdf: PDFCategory
@@ -2331,29 +2435,156 @@ struct PDFDetailView: View {
 //                }
 //            }
 //       
+//    private func saveChanges() {
+//        Task {
+//            do {
+//                isUploading = true
+//                
+//                // Store original values for later comparison
+//                let originalCategory = pdf.nameOfCategory
+//                let originalSubcategory = pdf.SOPForStaffTittle
+//                
+//                // If there's a pending PDF change, handle it first
+//                if hasPendingPDFChange, let url = pendingPDFURL {
+//                    let pdfData = try Data(contentsOf: url)
+//                    let newPdfName = url.deletingPathExtension().lastPathComponent
+//                    pdf.pdfName = newPdfName
+//                    
+//                    let storageManager = PDFStorageManager.shared
+//                    let newURL = try await storageManager.uploadPDF(data: pdfData, category: pdf)
+//                    pdf.pdfURL = newURL
+//                }
+//                
+//                // Check if category or subcategory has changed
+//                let isCategoryChanged = (originalCategory != pdf.nameOfCategory ||
+//                                        originalSubcategory != pdf.SOPForStaffTittle)
+//                
+//                // Update category in Firestore
+//                try await viewModel.updatePDFCategory(pdf)
+//                
+//                await MainActor.run {
+//                    isUploading = false
+//                    isEditing = false
+//                    hasChanges = false
+//                    hasPendingPDFChange = false
+//                    pendingPDFURL = nil
+//                    
+//                    // Refresh view
+//                    if let url = URL(string: pdf.pdfURL ?? "") {
+//                        pdfDocument = PDFKit.PDFDocument(url: url)
+//                    }
+//                    
+//                    if let updatedPdf = viewModel.pdfCategories.first(where: { $0.id == pdf.id }) {
+//                        pdf = updatedPdf
+//                    }
+//                    
+//                    showSuccessAlert(message: isCategoryChanged ?
+//                        "PDF moved successfully to \(pdf.nameOfCategory)/\(pdf.SOPForStaffTittle)" :
+//                        "Changes saved successfully")
+//                    
+//                    refreshID = UUID()
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showErrorAlert(message: "Error saving changes: \(error.localizedDescription)")
+//                }
+//            }
+//        }
+//    }
+    
+//    private func handlePDFSelection(_ result: Result<[URL], Error>) {
+//               switch result {
+//               case .success(let urls):
+//                   if let url = urls.first {
+//                       // Just store the URL and mark changes
+//                       pendingPDFURL = url
+//                       hasPendingPDFChange = true
+//                       hasChanges = true
+//                       
+//                       // Update PDF preview only
+//                       DispatchQueue.global(qos: .userInitiated).async {
+//                           let document = PDFKit.PDFDocument(url: url)
+//                           DispatchQueue.main.async {
+//                               self.pdfDocument = document
+//                           }
+//                       }
+//                   }
+//               case .failure(let error):
+//                   errorMessage = "Error selecting PDF: \(error.localizedDescription)"
+//               }
+//           }
+
+    
+    private func handlePDFSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            if let url = urls.first {
+                // Start accessing the security-scoped resource
+                let securityScopedSuccess = url.startAccessingSecurityScopedResource()
+                
+                if !securityScopedSuccess {
+                    errorMessage = "Permission denied: Cannot access the selected PDF file."
+                    return
+                }
+                
+                // Just store the URL and mark changes
+                pendingPDFURL = url
+                hasPendingPDFChange = true
+                hasChanges = true
+                
+                // Update PDF preview only
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        // Load the PDF document
+                        let document = PDFKit.PDFDocument(url: url)
+                        
+                        // Update UI on main thread
+                        DispatchQueue.main.async {
+                            self.pdfDocument = document
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self.errorMessage = "Error loading PDF: \(error.localizedDescription)"
+                        }
+                    }
+                }
+                
+                // Note: Don't stop accessing resource here, as we need it for later
+                // The resource access will be stopped in saveChanges() after the file is uploaded
+            }
+        case .failure(let error):
+            errorMessage = "Error selecting PDF: \(error.localizedDescription)"
+        }
+    }
+
     private func saveChanges() {
         Task {
             do {
                 isUploading = true
                 
-                // Store original values for later comparison
-                let originalCategory = pdf.nameOfCategory
-                let originalSubcategory = pdf.SOPForStaffTittle
-                
                 // If there's a pending PDF change, handle it first
                 if hasPendingPDFChange, let url = pendingPDFURL {
-                    let pdfData = try Data(contentsOf: url)
-                    let newPdfName = url.deletingPathExtension().lastPathComponent
-                    pdf.pdfName = newPdfName
-                    
-                    let storageManager = PDFStorageManager.shared
-                    let newURL = try await storageManager.uploadPDF(data: pdfData, category: pdf)
-                    pdf.pdfURL = newURL
+                    do {
+                        // The URL should still have access granted from handlePDFSelection
+                        let pdfData = try Data(contentsOf: url)
+                        let newPdfName = url.deletingPathExtension().lastPathComponent
+                        pdf.pdfName = newPdfName
+                        
+                        let storageManager = PDFStorageManager.shared
+                        let newURL = try await storageManager.uploadPDF(data: pdfData, category: pdf)
+                        pdf.pdfURL = newURL
+                        
+                        // Now that we've uploaded the data, stop accessing the resource
+                        url.stopAccessingSecurityScopedResource()
+                    } catch {
+                        await MainActor.run {
+                            isUploading = false
+                            showErrorAlert(message: "Error reading or uploading PDF: \(error.localizedDescription)")
+                        }
+                        return
+                    }
                 }
-                
-                // Check if category or subcategory has changed
-                let isCategoryChanged = (originalCategory != pdf.nameOfCategory ||
-                                        originalSubcategory != pdf.SOPForStaffTittle)
                 
                 // Update category in Firestore
                 try await viewModel.updatePDFCategory(pdf)
@@ -2369,16 +2600,11 @@ struct PDFDetailView: View {
                     if let url = URL(string: pdf.pdfURL ?? "") {
                         pdfDocument = PDFKit.PDFDocument(url: url)
                     }
-                    
                     if let updatedPdf = viewModel.pdfCategories.first(where: { $0.id == pdf.id }) {
                         pdf = updatedPdf
                     }
-                    
-                    showSuccessAlert(message: isCategoryChanged ?
-                        "PDF moved successfully to \(pdf.nameOfCategory)/\(pdf.SOPForStaffTittle)" :
-                        "Changes saved successfully")
-                    
-                    refreshID = UUID()
+                    showSuccessAlert(message: "Changes saved successfully")
+                    self.refreshID = UUID()
                 }
             } catch {
                 await MainActor.run {
@@ -2389,28 +2615,8 @@ struct PDFDetailView: View {
         }
     }
     
-    private func handlePDFSelection(_ result: Result<[URL], Error>) {
-               switch result {
-               case .success(let urls):
-                   if let url = urls.first {
-                       // Just store the URL and mark changes
-                       pendingPDFURL = url
-                       hasPendingPDFChange = true
-                       hasChanges = true
-                       
-                       // Update PDF preview only
-                       DispatchQueue.global(qos: .userInitiated).async {
-                           let document = PDFKit.PDFDocument(url: url)
-                           DispatchQueue.main.async {
-                               self.pdfDocument = document
-                           }
-                       }
-                   }
-               case .failure(let error):
-                   errorMessage = "Error selecting PDF: \(error.localizedDescription)"
-               }
-           }
-//        private func updatePDF(url: URL) {
+    
+    //        private func updatePDF(url: URL) {
 //            isUploading = true
 //            errorMessage = nil
 //

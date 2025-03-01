@@ -707,11 +707,300 @@ import UniformTypeIdentifiers
 //    }
 //}
 
+//struct CreateQuizView: View {
+//    @StateObject var viewModel: CreateQuizViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var showingAddQuestion = false
+//    @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//
+//    var body: some View {
+//        NavigationView {
+//            ZStack {
+//                if viewModel.isLoading {
+//                    ProgressView("Loading...")
+//                        .scaleEffect(1.5)
+//                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                        .background(Color.black.opacity(0.1))
+//                        .edgesIgnoringSafeArea(.all)
+//                } else {
+//                    Form {
+//                        Section(header: Text("Quiz Details")) {
+//                            Text("Category: \(viewModel.quizCategory)")
+//                            TextField("Quiz Title", text: $viewModel.quizTitle)
+//                            TextField("Description", text: $viewModel.quizDescription)
+//                            DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+//                        }
+//                        
+//                        Section(header: Text("Account Types")) {
+//                            ForEach(viewModel.availableAccountTypes, id: \.self) { accountType in
+//                                Toggle(accountType, isOn: Binding(
+//                                    get: { viewModel.selectedAccountTypes.contains(accountType) },
+//                                    set: { _ in viewModel.toggleAccountType(accountType) }
+//                                ))
+//                            }
+//                        }
+//                        
+//                        Section(header: Text("Assign to Users")) {
+//                            if viewModel.availableUsers.isEmpty {
+//                                Text("No users available")
+//                            } else {
+//                                ForEach(viewModel.availableUsers, id: \.id) { user in
+//                                    Toggle(isOn: Binding(
+//                                        get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+//                                        set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+//                                    )) {
+//                                        Text("\(user.firstName) \(user.lastName) - \(user.accountType)")
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        Section(header: Text("VERIFICATION TYPE")) {
+//                                                  Picker("Verification Type", selection: $viewModel.verificationType) {
+//                                                      ForEach(Quiz.VerificationType.allCases, id: \.self) { type in
+//                                                          Text(type.displayTitle).tag(type)
+//                                                      }
+//                                                  }
+//                                                  .pickerStyle(.menu)
+//                                                  
+//                                                  if viewModel.verificationType != .quiz {
+//                                                      TextField("Acknowledgment Text", text: $viewModel.acknowledgmentText, axis: .vertical)
+//                                                          .lineLimit(3...6)
+//                                                  }
+//                                              }
+//
+//                                              if viewModel.verificationType != .acknowledgment {
+//                                                  Section(header: Text("Questions")) {
+//                                                      ForEach(viewModel.questions.indices, id: \.self) { index in
+//                                                          NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+//                                                              Text("Question \(index + 1)")
+//                                                          }
+//                                                      }
+//                                                      .onDelete(perform: deleteQuestion)
+//                                                      
+//                                                      Button(action: { showingAddQuestion = true }) {
+//                                                          Label("Add Question", systemImage: "plus")
+//                                                      }
+//                                                  }
+//                                              }
+//                                          }
+//                                      }
+//                                  }
+//                                  .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
+//                       .navigationBarItems(
+//                           leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+//                           trailing: Button("Save") { saveQuiz() }
+//                       )
+//                       .sheet(isPresented: $showingAddQuestion) {
+//                           AddQuestionView(question: $newQuestion)
+//                               .onDisappear {
+//                                   if !newQuestion.questionText.isEmpty {
+//                                       viewModel.questions.append(newQuestion)
+//                                       newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//                                   }
+//                               }
+//                       }
+//                       .alert(item: Binding<AlertItem?>(
+//                           get: { viewModel.alert.map { AlertItem(title: $0.title, message: $0.message) } },
+//                           set: { viewModel.alert = $0.map { ($0.title, $0.message) } }
+//                       )) { alert in
+//                           Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
+//                       }
+//                       .onAppear {
+//                           Task {
+//                               await viewModel.loadDatas()
+//                           }
+//                       }
+//                   }
+//               }
+//    
+//    private func deleteQuestion(at offsets: IndexSet) {
+//        viewModel.questions.remove(atOffsets: offsets)
+//    }
+//    
+//    private func saveQuiz() {
+//           Task {
+//               do {
+//                   try await viewModel.uploadQuiz()
+//                   presentationMode.wrappedValue.dismiss()
+//               } catch {
+//                   print("Error saving quiz: \(error)")
+//                   await MainActor.run {
+//                       viewModel.alert = ("Error", "Failed to save quiz: \(error.localizedDescription)")
+//                   }
+//               }
+//           }
+//       }
+//}
+//
+//
+//import SwiftUI
+
+//struct CreateQuizView: View {
+//    @StateObject var viewModel: CreateQuizViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var showingAddQuestion = false
+//    @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//    @State private var isSaving = false // Add this for the loading indicator
+//
+//    var body: some View {
+//        NavigationView {
+//            ZStack {
+//                if viewModel.isLoading {
+//                    ProgressView("Loading...")
+//                        .scaleEffect(1.5)
+//                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                        .background(Color.black.opacity(0.1))
+//                        .edgesIgnoringSafeArea(.all)
+//                } else {
+//                    Form {
+//                        Section(header: Text("Quiz Details")) {
+//                            Text("Category: \(viewModel.quizCategory)")
+//                            TextField("Quiz Title", text: $viewModel.quizTitle)
+//                            TextField("Description", text: $viewModel.quizDescription)
+//                            DatePicker("Due Date", selection: $viewModel.quizDueDate, displayedComponents: .date)
+//                        }
+//                        
+//                        Section(header: Text("Account Types")) {
+//                            ForEach(viewModel.availableAccountTypes, id: \.self) { accountType in
+//                                Toggle(accountType, isOn: Binding(
+//                                    get: { viewModel.selectedAccountTypes.contains(accountType) },
+//                                    set: { _ in viewModel.toggleAccountType(accountType) }
+//                                ))
+//                            }
+//                        }
+//                        
+//                        Section(header: Text("Assign to Users")) {
+//                            if viewModel.availableUsers.isEmpty {
+//                                Text("No users available")
+//                            } else {
+//                                ForEach(viewModel.availableUsers, id: \.id) { user in
+//                                    Toggle(isOn: Binding(
+//                                        get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
+//                                        set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
+//                                    )) {
+//                                        Text("\(user.firstName) \(user.lastName) - \(user.accountType)")
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        Section(header: Text("VERIFICATION TYPE")) {
+//                            Picker("Verification Type", selection: $viewModel.verificationType) {
+//                                ForEach(Quiz.VerificationType.allCases, id: \.self) { type in
+//                                    Text(type.displayTitle).tag(type)
+//                                }
+//                            }
+//                            .pickerStyle(.menu)
+//                            
+//                            if viewModel.verificationType != .quiz {
+//                                TextField("Acknowledgment Text", text: $viewModel.acknowledgmentText, axis: .vertical)
+//                                    .lineLimit(3...6)
+//                            }
+//                        }
+//
+//                        if viewModel.verificationType != .acknowledgment {
+//                            Section(header: Text("Questions")) {
+//                                ForEach(viewModel.questions.indices, id: \.self) { index in
+//                                    NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+//                                        Text("Question \(index + 1)")
+//                                    }
+//                                }
+//                                .onDelete(perform: deleteQuestion)
+//                                
+//                                Button(action: { showingAddQuestion = true }) {
+//                                    Label("Add Question", systemImage: "plus")
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                
+//                // Saving indicator overlay
+//                if isSaving {
+//                    Color.black.opacity(0.4)
+//                        .edgesIgnoringSafeArea(.all)
+//                        .overlay(
+//                            VStack {
+//                                ProgressView()
+//                                    .scaleEffect(1.5)
+//                                    .padding()
+//                                Text("Saving quiz...")
+//                                    .foregroundColor(.white)
+//                                    .font(.headline)
+//                            }
+//                            .padding(30)
+//                            .background(Color(.systemBackground))
+//                            .cornerRadius(15)
+//                            .shadow(radius: 10)
+//                        )
+//                }
+//            }
+//            .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
+//            .navigationBarItems(
+//                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+//                trailing: Button("Save") { saveQuiz() }
+//            )
+//            .sheet(isPresented: $showingAddQuestion) {
+//                AddQuestionView(question: $newQuestion)
+//                    .onDisappear {
+//                        if !newQuestion.questionText.isEmpty {
+//                            viewModel.questions.append(newQuestion)
+//                            newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+//                        }
+//                    }
+//            }
+//            .alert(item: Binding<AlertItem?>(
+//                get: { viewModel.alert.map { AlertItem(title: $0.title, message: $0.message) } },
+//                set: { viewModel.alert = $0.map { ($0.title, $0.message) } }
+//            )) { alert in
+//                Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
+//            }
+//            .onAppear {
+//                Task {
+//                    await viewModel.loadDatas()
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func deleteQuestion(at offsets: IndexSet) {
+//        viewModel.questions.remove(atOffsets: offsets)
+//    }
+//    
+//    private func saveQuiz() {
+//        isSaving = true // Show loading indicator
+//        
+//        Task {
+//            do {
+//                try await viewModel.uploadQuiz()
+//                
+//                // Return to the main thread to update UI
+//                await MainActor.run {
+//                    isSaving = false // Hide loading indicator
+//                    presentationMode.wrappedValue.dismiss()
+//                }
+//            } catch {
+//                print("Error saving quiz: \(error)")
+//                
+//                // Return to the main thread to update UI
+//                await MainActor.run {
+//                    isSaving = false // Hide loading indicator
+//                    viewModel.alert = ("Error", "Failed to save quiz: \(error.localizedDescription)")
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//import SwiftUI
+
 struct CreateQuizView: View {
     @StateObject var viewModel: CreateQuizViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showingAddQuestion = false
     @State private var newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+    @State private var isSaving = false // Add this for the loading indicator
 
     var body: some View {
         NavigationView {
@@ -746,91 +1035,132 @@ struct CreateQuizView: View {
                                 Text("No users available")
                             } else {
                                 ForEach(viewModel.availableUsers, id: \.id) { user in
+                                    // When user selection changes, only call toggleUserSelection without touching account types
                                     Toggle(isOn: Binding(
                                         get: { viewModel.selectedUserIDs.contains(user.id ?? "") },
                                         set: { _ in viewModel.toggleUserSelection(user.id ?? "") }
                                     )) {
-                                        Text("\(user.firstName) \(user.lastName) - \(user.accountType)")
+                                        HStack {
+                                            Text("\(user.firstName) \(user.lastName) - \(user.accountType)")
+                                            
+                                            // Indicate if user is selected through individual selection
+                                            if viewModel.selectedUserIDs.contains(user.id ?? "") &&
+                                               !viewModel.selectedAccountTypes.contains(user.accountType) {
+                                                Image(systemName: "person.fill")
+                                                    .foregroundColor(.blue)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        
                         Section(header: Text("VERIFICATION TYPE")) {
-                                                  Picker("Verification Type", selection: $viewModel.verificationType) {
-                                                      ForEach(Quiz.VerificationType.allCases, id: \.self) { type in
-                                                          Text(type.displayTitle).tag(type)
-                                                      }
-                                                  }
-                                                  .pickerStyle(.menu)
-                                                  
-                                                  if viewModel.verificationType != .quiz {
-                                                      TextField("Acknowledgment Text", text: $viewModel.acknowledgmentText, axis: .vertical)
-                                                          .lineLimit(3...6)
-                                                  }
-                                              }
+                            Picker("Verification Type", selection: $viewModel.verificationType) {
+                                ForEach(Quiz.VerificationType.allCases, id: \.self) { type in
+                                    Text(type.displayTitle).tag(type)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            
+                            if viewModel.verificationType != .quiz {
+                                TextField("Acknowledgment Text", text: $viewModel.acknowledgmentText, axis: .vertical)
+                                    .lineLimit(3...6)
+                            }
+                        }
 
-                                              if viewModel.verificationType != .acknowledgment {
-                                                  Section(header: Text("Questions")) {
-                                                      ForEach(viewModel.questions.indices, id: \.self) { index in
-                                                          NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
-                                                              Text("Question \(index + 1)")
-                                                          }
-                                                      }
-                                                      .onDelete(perform: deleteQuestion)
-                                                      
-                                                      Button(action: { showingAddQuestion = true }) {
-                                                          Label("Add Question", systemImage: "plus")
-                                                      }
-                                                  }
-                                              }
-                                          }
-                                      }
-                                  }
-                                  .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
-                       .navigationBarItems(
-                           leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
-                           trailing: Button("Save") { saveQuiz() }
-                       )
-                       .sheet(isPresented: $showingAddQuestion) {
-                           AddQuestionView(question: $newQuestion)
-                               .onDisappear {
-                                   if !newQuestion.questionText.isEmpty {
-                                       viewModel.questions.append(newQuestion)
-                                       newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
-                                   }
-                               }
-                       }
-                       .alert(item: Binding<AlertItem?>(
-                           get: { viewModel.alert.map { AlertItem(title: $0.title, message: $0.message) } },
-                           set: { viewModel.alert = $0.map { ($0.title, $0.message) } }
-                       )) { alert in
-                           Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
-                       }
-                       .onAppear {
-                           Task {
-                               await viewModel.loadDatas()
-                           }
-                       }
-                   }
-               }
+                        if viewModel.verificationType != .acknowledgment {
+                            Section(header: Text("Questions")) {
+                                ForEach(viewModel.questions.indices, id: \.self) { index in
+                                    NavigationLink(destination: EditQuestionView(question: $viewModel.questions[index])) {
+                                        Text("Question \(index + 1)")
+                                    }
+                                }
+                                .onDelete(perform: deleteQuestion)
+                                
+                                Button(action: { showingAddQuestion = true }) {
+                                    Label("Add Question", systemImage: "plus")
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Saving indicator overlay
+                if isSaving {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .overlay(
+                            VStack {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .padding()
+                                Text("Saving quiz...")
+                                    .foregroundColor(.white)
+                                    .font(.headline)
+                            }
+                            .padding(30)
+                            .background(Color(.systemBackground))
+                            .cornerRadius(15)
+                            .shadow(radius: 10)
+                        )
+                }
+            }
+            .navigationTitle(viewModel.quizExists ? "Edit Quiz" : "Create Quiz")
+            .navigationBarItems(
+                leading: Button("Cancel") { presentationMode.wrappedValue.dismiss() },
+                trailing: Button("Save") { saveQuiz() }
+            )
+            .sheet(isPresented: $showingAddQuestion) {
+                AddQuestionView(question: $newQuestion)
+                    .onDisappear {
+                        if !newQuestion.questionText.isEmpty {
+                            viewModel.questions.append(newQuestion)
+                            newQuestion = Question(questionText: "", options: ["", "", "", ""], answer: "")
+                        }
+                    }
+            }
+            .alert(item: Binding<AlertItem?>(
+                get: { viewModel.alert.map { AlertItem(title: $0.title, message: $0.message) } },
+                set: { viewModel.alert = $0.map { ($0.title, $0.message) } }
+            )) { alert in
+                Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
+            }
+            .onAppear {
+                Task {
+                    await viewModel.loadDatas()
+                }
+            }
+        }
+    }
     
     private func deleteQuestion(at offsets: IndexSet) {
         viewModel.questions.remove(atOffsets: offsets)
     }
     
     private func saveQuiz() {
-           Task {
-               do {
-                   try await viewModel.uploadQuiz()
-                   presentationMode.wrappedValue.dismiss()
-               } catch {
-                   print("Error saving quiz: \(error)")
-                   await MainActor.run {
-                       viewModel.alert = ("Error", "Failed to save quiz: \(error.localizedDescription)")
-                   }
-               }
-           }
-       }
+        isSaving = true // Show loading indicator
+        
+        Task {
+            do {
+                try await viewModel.uploadQuiz()
+                
+                // Return to the main thread to update UI
+                await MainActor.run {
+                    isSaving = false // Hide loading indicator
+                    presentationMode.wrappedValue.dismiss()
+                }
+            } catch {
+                print("Error saving quiz: \(error)")
+                
+                // Return to the main thread to update UI
+                await MainActor.run {
+                    isSaving = false // Hide loading indicator
+                    viewModel.alert = ("Error", "Failed to save quiz: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
 }
 
 struct AddQuestionView: View {
