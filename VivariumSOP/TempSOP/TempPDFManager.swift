@@ -18,7 +18,7 @@ class TempPDFManager {
 
     func uploadTempPDF(data: Data, organizationId: String, category: String, subcategory: String, filename: String) async throws -> String {
         // Construct storage path
-        let path = "temp_pdfs/\(organizationId)/\(category)/\(subcategory)/\(filename).pdf"
+        let path = "pdfs/\(organizationId)/\(category)/\(subcategory)/\(filename).pdf"
         let storageRef = storage.reference().child(path)
 
         // Upload file to Firebase Storage

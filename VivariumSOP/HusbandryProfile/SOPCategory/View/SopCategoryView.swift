@@ -202,17 +202,19 @@ struct SOPCategoryListView: View {
 
 final class SOPCategoryListViewModel: ObservableObject {
     @Published var SOPCategoryList: [SOPCategory] = []
+    @AppStorage("organizationId") private var organizationId: String = ""
     
     var sopService: SOPService?
+    
     @MainActor
     func fecthSOPCategoryList(category: String) async throws {
         do {
-         
-            SOPCategoryList = try await CategoryManager.shared.getCategoryList(title: category)
-           // sopService?.nameOFCategory = category
-            
+            // Get categories and filter by organization ID
+            let categories = try await CategoryManager.shared.getCategoryList(title: category)
+            SOPCategoryList = categories.filter { $0.organizationId == organizationId }
         } catch {
-            print("error")
+            print("Error fetching SOP categories: \(error)")
+            throw error
         }
     }
 }
@@ -223,7 +225,6 @@ struct SOPCategoryView: View {
     @EnvironmentObject var service: SOPService
     @StateObject var vm = SOPCategoryViewModel()
     
-    // Adaptive columns based on size class
     @Environment(\.horizontalSizeClass) var sizeClass
     
     var columns: [GridItem] {

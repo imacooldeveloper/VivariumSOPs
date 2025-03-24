@@ -43,8 +43,12 @@ final class SOPCategoryViewModel: ObservableObject {
     @MainActor
        func fecthCagetoryList() async throws {
            do {
-               // Now using the stored organizationId
-               categoryList = try await CategoryManager.shared.getAllCategory(for: organizationId)
+               // Filter categories by organizationId
+               let allCategories = try await CategoryManager.shared.getAllCategory(for: organizationId)
+               
+               // Sort and filter categories that belong to this organization
+               categoryList = allCategories
+                   .filter { $0.organizationId == organizationId }
                    .sorted { $0.categoryTitle < $1.categoryTitle }
                
                if let firstCategory = categoryList.first {

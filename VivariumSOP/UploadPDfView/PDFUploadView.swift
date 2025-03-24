@@ -288,7 +288,7 @@ import PDFKit
 //import PDFKit
 
 struct PDFUploadView: View {
-    @ObservedObject var viewModel: PDFCategoryViewModel
+    @EnvironmentObject var viewModel: PDFCategoryViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedPDFs: [URL] = []
     @State private var showFileImporter = false
@@ -431,10 +431,6 @@ struct PDFUploadView: View {
                     Task {
                         await viewModel.fetchCategories()
                     }
-                }
-                if !viewModel.uniqueCategories.isEmpty {
-                    selectedFolder = viewModel.uniqueCategories[0]
-                    fetchExistingSOPTitles(for: selectedFolder)
                 }
             }
         }

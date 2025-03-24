@@ -223,7 +223,7 @@ class PDFStorageManager: ObservableObject {
 //        }
     @MainActor
        func uploadPDF(data: Data, category: PDFCategory) async throws -> String {
-           let folderPath = "pdfs/\(category.nameOfCategory)/\(category.SOPForStaffTittle)"
+           let folderPath = "pdfs/\(category.organizationId)/\(category.nameOfCategory)/\(category.SOPForStaffTittle)"
            let filename = "\(category.pdfName).pdf"
            let fullPath = "\(folderPath)/\(filename)"
            
@@ -263,7 +263,7 @@ class PDFStorageManager: ObservableObject {
             }
             
             let oldStorageRef = storage.reference(forURL: oldURL.absoluteString)
-            let newFolderPath = "pdfs/\(newCategory.nameOfCategory)/\(newCategory.SOPForStaffTittle)"
+            let newFolderPath = "pdfs/\(newCategory.organizationId)/\(newCategory.nameOfCategory)/\(newCategory.SOPForStaffTittle)"
             let newFilename = "\(newCategory.pdfName).pdf"
             let newFullPath = "\(newFolderPath)/\(newFilename)"
             let newStorageRef = storage.reference().child(newFullPath)

@@ -113,9 +113,10 @@ struct VivariumSOPApp: App {
                              .environmentObject(sharedViewModel)
                              .environmentObject(buildingViewModel)
                              .environmentObject(userViewModel)
-//                             .onAppear {
-//                                        notificationManager.requestAuthorization()
-//                                    }
+                             .task {
+                                 // Fetch categories when the main view appears
+                                 await sharedViewModel.fetchCategories()
+                             }
                      }
                  } else {
                      LoginView()

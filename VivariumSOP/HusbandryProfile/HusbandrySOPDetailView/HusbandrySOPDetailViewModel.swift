@@ -45,7 +45,8 @@ class PDFViewModel: ObservableObject {
     }
     //@MainActor
     func fetchPDFs(folderName: String, category: String, pdfName: String) {
-        let pdfsRef = storageRef.child("pdfs/\(folderName)/\(category)/\(pdfName)/")
+        guard let organizationId = Auth.auth().currentUser?.uid else { return }
+        let pdfsRef = storageRef.child("pdfs/\(organizationId)/\(folderName)/\(category)/\(pdfName)/")
         var tempDocuments: [PDFDocuments] = []
         let dispatchGroup = DispatchGroup()
 

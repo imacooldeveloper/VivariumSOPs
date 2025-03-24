@@ -178,9 +178,7 @@ class PDFCategoryViewModel: ObservableObject {
     init() {
         print("PDFCategoryViewModel initialized")
         Task {
-            await fetchPDFCategories()
-            await fetchSOPCategories()
-            await fetchCategoriesonHome()
+            await fetchCategories()  // This will now properly fetch organization-specific categories
         }
     }
     
@@ -453,21 +451,33 @@ class PDFCategoryViewModel: ObservableObject {
        }
     
      func fetchCategories() async {
-           do {
-               let snapshot = try await db.collection("categoryList")
-                   .whereField("organizationId", isEqualTo: organizationId)
-                   .getDocuments()
-                   
-               await MainActor.run {
-                   self.categories = snapshot.documents.compactMap { document in
-                       try? document.data(as: Category.self)
-                   }
-                   self.uniqueCategories = Array(Set(self.categories.map { $0.categoryTitle })).sorted()
-               }
-           } catch {
-               print("Error fetching categories: \(error.localizedDescription)")
-           }
-       }
+        isLoading = true
+        do {
+            // First, fetch categories from categoryList collection
+            let categorySnapshot = try await db.collection("categoryList")
+                .whereField("organizationId", isEqualTo: organizationId)
+                .getDocuments()
+            
+            let categories = categorySnapshot.documents.compactMap { document -> String? in
+                let data = document.data()
+                return data["categoryTitle"] as? String
+            }
+            
+            // Update uniqueCategories with organization-specific categories
+            await MainActor.run {
+                self.uniqueCategories = Array(Set(categories)).sorted()
+            }
+            
+            // Then fetch PDFs for these categories
+            await fetchPDFCategories()
+            
+        } catch {
+            print("Error fetching categories: \(error.localizedDescription)")
+            await MainActor.run {
+                self.isLoading = false
+            }
+        }
+    }
     
 
     @MainActor
@@ -479,25 +489,27 @@ class PDFCategoryViewModel: ObservableObject {
         }
 
     private func fetchPDFCategories() async {
-           isLoading = true
-           do {
-               let snapshot = try await Firestore.firestore()
-                   .collection("PDFCategory")
-                   .whereField("organizationId", isEqualTo: organizationId)
-                   .getDocuments()
-               
-               let fetchedCategories = try snapshot.documents.compactMap { document in
-                   try document.data(as: PDFCategory.self)
-               }
-               
-               self.pdfCategories = fetchedCategories
-               self.updateUniqueCategories()
-               self.isLoading = false
-           } catch {
-               print("Error fetching categories: \(error.localizedDescription)")
-               self.isLoading = false
-           }
-       }
+        do {
+            let snapshot = try await db.collection("PDFCategory")
+                .whereField("organizationId", isEqualTo: organizationId)
+                .getDocuments()
+            
+            let fetchedCategories = try snapshot.documents.compactMap { document in
+                try document.data(as: PDFCategory.self)
+            }
+            
+            await MainActor.run {
+                self.pdfCategories = fetchedCategories
+                self.isLoading = false
+            }
+            
+        } catch {
+            print("Error fetching PDF categories: \(error.localizedDescription)")
+            await MainActor.run {
+                self.isLoading = false
+            }
+        }
+    }
     
 
     
