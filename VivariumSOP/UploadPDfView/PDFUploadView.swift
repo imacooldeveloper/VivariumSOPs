@@ -15,6 +15,278 @@ import PDFKit
 
 
 
+//struct PDFUploadView: View {
+//    @ObservedObject var viewModel: PDFCategoryViewModel
+//    @Environment(\.presentationMode) var presentationMode
+//    @State private var selectedPDFs: [URL] = []
+//    @State private var showFileImporter = false
+//    @State private var selectedFolder = ""
+//    @State private var sopForStaffTitle = ""
+//    @State private var isUploading = false
+//    @State private var showAlert = false
+//    @State private var alertTitle = ""
+//    @State private var alertMessage = ""
+//    @State private var isSuccess = false
+//    @State private var currentUploadingPDF = ""
+//    @State private var uploadProgress: Double = 0
+//    @State private var showingTemplateSOPs = false
+//    @State private var existingSOPTitles: [String] = []
+//    @State private var isNewSOP = true // Toggle between new and existing SOP
+//    @State private var selectedExistingSOP = "" // For existing SOP selection
+//    @AppStorage("organizationId") private var organizationId: String = ""
+//    
+//    private var isTitleValid: Bool {
+//        if isNewSOP {
+//            return !sopForStaffTitle.isEmpty && !existingSOPTitles.contains(sopForStaffTitle)
+//        } else {
+//            return !selectedExistingSOP.isEmpty
+//        }
+//    }
+//    
+//    var body: some View {
+//        NavigationView {
+//            Form {
+//                Section(header: Text("Category Selection")) {
+//                    Picker("Select Folder", selection: $selectedFolder) {
+//                        ForEach(viewModel.uniqueCategories, id: \.self) { folder in
+//                            Text(folder).tag(folder)
+//                        }
+//                    }
+//                    .onChange(of: selectedFolder) { newValue in
+//                        fetchExistingSOPTitles(for: newValue)
+//                    }
+//                }
+//                
+//                Section(header: Text("SOP Selection")) {
+//                    Picker("SOP Type", selection: $isNewSOP) {
+//                        Text("New SOP").tag(true)
+//                        Text("Existing SOP").tag(false)
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//                    
+//                    if isNewSOP {
+//                        TextField("New SOP Title", text: $sopForStaffTitle)
+//                            .padding()
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 5)
+//                                    .stroke(!isTitleValid ? Color.red : Color.clear, lineWidth: 1)
+//                            )
+//                        
+//                        if !sopForStaffTitle.isEmpty && existingSOPTitles.contains(sopForStaffTitle) {
+//                            Text("This SOP Title already exists")
+//                                .font(.caption)
+//                                .foregroundColor(.red)
+//                        }
+//                    } else {
+//                        Picker("Select Existing SOP", selection: $selectedExistingSOP) {
+//                            Text("Select an SOP").tag("")
+//                            ForEach(existingSOPTitles, id: \.self) { title in
+//                                Text(title).tag(title)
+//                            }
+//                        }
+//                    }
+//                }
+//                
+//                Section(header: Text("Template SOPs")) {
+//                    Button(action: {
+//                        showingTemplateSOPs = true
+//                    }) {
+//                        HStack {
+//                            Image(systemName: "doc.fill.badge.plus")
+//                            Text("Browse Template SOPs")
+//                        }
+//                    }
+//                }
+//                
+//                Section(header: Text("Selected PDFs")) {
+//                    if selectedPDFs.isEmpty {
+//                        Text("No PDFs selected")
+//                            .foregroundColor(.gray)
+//                    } else {
+//                        ForEach(selectedPDFs, id: \.self) { url in
+//                            Text(url.lastPathComponent)
+//                        }
+//                        .onDelete(perform: deletePDFs)
+//                    }
+//                }
+//                
+//                Section {
+//                    Button("Select PDFs") {
+//                        showFileImporter = true
+//                    }
+//                    
+//                    Button("Upload PDFs") {
+//                        uploadPDFs()
+//                    }
+//                    .disabled(!isTitleValid || selectedPDFs.isEmpty || selectedFolder.isEmpty)
+//                }
+//            }
+//            .navigationTitle("Add New PDFs")
+//            .fileImporter(
+//                isPresented: $showFileImporter,
+//                allowedContentTypes: [.pdf],
+//                allowsMultipleSelection: true
+//            ) { result in
+//                handleFileImport(result)
+//            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(
+//                    title: Text(alertTitle),
+//                    message: Text(alertMessage),
+//                    dismissButton: .default(Text("OK")) {
+//                        if isSuccess {
+//                            presentationMode.wrappedValue.dismiss()
+//                        }
+//                    }
+//                )
+//            }
+//            .overlay(uploadProgressView)
+//            .onAppear {
+//                if viewModel.uniqueCategories.isEmpty {
+//                    Task {
+//                        await viewModel.fetchCategories()
+//                    }
+//                }
+//                if !viewModel.uniqueCategories.isEmpty {
+//                    selectedFolder = viewModel.uniqueCategories[0]
+//                    fetchExistingSOPTitles(for: selectedFolder)
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func fetchExistingSOPTitles(for category: String) {
+//        Task {
+//            do {
+//                let sopCategories = try await viewModel.getCategoryList(for: organizationId, title: category)
+//                await MainActor.run {
+//                    existingSOPTitles = sopCategories.map { $0.SOPForStaffTittle }
+//                }
+//            } catch {
+//                print("Error fetching SOP titles: \(error)")
+//            }
+//        }
+//    }
+//    
+//    private func uploadPDFs() {
+//        Task {
+//            do {
+//                // Immediately update UI state on the main thread
+//                await MainActor.run {
+//                    isUploading = true
+//                    uploadProgress = 0.01 // Start with a small visible progress
+//                    currentUploadingPDF = selectedPDFs.first?.lastPathComponent ?? "Starting upload..."
+//                }
+//                
+//                let title = isNewSOP ? sopForStaffTitle : selectedExistingSOP
+//                
+//                try await viewModel.uploadAllPDFs(
+//                    selectedPDFs: selectedPDFs,
+//                    selectedTemplates: [],
+//                    folder: selectedFolder,
+//                    title: title,
+//                    onProgress: { progress, currentFile in
+//                        // We need to make sure UI updates happen on the main thread
+//                        DispatchQueue.main.async {
+//                            // Ensure progress is never 0 to show some initial progress
+//                            self.uploadProgress = max(0.01, progress)
+//                            self.currentUploadingPDF = currentFile
+//                        }
+//                    }
+//                )
+//                
+//                await MainActor.run {
+//                    uploadProgress = 1.0 // Ensure we show 100% at the end
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                        self.isUploading = false
+//                        self.showAlert(title: "Success", message: "All PDFs uploaded successfully", isSuccess: true)
+//                    }
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    isUploading = false
+//                    showAlert(title: "Error", message: "Error uploading PDFs: \(error.localizedDescription)", isSuccess: false)
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func handleFileImport(_ result: Result<[URL], Error>) {
+//        switch result {
+//        case .success(let urls):
+//            for url in urls {
+//                guard url.startAccessingSecurityScopedResource() else { continue }
+//                defer { url.stopAccessingSecurityScopedResource() }
+//                selectedPDFs.append(url)
+//            }
+//        case .failure(let error):
+//            showAlert(title: "Error", message: "Error selecting PDFs: \(error.localizedDescription)", isSuccess: false)
+//        }
+//    }
+//    
+//    private func deletePDFs(at offsets: IndexSet) {
+//        selectedPDFs.remove(atOffsets: offsets)
+//    }
+//    
+//    private func showAlert(title: String, message: String, isSuccess: Bool) {
+//        alertTitle = title
+//        alertMessage = message
+//        self.isSuccess = isSuccess
+//        showAlert = true
+//    }
+//    
+//    private var uploadProgressView: some View {
+//        Group {
+//            if isUploading {
+//                ZStack {
+//                    Color.black.opacity(0.4)
+//                        .edgesIgnoringSafeArea(.all)
+//                    
+//                    VStack(spacing: 20) {
+//                        Text("Uploading \(currentUploadingPDF)...")
+//                            .foregroundColor(.primary)
+//                            .padding(.bottom, 5)
+//                        
+//                        // Linear progress bar
+//                        GeometryReader { geometry in
+//                            ZStack(alignment: .leading) {
+//                                // Background of the progress bar
+//                                Rectangle()
+//                                    .frame(width: geometry.size.width, height: 20)
+//                                    .opacity(0.3)
+//                                    .foregroundColor(.gray)
+//                                
+//                                // Foreground of the progress bar
+//                                Rectangle()
+//                                    .frame(width: geometry.size.width * CGFloat(uploadProgress), height: 20)
+//                                    .foregroundColor(.blue)
+//                                    .animation(.linear, value: uploadProgress)
+//                            }
+//                            .cornerRadius(10)
+//                        }
+//                        .frame(height: 20)
+//                        .frame(width: 250)
+//                        
+//                        Text("\(Int(uploadProgress * 100))%")
+//                            .foregroundColor(.primary)
+//                            .font(.headline)
+//                            .bold()
+//                    }
+//                    .padding()
+//                    .background(Color(.systemBackground))
+//                    .cornerRadius(10)
+//                    .shadow(radius: 10)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//import SwiftUI
+//import UniformTypeIdentifiers
+//import Firebase
+//import PDFKit
+
 struct PDFUploadView: View {
     @ObservedObject var viewModel: PDFCategoryViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -34,6 +306,9 @@ struct PDFUploadView: View {
     @State private var isNewSOP = true // Toggle between new and existing SOP
     @State private var selectedExistingSOP = "" // For existing SOP selection
     @AppStorage("organizationId") private var organizationId: String = ""
+    
+    // Add this state variable for the upload confirmation alert
+    @State private var showingUploadConfirmation = false
     
     private var isTitleValid: Bool {
         if isNewSOP {
@@ -116,7 +391,8 @@ struct PDFUploadView: View {
                     }
                     
                     Button("Upload PDFs") {
-                        uploadPDFs()
+                        // Show confirmation alert instead of immediately uploading
+                        showingUploadConfirmation = true
                     }
                     .disabled(!isTitleValid || selectedPDFs.isEmpty || selectedFolder.isEmpty)
                 }
@@ -139,6 +415,15 @@ struct PDFUploadView: View {
                         }
                     }
                 )
+            }
+            // Add the confirmation alert
+            .alert("Confirm Upload", isPresented: $showingUploadConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Upload", role: .none) {
+                    uploadPDFs()
+                }
+            } message: {
+                Text("Are you sure you want to upload \(selectedPDFs.count) PDF\(selectedPDFs.count > 1 ? "s" : "") to \(isNewSOP ? sopForStaffTitle : selectedExistingSOP)?")
             }
             .overlay(uploadProgressView)
             .onAppear {

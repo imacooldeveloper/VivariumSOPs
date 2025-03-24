@@ -10,7 +10,7 @@
 
 import Foundation
 import PDFKit
-import OpenAISwift
+//import OpenAISwift
 
 import Foundation
 import PDFKit

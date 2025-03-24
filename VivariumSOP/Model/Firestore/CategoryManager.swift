@@ -303,8 +303,9 @@ class CategoryManager {
         
         // Delete the category itself
         let categoryQuery = categoryCollection
-            .whereField("categoryTitle", isEqualTo: category)
             .whereField("organizationId", isEqualTo: organizationId)
+            .whereField("categoryTitle", isEqualTo: category)
+          
         
         let categoryDocs = try await categoryQuery.getDocumentsWithSnapshot(as: Categorys.self)
         for doc in categoryDocs {
@@ -394,8 +395,9 @@ class CategoryManager {
             do {
                 print("Querying category documents")
                 let categoryDocs = try await categoryCollection
-                    .whereField("categoryTitle", isEqualTo: category)
                     .whereField("organizationId", isEqualTo: organizationId)
+                    .whereField("categoryTitle", isEqualTo: category)
+                   
                     .getDocuments()
                 
                 print("Found \(categoryDocs.documents.count) category documents")
